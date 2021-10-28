@@ -1,8 +1,11 @@
 package rules
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/MarcGrol/userautomation/actions"
-	"github.com/MarcGrol/userautomation/api"
+	"github.com/MarcGrol/userautomation/core"
 	"github.com/MarcGrol/userautomation/userlookup"
 )
 
@@ -12,29 +15,32 @@ type addToGroupUserRule struct {
 	groupApi   actions.GroupApi
 }
 
-func NewAddToGroupUserRule(userLookup userlookup.UserLookuper, groupApi actions.GroupApi) api.UserRule {
+func NewAddToGroupUserRule(userLookup userlookup.UserLookuper, groupApi actions.GroupApi) core.UserRule {
 	return &addToGroupUserRule{
 		userLookup: userLookup,
 		groupApi:   groupApi,
 	}
 }
 
-func (r addToGroupUserRule) ApplicableFor(event api.Event) bool {
+func (r *addToGroupUserRule) ApplicableFor(event core.Event) bool {
 	r.userUID = event.UserUID
 	return event.EventName == "UserRegistered"
 }
 
-func (r addToGroupUserRule) DetermineAudience() ([]api.User, error) {
+func (r *addToGroupUserRule) DetermineAudience() ([]core.User, error) {
 	user, err := r.userLookup.GetUserOnUid(r.userUID)
 	if err != nil {
 		return nil, err
 	}
-	return []api.User{user}, nil
+	return []core.User{user}, nil
 }
 
-func (r addToGroupUserRule) ApplyAction(users []api.User) error {
+func (r *addToGroupUserRule) ApplyAction(users []core.User) error {
 	for _, u := range users {
-		groupName := r.deriveGroupFromEmailDomain(u)
+		groupName, err := r.deriveGroupFromEmailDomain(u.EmailAddress)
+		if err != nil {
+			return err
+		}
 
 		exists, err := r.groupApi.GroupExists(groupName)
 		if err != nil {
@@ -50,6 +56,10 @@ func (r addToGroupUserRule) ApplyAction(users []api.User) error {
 	return nil
 }
 
-func (r addToGroupUserRule) deriveGroupFromEmailDomain(user api.User) string {
-	return "tesla.com"
+func (r *addToGroupUserRule) deriveGroupFromEmailDomain(userEmail string) (string, error) {
+	parts := strings.Split(userEmail, "@")
+	if len(parts) != 2 {
+		return "", fmt.Errorf("Email address %s cannot be splitted", userEmail)
+	}
+	return parts[1], nil
 }

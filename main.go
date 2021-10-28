@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/MarcGrol/userautomation/actions"
-	"github.com/MarcGrol/userautomation/api"
+	"github.com/MarcGrol/userautomation/core"
 	"github.com/MarcGrol/userautomation/rules"
 	"github.com/MarcGrol/userautomation/userlookup"
 )
@@ -14,7 +14,7 @@ func main() {
 
 	userRules := rules.GetUserRules(userLookup, userGrouper, emailer)
 
-	event := api.Event{
+	event := core.Event{
 		EventName: "Timer",
 		Payload:   map[string]interface{}{},
 	}

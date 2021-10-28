@@ -1,32 +1,42 @@
 package rules
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 
+	"github.com/MarcGrol/userautomation/actions"
+	"github.com/MarcGrol/userautomation/core"
 	"github.com/MarcGrol/userautomation/userlookup"
-
 )
 
-func TestIt(  t *testing.T) {
+func TestIt(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	userLookup := userlookup.NewMockUserLookuper(ctrl)
-	groupApi := actions.NewGroupApi(ctrl)
+	groupApi := actions.NewMockGroupApi(ctrl)
 
 	// setup expectations
-	userLookup.EXPECT().GetUserOnUid().Return()
+	userLookup.EXPECT().GetUserOnUid("123").Return(user, nil)
+	groupApi.EXPECT().GroupExists("work.nl").Return(true, nil)
+	groupApi.EXPECT().AddUserToGroup("work.nl", "123").Return(nil)
 
-	sut := NewAddToGroupUserRule(userLookup, groupApi),
+	sut := NewAddToGroupUserRule(userLookup, groupApi)
 
-	event := api.Event{
-		EventName: "Timer",
+	err := core.EvaluateUserRule(sut, core.Event{
+		EventName: "UserRegistered",
+		UserUID:   "123",
 		Payload:   map[string]interface{}{},
-	}
-
-	err := EvaluateUserRule(sut, event)
+	})
 	assert.NoError(t, err)
+}
 
+var user = core.User{
+	UserUID:      "123",
+	EmailAddress: "123@work.nl",
+	PhoneNumber:  "+31612345678",
+	CommunityUID: "xebia",
+	Payload:      map[string]interface{}{},
 }

@@ -7,7 +7,7 @@ package userlookup
 import (
 	reflect "reflect"
 
-	api "github.com/MarcGrol/userautomation/api"
+	api "github.com/MarcGrol/userautomation/core"
 	gomock "github.com/golang/mock/gomock"
 )
 
