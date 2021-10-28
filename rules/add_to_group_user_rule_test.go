@@ -11,7 +11,7 @@ import (
 	"github.com/MarcGrol/userautomation/userlookup"
 )
 
-func TestIt(t *testing.T) {
+func TestAddToGroup(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -19,7 +19,13 @@ func TestIt(t *testing.T) {
 	groupApi := actions.NewMockGroupApi(ctrl)
 
 	// setup expectations
-	userLookup.EXPECT().GetUserOnUid("123").Return(user, nil)
+	userLookup.EXPECT().GetUserOnUid("123").Return(core.User{
+		UserUID:      "123",
+		EmailAddress: "123@work.nl",
+		PhoneNumber:  "+31612345678",
+		CommunityUID: "xebia",
+		Payload:      map[string]interface{}{},
+	}, nil)
 	groupApi.EXPECT().GroupExists("work.nl").Return(true, nil)
 	groupApi.EXPECT().AddUserToGroup("work.nl", "123").Return(nil)
 
@@ -31,12 +37,4 @@ func TestIt(t *testing.T) {
 		Payload:   map[string]interface{}{},
 	})
 	assert.NoError(t, err)
-}
-
-var user = core.User{
-	UserUID:      "123",
-	EmailAddress: "123@work.nl",
-	PhoneNumber:  "+31612345678",
-	CommunityUID: "xebia",
-	Payload:      map[string]interface{}{},
 }

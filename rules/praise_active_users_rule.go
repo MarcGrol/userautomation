@@ -37,7 +37,7 @@ func (r *praiseActiveUsersRule) ApplyAction(users []core.User) error {
 		if err != nil {
 			return err
 		}
-		body, err := utils.ApplyTemplate("praiseActiveUsersRule-body", "Hi {{FirstName}}, well done", u.Payload)
+		body, err := utils.ApplyTemplate("praiseActiveUsersRule-body", "Hi {{.FirstName}}, well done", u.Payload)
 		if err != nil {
 			return err
 		}
