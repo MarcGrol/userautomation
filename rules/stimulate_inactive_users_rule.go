@@ -19,6 +19,10 @@ func NewStimulateInactiveUserRule(userLookup userlookup.UserLookuper, emailer ac
 	}
 }
 
+func (r *stimulateInactiveUsersRule) Name() string {
+	return "StimulateInactiveUsers"
+}
+
 func (r *stimulateInactiveUsersRule) ApplicableFor(event core.Event) bool {
 	return event.EventName == "Timer"
 }

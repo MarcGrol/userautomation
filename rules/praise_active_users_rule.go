@@ -19,6 +19,10 @@ func NewPraiseActiveUserRule(userLookup userlookup.UserLookuper, emailer actions
 	}
 }
 
+func (r *praiseActiveUsersRule) Name() string {
+	return "PraiseActiveUsers"
+}
+
 func (r *praiseActiveUsersRule) ApplicableFor(event core.Event) bool {
 	return event.EventName == "Timer"
 }

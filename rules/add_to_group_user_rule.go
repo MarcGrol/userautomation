@@ -22,6 +22,10 @@ func NewAddToGroupUserRule(userLookup userlookup.UserLookuper, groupApi actions.
 	}
 }
 
+func (r *addToGroupUserRule) Name() string {
+	return "AddUserToGroup"
+}
+
 func (r *addToGroupUserRule) ApplicableFor(event core.Event) bool {
 	r.userUID = event.UserUID
 	return event.EventName == "UserRegistered"
