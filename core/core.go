@@ -1,5 +1,7 @@
 package core
 
+import "log"
+
 type Event struct {
 	EventName    string
 	UserUID      string
@@ -18,22 +20,27 @@ type User struct {
 type UserRule interface {
 	ApplicableFor(event Event) bool
 	DetermineAudience() ([]User, error)
-	ApplyAction(aud []User) error
+	ApplyAction(user User) error
 }
 
 func EvaluateUserRule(r UserRule, event Event) error {
 	if !r.ApplicableFor(event) {
+		log.Printf("Event  %s not supported by rule", event.EventName)
 		return nil
 	}
 
-	aud, err := r.DetermineAudience()
+	users, err := r.DetermineAudience()
 	if err != nil {
+		log.Printf("Error fetching audience for rule: %s", err)
 		return err
 	}
 
-	err = r.ApplyAction(aud)
-	if err != nil {
-		return err
+	for _, user := range users {
+		err = r.ApplyAction(user)
+		if err != nil {
+			log.Printf("Error applying action for rule: %s", err)
+			return err
+		}
 	}
 
 	return nil

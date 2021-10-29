@@ -18,25 +18,40 @@ func TestPraiseActiveUser(t *testing.T) {
 	userLookup := userlookup.NewMockUserLookuper(ctrl)
 	emailer := actions.NewMockEmailer(ctrl)
 
-	// setup expectations
-	userLookup.EXPECT().GetUserOnQuery("publishCount > 10 && loginCount > 20").Return([]core.User{
+	testCases := []struct {
+		name              string
+		event             core.Event
+		setupExpectations func()
+		expectedResult    error
+	}{
 		{
-			UserUID:      "123",
-			EmailAddress: "123@work.nl",
-			PhoneNumber:  "+31612345678",
-			CommunityUID: "xebia",
-			Payload: map[string]interface{}{
-				"FirstName": "Marc",
+			name: "Unsupported event",
+			event: core.Event{
+				EventName: "UserRegistered",
+				Payload:   map[string]interface{}{},
 			},
+			setupExpectations: func() {},
+			expectedResult:    nil,
 		},
-	}, nil)
-	emailer.EXPECT().Send("123@work.nl", "We praise your activity", "Hi Marc, well done").Return(nil)
-
-	sut := NewPraiseActiveUserRule(userLookup, emailer)
-
-	err := core.EvaluateUserRule(sut, core.Event{
-		EventName: "Timer",
-		Payload:   map[string]interface{}{},
-	})
-	assert.NoError(t, err)
+		{
+			name: "Supported event",
+			event: core.Event{
+				EventName: "Timer",
+				Payload:   map[string]interface{}{},
+			},
+			setupExpectations: func() {
+				userLookup.EXPECT().GetUserOnQuery("publishCount > 10 && loginCount > 20").Return([]core.User{testUser}, nil)
+				emailer.EXPECT().Send("123@work.nl", "We praise your activity", "Hi Marc, well done").Return(nil)
+			},
+			expectedResult: nil,
+		},
+	}
+	for _, tc := range testCases {
+		sut := NewPraiseActiveUserRule(userLookup, emailer)
+		t.Run(tc.name, func(t *testing.T) {
+			tc.setupExpectations()
+			err := core.EvaluateUserRule(sut, tc.event)
+			assert.NoError(t, err)
+		})
+	}
 }

@@ -31,21 +31,21 @@ func (r *praiseActiveUsersRule) DetermineAudience() ([]core.User, error) {
 	return users, nil
 }
 
-func (r *praiseActiveUsersRule) ApplyAction(users []core.User) error {
-	for _, u := range users {
-		subject, err := utils.ApplyTemplate("praiseActiveUsersRule-subject", "We praise your activity", u.Payload)
-		if err != nil {
-			return err
-		}
-		body, err := utils.ApplyTemplate("praiseActiveUsersRule-body", "Hi {{.FirstName}}, well done", u.Payload)
-		if err != nil {
-			return err
-		}
-
-		err = r.emailer.Send(u.EmailAddress, subject, body)
-		if err != nil {
-			return err
-		}
+func (r *praiseActiveUsersRule) ApplyAction(user core.User) error {
+	subject, err := utils.ApplyTemplate("praiseActiveUsersRule-subject", "We praise your activity", user.Payload)
+	if err != nil {
+		return err
 	}
+
+	body, err := utils.ApplyTemplate("praiseActiveUsersRule-body", "Hi {{.FirstName}}, well done", user.Payload)
+	if err != nil {
+		return err
+	}
+
+	err = r.emailer.Send(user.EmailAddress, subject, body)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

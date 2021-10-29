@@ -31,21 +31,20 @@ func (r *stimulateInactiveUsersRule) DetermineAudience() ([]core.User, error) {
 	return users, nil
 }
 
-func (r *stimulateInactiveUsersRule) ApplyAction(users []core.User) error {
-	for _, u := range users {
-		subject, err := utils.ApplyTemplate("stimulateInactiveUserRule-subject", "We are dissapointed", u.Payload)
-		if err != nil {
-			return err
-		}
-		body, err := utils.ApplyTemplate("stimulateInactiveUserRule-body", "Hi {{FirstName}}, do more", u.Payload)
-		if err != nil {
-			return err
-		}
-
-		err = r.emailer.Send(u.EmailAddress, subject, body)
-		if err != nil {
-			return err
-		}
+func (r *stimulateInactiveUsersRule) ApplyAction(user core.User) error {
+	subject, err := utils.ApplyTemplate("stimulateInactiveUserRule-subject", "We are dissapointed", user.Payload)
+	if err != nil {
+		return err
 	}
+	body, err := utils.ApplyTemplate("stimulateInactiveUserRule-body", "Hi {{FirstName}}, do more", user.Payload)
+	if err != nil {
+		return err
+	}
+
+	err = r.emailer.Send(user.EmailAddress, subject, body)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

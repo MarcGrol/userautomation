@@ -35,22 +35,21 @@ func (r *addToGroupUserRule) DetermineAudience() ([]core.User, error) {
 	return []core.User{user}, nil
 }
 
-func (r *addToGroupUserRule) ApplyAction(users []core.User) error {
-	for _, u := range users {
-		groupName, err := r.deriveGroupFromEmailDomain(u.EmailAddress)
-		if err != nil {
-			return err
-		}
+func (r *addToGroupUserRule) ApplyAction(user core.User) error {
+	groupName, err := r.deriveGroupFromEmailDomain(user.EmailAddress)
+	if err != nil {
+		return err
+	}
 
-		exists, err := r.groupApi.GroupExists(groupName)
+	exists, err := r.groupApi.GroupExists(groupName)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		err = r.groupApi.AddUserToGroup(groupName, user.UserUID)
 		if err != nil {
 			return err
-		}
-		if exists {
-			err = r.groupApi.AddUserToGroup(groupName, u.UserUID)
-			if err != nil {
-				return err
-			}
 		}
 	}
 	return nil
