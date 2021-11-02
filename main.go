@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/MarcGrol/userautomation/actions"
 	"github.com/MarcGrol/userautomation/core"
 	"github.com/MarcGrol/userautomation/rules"
@@ -19,5 +20,5 @@ func main() {
 		Payload:   map[string]interface{}{},
 	}
 
-	rules.EvaluateAllUserRules(userRules, event)
+	rules.EvaluateAllUserRules(context.TODO(), userRules, event)
 }

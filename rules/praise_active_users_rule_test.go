@@ -1,6 +1,7 @@
 package rules
 
 import (
+	"context"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -40,8 +41,8 @@ func TestPraiseActiveUser(t *testing.T) {
 				Payload:   map[string]interface{}{},
 			},
 			setupExpectations: func() {
-				userLookup.EXPECT().GetUserOnQuery("publishCount > 10 && loginCount > 20").Return([]core.User{testUser}, nil)
-				emailer.EXPECT().Send("123@work.nl", "We praise your activity", "Hi Marc, well done").Return(nil)
+				userLookup.EXPECT().GetUserOnQuery(gomock.Any(), "publishCount > 10 && loginCount > 20").Return([]core.User{testUser}, nil)
+				emailer.EXPECT().Send(gomock.Any(), "123@work.nl", "We praise your activity", "Hi Marc, well done").Return(nil)
 			},
 			expectedResult: nil,
 		},
@@ -50,7 +51,7 @@ func TestPraiseActiveUser(t *testing.T) {
 		sut := NewPraiseActiveUserRule(userLookup, emailer)
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setupExpectations()
-			err := core.EvaluateUserRule(sut, tc.event)
+			err := core.EvaluateUserRule(context.TODO(), sut, tc.event)
 			assert.NoError(t, err)
 		})
 	}

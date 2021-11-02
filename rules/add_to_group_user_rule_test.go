@@ -1,6 +1,7 @@
 package rules
 
 import (
+	"context"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -41,9 +42,9 @@ func TestAddToGroup(t *testing.T) {
 				Payload:   map[string]interface{}{},
 			},
 			setupExpectations: func() {
-				userLookup.EXPECT().GetUserOnUid("123").Return(testUser, nil)
-				groupApi.EXPECT().GroupExists("work.nl").Return(true, nil)
-				groupApi.EXPECT().AddUserToGroup("work.nl", "123").Return(nil)
+				userLookup.EXPECT().GetUserOnUid(gomock.Any(), "123").Return(testUser, nil)
+				groupApi.EXPECT().GroupExists(gomock.Any(), "work.nl").Return(true, nil)
+				groupApi.EXPECT().AddUserToGroup(gomock.Any(), "work.nl", "123").Return(nil)
 			},
 			expectedResult: nil,
 		},
@@ -52,7 +53,7 @@ func TestAddToGroup(t *testing.T) {
 		sut := NewAddToGroupUserRule(userLookup, groupApi)
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setupExpectations()
-			err := core.EvaluateUserRule(sut, tc.event)
+			err := core.EvaluateUserRule(context.TODO(), sut, tc.event)
 			assert.NoError(t, err)
 		})
 	}

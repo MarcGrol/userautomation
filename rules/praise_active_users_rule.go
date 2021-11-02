@@ -1,6 +1,7 @@
 package rules
 
 import (
+	"context"
 	"github.com/MarcGrol/userautomation/actions"
 	"github.com/MarcGrol/userautomation/core"
 	"github.com/MarcGrol/userautomation/userlookup"
@@ -27,15 +28,15 @@ func (r *praiseActiveUsersRule) ApplicableFor(event core.Event) bool {
 	return event.EventName == "Timer"
 }
 
-func (r *praiseActiveUsersRule) DetermineAudience() ([]core.User, error) {
-	users, err := r.userLookup.GetUserOnQuery("publishCount > 10 && loginCount > 20")
+func (r *praiseActiveUsersRule) DetermineAudience(c context.Context) ([]core.User, error) {
+	users, err := r.userLookup.GetUserOnQuery(c, "publishCount > 10 && loginCount > 20")
 	if err != nil {
 		return []core.User{}, err
 	}
 	return users, nil
 }
 
-func (r *praiseActiveUsersRule) ApplyAction(user core.User) error {
+func (r *praiseActiveUsersRule) ApplyAction(c context.Context, user core.User) error {
 	subject, err := utils.ApplyTemplate("praiseActiveUsersRule-subject", "We praise your activity", user.Payload)
 	if err != nil {
 		return err
@@ -46,7 +47,7 @@ func (r *praiseActiveUsersRule) ApplyAction(user core.User) error {
 		return err
 	}
 
-	err = r.emailer.Send(user.EmailAddress, subject, body)
+	err = r.emailer.Send(c, user.EmailAddress, subject, body)
 	if err != nil {
 		return err
 	}

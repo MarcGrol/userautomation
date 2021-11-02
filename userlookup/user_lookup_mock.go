@@ -5,9 +5,10 @@
 package userlookup
 
 import (
+	context "context"
 	reflect "reflect"
 
-	api "github.com/MarcGrol/userautomation/core"
+	core "github.com/MarcGrol/userautomation/core"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -35,31 +36,31 @@ func (m *MockUserLookuper) EXPECT() *MockUserLookuperMockRecorder {
 }
 
 // GetUserOnUid mocks base method.
-func (m *MockUserLookuper) GetUserOnUid(uid string) (api.User, error) {
+func (m *MockUserLookuper) GetUserOnUid(c context.Context, uid string) (core.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserOnUid", uid)
-	ret0, _ := ret[0].(api.User)
+	ret := m.ctrl.Call(m, "GetUserOnUid", c, uid)
+	ret0, _ := ret[0].(core.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUserOnUid indicates an expected call of GetUserOnUid.
-func (mr *MockUserLookuperMockRecorder) GetUserOnUid(uid interface{}) *gomock.Call {
+func (mr *MockUserLookuperMockRecorder) GetUserOnUid(c, uid interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserOnUid", reflect.TypeOf((*MockUserLookuper)(nil).GetUserOnUid), uid)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserOnUid", reflect.TypeOf((*MockUserLookuper)(nil).GetUserOnUid), c, uid)
 }
 
 // GetUserOnQuery mocks base method.
-func (m *MockUserLookuper) GetUserOnQuery(whereClause string) ([]api.User, error) {
+func (m *MockUserLookuper) GetUserOnQuery(c context.Context, whereClause string) ([]core.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserOnQuery", whereClause)
-	ret0, _ := ret[0].([]api.User)
+	ret := m.ctrl.Call(m, "GetUserOnQuery", c, whereClause)
+	ret0, _ := ret[0].([]core.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUserOnQuery indicates an expected call of GetUserOnQuery.
-func (mr *MockUserLookuperMockRecorder) GetUserOnQuery(whereClause interface{}) *gomock.Call {
+func (mr *MockUserLookuperMockRecorder) GetUserOnQuery(c, whereClause interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserOnQuery", reflect.TypeOf((*MockUserLookuper)(nil).GetUserOnQuery), whereClause)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserOnQuery", reflect.TypeOf((*MockUserLookuper)(nil).GetUserOnQuery), c, whereClause)
 }

@@ -1,6 +1,7 @@
 package rules
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -31,27 +32,27 @@ func (r *addToGroupUserRule) ApplicableFor(event core.Event) bool {
 	return event.EventName == "UserRegistered"
 }
 
-func (r *addToGroupUserRule) DetermineAudience() ([]core.User, error) {
-	user, err := r.userLookup.GetUserOnUid(r.userUID)
+func (r *addToGroupUserRule) DetermineAudience(c context.Context) ([]core.User, error) {
+	user, err := r.userLookup.GetUserOnUid(c, r.userUID)
 	if err != nil {
 		return nil, err
 	}
 	return []core.User{user}, nil
 }
 
-func (r *addToGroupUserRule) ApplyAction(user core.User) error {
+func (r *addToGroupUserRule) ApplyAction(c context.Context, user core.User) error {
 	groupName, err := r.deriveGroupFromEmailDomain(user.EmailAddress)
 	if err != nil {
 		return err
 	}
 
-	exists, err := r.groupApi.GroupExists(groupName)
+	exists, err := r.groupApi.GroupExists(c, groupName)
 	if err != nil {
 		return err
 	}
 
 	if exists {
-		err = r.groupApi.AddUserToGroup(groupName, user.UserUID)
+		err = r.groupApi.AddUserToGroup(c, groupName, user.UserUID)
 		if err != nil {
 			return err
 		}

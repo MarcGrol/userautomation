@@ -5,6 +5,7 @@
 package actions
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,30 +35,30 @@ func (m *MockGroupApi) EXPECT() *MockGroupApiMockRecorder {
 }
 
 // GroupExists mocks base method.
-func (m *MockGroupApi) GroupExists(groupUid string) (bool, error) {
+func (m *MockGroupApi) GroupExists(c context.Context, groupUid string) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GroupExists", groupUid)
+	ret := m.ctrl.Call(m, "GroupExists", c, groupUid)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GroupExists indicates an expected call of GroupExists.
-func (mr *MockGroupApiMockRecorder) GroupExists(groupUid interface{}) *gomock.Call {
+func (mr *MockGroupApiMockRecorder) GroupExists(c, groupUid interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GroupExists", reflect.TypeOf((*MockGroupApi)(nil).GroupExists), groupUid)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GroupExists", reflect.TypeOf((*MockGroupApi)(nil).GroupExists), c, groupUid)
 }
 
 // AddUserToGroup mocks base method.
-func (m *MockGroupApi) AddUserToGroup(groupName, userUid string) error {
+func (m *MockGroupApi) AddUserToGroup(c context.Context, groupName, userUid string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddUserToGroup", groupName, userUid)
+	ret := m.ctrl.Call(m, "AddUserToGroup", c, groupName, userUid)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddUserToGroup indicates an expected call of AddUserToGroup.
-func (mr *MockGroupApiMockRecorder) AddUserToGroup(groupName, userUid interface{}) *gomock.Call {
+func (mr *MockGroupApiMockRecorder) AddUserToGroup(c, groupName, userUid interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUserToGroup", reflect.TypeOf((*MockGroupApi)(nil).AddUserToGroup), groupName, userUid)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUserToGroup", reflect.TypeOf((*MockGroupApi)(nil).AddUserToGroup), c, groupName, userUid)
 }

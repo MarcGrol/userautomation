@@ -5,6 +5,7 @@
 package actions
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,15 +35,15 @@ func (m *MockEmailer) EXPECT() *MockEmailerMockRecorder {
 }
 
 // Send mocks base method.
-func (m *MockEmailer) Send(recipient, subject, body string) error {
+func (m *MockEmailer) Send(c context.Context, recipient, subject, body string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Send", recipient, subject, body)
+	ret := m.ctrl.Call(m, "Send", c, recipient, subject, body)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Send indicates an expected call of Send.
-func (mr *MockEmailerMockRecorder) Send(recipient, subject, body interface{}) *gomock.Call {
+func (mr *MockEmailerMockRecorder) Send(c, recipient, subject, body interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Send", reflect.TypeOf((*MockEmailer)(nil).Send), recipient, subject, body)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Send", reflect.TypeOf((*MockEmailer)(nil).Send), c, recipient, subject, body)
 }
