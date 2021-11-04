@@ -29,10 +29,31 @@ func main() {
 	adjustFreekAgain(ctx, userService) // old-rule fires, email actio
 }
 
+func preprovisionUsers(ctx context.Context, userService realtimecore.UserService) {
+	createMarc(ctx, userService)
+	createEva(ctx, userService)
+}
+
+func createMarc(ctx context.Context, userService realtimecore.UserService) {
+	err := userService.Put(ctx, realtimecore.User{
+		UID:      "1",
+		FullName: "Marc Grol",
+		Attributes: map[string]interface{}{
+			"firstname":    "Marc Grol",
+			"emailaddress": "marc@home.nl",
+			"phonenumber":  "+31611111111",
+			"age":          50, // old
+		},
+	})
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
 func adjustMarc(ctx context.Context, userService realtimecore.UserService) {
 	err := userService.Put(ctx, realtimecore.User{
 		UID:      "1",
-		FullName: "Marc",
+		FullName: "Marc Grol",
 		Attributes: map[string]interface{}{
 			"firstname":    "Marc",
 			"emailaddress": "marc@home.nl",
@@ -52,10 +73,28 @@ func deleteMarc(ctx context.Context, userService realtimecore.UserService) {
 	}
 }
 
+func createEva(ctx context.Context, userService realtimecore.UserService) {
+
+	err := userService.Put(ctx, realtimecore.User{
+		UID:      "2",
+		FullName: "Eva Berkhout",
+		Attributes: map[string]interface{}{
+			"firstname":    "Eva",
+			"emailaddress": "eva@home.nl",
+			"phonenumber":  "+31622222222",
+			"age":          48, // old
+		},
+	})
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+
 func createFreek(ctx context.Context, userService realtimecore.UserService) {
 	err := userService.Put(ctx, realtimecore.User{
 		UID:      "3",
-		FullName: "Freek",
+		FullName: "Freek Grol",
 		Attributes: map[string]interface{}{
 			"firstname":    "Freek",
 			"emailaddress": "freek@home.nl",
@@ -71,7 +110,7 @@ func createFreek(ctx context.Context, userService realtimecore.UserService) {
 func adjustFreek(ctx context.Context, userService realtimecore.UserService) {
 	err := userService.Put(ctx, realtimecore.User{
 		UID:      "3",
-		FullName: "Freek",
+		FullName: "Freek Grol",
 		Attributes: map[string]interface{}{
 			"firstname":    "Freek",
 			"emailaddress": "freek@home.nl",
@@ -87,50 +126,12 @@ func adjustFreek(ctx context.Context, userService realtimecore.UserService) {
 func adjustFreekAgain(ctx context.Context, userService realtimecore.UserService) {
 	err := userService.Put(ctx, realtimecore.User{
 		UID:      "3",
-		FullName: "Freek",
+		FullName: "Freek Grol",
 		Attributes: map[string]interface{}{
 			"firstname":    "Freek",
 			"emailaddress": "freek@home.nl",
 			"phonenumber":  "+31633333333",
 			"age":          41, // big increase in age, now old
-		},
-	})
-	if err != nil {
-		log.Fatalln(err)
-	}
-}
-
-func preprovisionUsers(ctx context.Context, userService realtimecore.UserService) {
-	createMarc(ctx, userService)
-	createEva(ctx, userService)
-}
-
-func createMarc(ctx context.Context, userService realtimecore.UserService) {
-	err := userService.Put(ctx, realtimecore.User{
-		UID:      "1",
-		FullName: "Marc",
-		Attributes: map[string]interface{}{
-			"firstname":    "Marc",
-			"emailaddress": "marc@home.nl",
-			"phonenumber":  "+31611111111",
-			"age":          50, // old
-		},
-	})
-	if err != nil {
-		log.Fatalln(err)
-	}
-}
-
-func createEva(ctx context.Context, userService realtimecore.UserService) {
-
-	err := userService.Put(ctx, realtimecore.User{
-		UID:      "2",
-		FullName: "Eva",
-		Attributes: map[string]interface{}{
-			"firstname":    "Eva",
-			"emailaddress": "eva@home.nl",
-			"phonenumber":  "+31622222222",
-			"age":          48, // old
 		},
 	})
 	if err != nil {
