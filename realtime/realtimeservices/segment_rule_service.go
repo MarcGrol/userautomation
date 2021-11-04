@@ -2,8 +2,9 @@ package realtimeservices
 
 import (
 	"context"
-	"github.com/MarcGrol/userautomation/realtime/realtimecore"
 	"sync"
+
+	"github.com/MarcGrol/userautomation/realtime/realtimecore"
 )
 
 type userSegmentRuleService struct {

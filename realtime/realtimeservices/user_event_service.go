@@ -3,15 +3,16 @@ package realtimeservices
 import (
 	"context"
 	"fmt"
+
 	"github.com/MarcGrol/userautomation/realtime/realtimecore"
 )
 
 type userEventHandler struct {
-	pubsub Pubsub
+	pubsub realtimecore.Pubsub
 	ruleService realtimecore.SegmentRuleService
 }
 
-func NewUserEventHandler(pubsub Pubsub, ruleService realtimecore.SegmentRuleService) realtimecore.UserEventService {
+func NewUserEventHandler(pubsub realtimecore.Pubsub, ruleService realtimecore.SegmentRuleService) realtimecore.UserEventService {
 	return &userEventHandler{
 		pubsub: pubsub,
 		ruleService: ruleService,
@@ -39,25 +40,27 @@ func (s *userEventHandler) onUserCreated(ctx context.Context, user realtimecore.
 	return s.onUserEvent(ctx, realtimecore.UserCreated, user)
 }
 
-func (s *userEventHandler) onUserModified(ctx context.Context, before realtimecore.User, user realtimecore.User) error {
+func (s *userEventHandler) onUserModified(ctx context.Context, oldState realtimecore.User, newState realtimecore.User) error {
 	rules, err := s.ruleService.List(ctx)
 	if err != nil {
 		return fmt.Errorf("Error fetching rules: %s", err)
 	}
 
 	for _, rule := range rules {
-		applicableBefore, err := rule.IsApplicableForUser(ctx, before)
+		ruleApplicableBefore, err := rule.IsApplicableForUser(ctx, oldState)
 		if err != nil {
-			return fmt.Errorf("Error determining if rule is applicable for user: %s", err)
+			return fmt.Errorf("Error determining if rule is applicable for newState: %s", err)
 		}
-		applicableAfter, err := rule.IsApplicableForUser(ctx, user)
+
+		ruleApplicableAfter, err := rule.IsApplicableForUser(ctx, newState)
 		if err != nil {
-			return fmt.Errorf("Error determining if rule is applicable for user: %s", err)
+			return fmt.Errorf("Error determining if rule is applicable for newState: %s", err)
 		}
-		if !applicableBefore && applicableAfter {
-			err = rule.PerformAction(ctx, rule.Name, realtimecore.UserModified, user)
+
+		if !ruleApplicableBefore && ruleApplicableAfter {
+			err = rule.PerformAction(ctx, rule.Name, realtimecore.UserModified, newState)
 			if err != nil {
-				return fmt.Errorf("Error performing action for rule %s and us	er %s: %s", rule.Name, user.FullName, err)
+				return fmt.Errorf("Error performing action for rule %s and us	er %s: %s", rule.Name, newState.UID, err)
 			}
 		} else {
 			// do not execute the action if the user already belongs to this segment
@@ -85,8 +88,10 @@ func (s *userEventHandler) onUserEvent(ctx context.Context, status realtimecore.
 		if applicable {
 			err = rule.PerformAction(ctx, rule.Name, status, user)
 			if err != nil {
-				return fmt.Errorf("Error performing action for rule %s and useer %s: %s", rule.Name, user.FullName, err)
+				return fmt.Errorf("Error performing action for rule %s and useer %s: %s", rule.Name, user.UID	, err)
 			}
+			// Should we keep track that this rule has fired for this user?
+			// To prevent event being dfire again when user re-enters again within particular time interval?
 		}
 	}
 	return nil

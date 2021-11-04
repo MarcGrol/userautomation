@@ -11,10 +11,10 @@ import (
 type userService struct {
 	sync.Mutex
 	users            map[string]realtimecore.User
-	pubsub           Pubsub
+	pubsub           realtimecore.Pubsub
 }
 
-func NewUserService(pubsub Pubsub) realtimecore.UserService {
+func NewUserService(pubsub realtimecore.Pubsub) realtimecore.UserService {
 	return &userService{
 		users:            map[string]realtimecore.User{},
 		pubsub:           pubsub,
@@ -37,7 +37,7 @@ func (s *userService) Put(ctx context.Context, user realtimecore.User) error {
 			State:user,
 		})
 		if err != nil {
-			return fmt.Errorf("Error publishing UserCreatedEvent for user %s: %s", user, err)
+			return fmt.Errorf("Error publishing UserCreatedEvent for user %s: %s", user.UID, err)
 		}
 	} else if !reflect.DeepEqual(originalUser, user) {
 		err := s.pubsub.Publish(ctx, "user", realtimecore.UserModifiedEvent{
@@ -45,7 +45,7 @@ func (s *userService) Put(ctx context.Context, user realtimecore.User) error {
 			NewState: user,
 		})
 		if err != nil {
-			return fmt.Errorf("Error publishing UserModifiedEvent for user %s: %s", user, err)
+			return fmt.Errorf("Error publishing UserModifiedEvent for user %s: %s", user.UID, err)
 		}
 	} else {
 		// user unchanged
@@ -94,7 +94,7 @@ func (s *userService) Delete(ctx context.Context, userUID string) error {
 			State:user,
 		})
 		if err != nil {
-			return fmt.Errorf("Error publishing UserRemovedEvent for user %s: %s", user, err)
+			return fmt.Errorf("Error publishing UserRemovedEvent for user %s: %s", user.UID, err)
 		}
 	}
 
