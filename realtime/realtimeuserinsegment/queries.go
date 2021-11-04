@@ -1,4 +1,4 @@
-package realtimeactions
+package realtimeuserinsegment
 
 import (
 	"context"

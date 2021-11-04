@@ -16,7 +16,7 @@ func main() {
 
 	ctx := context.TODO()
 
-	preprovisionUsers(ctx, userService) // no rule present, nothing fires
+	preprovisionUsers(ctx, userService) // no rules present, nothing fires
 	preprovisionUserSegmentRules(ctx, ruleService)
 
 	adjustMarc(ctx, userService) // young-rule fires, sms action
