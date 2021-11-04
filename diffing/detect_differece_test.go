@@ -84,6 +84,14 @@ func TestDetectDifferences(t *testing.T) {
 		assert.Equal(t, slice("c", "d"), result.Added)
 		assert.Equal(t, empty(), result.Unchanged)
 	})
+
+	t.Run("mixed types", func(t *testing.T) {
+		result := DetectDifferences(slice("a", "b"), []interface{}{"a", 1, 2})
+		assert.Equal(t, slice("b"), result.Removed)
+		assert.Equal(t, []interface{}{1, 2}, result.Added)
+		assert.Equal(t, slice("a"), result.Unchanged)
+	})
+
 }
 
 func slice(varargs ...string) []interface{} {
