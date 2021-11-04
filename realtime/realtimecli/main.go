@@ -37,7 +37,7 @@ func adjustMarc(ctx context.Context, userService realtimecore.UserService) {
 			"firstname":    "Marc",
 			"emailaddress": "marc@home.nl",
 			"phonenumber":  "+31611111111",
-			"age":          10,
+			"age":          10, // now young
 		},
 	})
 	if err != nil {
@@ -60,7 +60,7 @@ func createFreek(ctx context.Context, userService realtimecore.UserService) {
 			"firstname":    "Freek",
 			"emailaddress": "freek@home.nl",
 			"phonenumber":  "+31633333333",
-			"age":          12,
+			"age":          12, // young
 		},
 	})
 	if err != nil {
@@ -76,7 +76,7 @@ func adjustFreek(ctx context.Context, userService realtimecore.UserService) {
 			"firstname":    "Freek",
 			"emailaddress": "freek@home.nl",
 			"phonenumber":  "+31633333333",
-			"age":          13,
+			"age":          13, // slightly older but still young
 		},
 	})
 	if err != nil {
@@ -92,7 +92,7 @@ func adjustFreekAgain(ctx context.Context, userService realtimecore.UserService)
 			"firstname":    "Freek",
 			"emailaddress": "freek@home.nl",
 			"phonenumber":  "+31633333333",
-			"age":          41,
+			"age":          41, // big increase in age, now old
 		},
 	})
 	if err != nil {
@@ -101,6 +101,11 @@ func adjustFreekAgain(ctx context.Context, userService realtimecore.UserService)
 }
 
 func preprovisionUsers(ctx context.Context, userService realtimecore.UserService) {
+	createMarc(ctx, userService)
+	createEva(ctx, userService)
+}
+
+func createMarc(ctx context.Context, userService realtimecore.UserService) {
 	err := userService.Put(ctx, realtimecore.User{
 		UID:      "1",
 		FullName: "Marc",
@@ -108,21 +113,24 @@ func preprovisionUsers(ctx context.Context, userService realtimecore.UserService
 			"firstname":    "Marc",
 			"emailaddress": "marc@home.nl",
 			"phonenumber":  "+31611111111",
-			"age":          50,
+			"age":          50, // old
 		},
 	})
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
 
-	err = userService.Put(ctx, realtimecore.User{
+func createEva(ctx context.Context, userService realtimecore.UserService) {
+
+	err := userService.Put(ctx, realtimecore.User{
 		UID:      "2",
 		FullName: "Eva",
 		Attributes: map[string]interface{}{
 			"firstname":    "Eva",
 			"emailaddress": "eva@home.nl",
 			"phonenumber":  "+31622222222",
-			"age":          48,
+			"age":          48, // old
 		},
 	})
 	if err != nil {
