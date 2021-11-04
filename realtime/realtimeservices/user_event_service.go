@@ -12,7 +12,7 @@ type userEventHandler struct {
 	ruleService realtimecore.SegmentRuleService
 }
 
-func NewUserEventHandler(pubsub realtimecore.Pubsub, ruleService realtimecore.SegmentRuleService) realtimecore.UserEventService {
+func NewUserEventService(pubsub realtimecore.Pubsub, ruleService realtimecore.SegmentRuleService) realtimecore.UserEventService {
 	return &userEventHandler{
 		pubsub:      pubsub,
 		ruleService: ruleService,

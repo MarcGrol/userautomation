@@ -15,7 +15,7 @@ func main() {
 	pubsub := realtimeservices.NewPubSub()
 
 	ruleService := realtimeservices.NewUserSegmentRuleService()
-	userEventService := realtimeservices.NewUserEventHandler(pubsub, ruleService)
+	userEventService := realtimeservices.NewUserEventService(pubsub, ruleService)
 	userEventService.Subscribe(ctx)
 
 	userService := realtimeservices.NewUserService(pubsub)
@@ -24,7 +24,7 @@ func main() {
 	createMarc(ctx, userService)
 	createEva(ctx, userService)
 
-	// pre-provision segment rules
+	// pre-provision 2 segment rules
 	createOldRule(ctx, ruleService, realtimeactions.NewEmailSender())
 	createYoungRule(ctx, ruleService, realtimeactions.NewSmsSender())
 
