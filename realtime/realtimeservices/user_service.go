@@ -30,6 +30,7 @@ func (s *userService) Put(ctx context.Context, user realtimecore.User) error {
 		return fmt.Errorf("Error fetching user with uid %s: %s", user.UID, err)
 	}
 
+	// store in memory
 	s.users[user.UID] = user
 
 	if !exists {
@@ -51,6 +52,26 @@ func (s *userService) Put(ctx context.Context, user realtimecore.User) error {
 		// user unchanged
 	}
 
+
+	return nil
+}
+
+func (s *userService) Remove(ctx context.Context, userUID string) error {
+	s.Lock()
+	defer s.Unlock()
+
+	user, exists := s.users[userUID]
+	if exists {
+		// remove from memory
+		delete(s.users, userUID)
+
+		err := s.pubsub.Publish(ctx, "user", realtimecore.UserRemovedEvent{
+			State:user,
+		})
+		if err != nil {
+			return fmt.Errorf("Error publishing UserRemovedEvent for user %s: %s", user.UID, err)
+		}
+	}
 
 	return nil
 }
@@ -84,23 +105,4 @@ func (s *userService) Query(ctx context.Context, filterFunc realtimecore.UserFil
 	}
 
 	return result, nil
-}
-
-func (s *userService) Delete(ctx context.Context, userUID string) error {
-	s.Lock()
-	defer s.Unlock()
-
-	user, exists := s.users[userUID]
-	if exists {
-		delete(s.users, userUID)
-
-		err := s.pubsub.Publish(ctx, "user", realtimecore.UserRemovedEvent{
-			State:user,
-		})
-		if err != nil {
-			return fmt.Errorf("Error publishing UserRemovedEvent for user %s: %s", user.UID, err)
-		}
-	}
-
-	return nil
 }

@@ -31,10 +31,10 @@ func main() {
 	// Start processing commands on users
 	adjustMarc(ctx, userService) // young-rule fires, sms action
 	deleteMarc(ctx, userService) // no rule fires
-	
+
 	createFreek(ctx, userService)      // young-rule fires, sms action
 	adjustFreek(ctx, userService)      // still young-rule, no action
-	adjustFreekAgain(ctx, userService) // old-rule fires, email actio
+	adjustFreekAgain(ctx, userService) // old-rule fires, email action
 }
 
 func createMarc(ctx context.Context, userService realtimecore.UserService) {
@@ -68,7 +68,7 @@ func adjustMarc(ctx context.Context, userService realtimecore.UserService) {
 }
 
 func deleteMarc(ctx context.Context, userService realtimecore.UserService) {
-	err := userService.Delete(ctx, "1")
+	err := userService.Remove(ctx, "1")
 	if err != nil {
 		log.Fatalln(err)
 	}

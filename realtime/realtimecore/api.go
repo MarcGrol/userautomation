@@ -19,7 +19,7 @@ type UserService interface {
 	Put(ctx context.Context, user User) error
 	Get(ctx context.Context, userUID string) (User, bool, error)
 	Query(ctx context.Context, filter UserFilterFunc) ([]User, error) // Could use a WHERE clause alternatively
-	Delete(ctx context.Context, userUID string) error
+	Remove(ctx context.Context, userUID string) error
 }
 
 type UserEventService interface {
