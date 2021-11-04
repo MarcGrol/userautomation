@@ -26,7 +26,7 @@ func main() {
 
 	// pre-provision segment rules
 	createOldRule(ctx, ruleService, realtimeactions.NewEmailSender())
-	createYoungRule(ctx, ruleService,  realtimeactions.NewSmsSender())
+	createYoungRule(ctx, ruleService, realtimeactions.NewSmsSender())
 
 	// Start processing commands on users
 	adjustMarc(ctx, userService) // young-rule fires, sms action
@@ -39,7 +39,7 @@ func main() {
 
 func createMarc(ctx context.Context, userService realtimecore.UserService) {
 	err := userService.Put(ctx, realtimecore.User{
-		UID:      "1",
+		UID: "1",
 		Attributes: map[string]interface{}{
 			"firstname":    "Marc",
 			"emailaddress": "marc@home.nl",
@@ -54,7 +54,7 @@ func createMarc(ctx context.Context, userService realtimecore.UserService) {
 
 func adjustMarc(ctx context.Context, userService realtimecore.UserService) {
 	err := userService.Put(ctx, realtimecore.User{
-		UID:      "1",
+		UID: "1",
 		Attributes: map[string]interface{}{
 			"firstname":    "Marc",
 			"emailaddress": "marc@home.nl",
@@ -77,7 +77,7 @@ func deleteMarc(ctx context.Context, userService realtimecore.UserService) {
 func createEva(ctx context.Context, userService realtimecore.UserService) {
 
 	err := userService.Put(ctx, realtimecore.User{
-		UID:      "2",
+		UID: "2",
 		Attributes: map[string]interface{}{
 			"firstname":    "Eva",
 			"emailaddress": "eva@home.nl",
@@ -90,10 +90,9 @@ func createEva(ctx context.Context, userService realtimecore.UserService) {
 	}
 }
 
-
 func createFreek(ctx context.Context, userService realtimecore.UserService) {
 	err := userService.Put(ctx, realtimecore.User{
-		UID:      "3",
+		UID: "3",
 		Attributes: map[string]interface{}{
 			"firstname":    "Freek",
 			"emailaddress": "freek@home.nl",
@@ -108,7 +107,7 @@ func createFreek(ctx context.Context, userService realtimecore.UserService) {
 
 func adjustFreek(ctx context.Context, userService realtimecore.UserService) {
 	err := userService.Put(ctx, realtimecore.User{
-		UID:      "3",
+		UID: "3",
 		Attributes: map[string]interface{}{
 			"firstname":    "Freek",
 			"emailaddress": "freek@home.nl",
@@ -123,7 +122,7 @@ func adjustFreek(ctx context.Context, userService realtimecore.UserService) {
 
 func adjustFreekAgain(ctx context.Context, userService realtimecore.UserService) {
 	err := userService.Put(ctx, realtimecore.User{
-		UID:      "3",
+		UID: "3",
 		Attributes: map[string]interface{}{
 			"firstname":    "Freek",
 			"emailaddress": "freek@home.nl",
@@ -154,7 +153,7 @@ func createOldRule(ctx context.Context, segmentService realtimecore.SegmentRuleS
 	}
 }
 
-func createYoungRule(ctx context.Context, segmentService realtimecore.SegmentRuleService, smsSender realtimeactions.SmsSender){
+func createYoungRule(ctx context.Context, segmentService realtimecore.SegmentRuleService, smsSender realtimeactions.SmsSender) {
 
 	err := segmentService.Put(ctx, realtimecore.UserSegmentRule{
 		Name: "YoungRule",

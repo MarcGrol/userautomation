@@ -14,11 +14,11 @@ type pubsub struct {
 
 func NewPubSub() realtimecore.Pubsub {
 	return &pubsub{
-		topics:map[string][]realtimecore.OnEventFunc{},
+		topics: map[string][]realtimecore.OnEventFunc{},
 	}
 }
 
-func (ps *pubsub) Subscribe(ctx context.Context, topic string, onEvent realtimecore.OnEventFunc) error{
+func (ps *pubsub) Subscribe(ctx context.Context, topic string, onEvent realtimecore.OnEventFunc) error {
 	ps.Lock()
 	defer ps.Unlock()
 
@@ -50,6 +50,3 @@ func (ps *pubsub) Publish(ctx context.Context, topic string, event interface{}) 
 
 	return nil
 }
-
-
-

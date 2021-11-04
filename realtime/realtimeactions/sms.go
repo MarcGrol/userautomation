@@ -24,26 +24,26 @@ func (es *smsSender) Send(c context.Context, recipient, body string) error {
 }
 
 func SmsAction(bodyTemplate string, smsClient SmsSender) realtimecore.UserActionFunc {
-	return func(ctx context.Context, ruleName string, userStatus realtimecore.UserStatus, user realtimecore.User) error {
-		logFunc(ctx, ruleName, userStatus, user)
+	return func(ctx context.Context, ruleName string, userStatus realtimecore.UserChangeStatus, oldState *realtimecore.User, newState *realtimecore.User) error {
+		logFunc(ctx, ruleName, userStatus, oldState, newState)
 
 		if userStatus == realtimecore.UserRemoved {
 			return nil
 		}
 
-		userPhoneNumber, ok := user.Attributes["phonenumber"].(string)
+		userPhoneNumber, ok := newState.Attributes["phonenumber"].(string)
 		if !ok {
-			return fmt.Errorf("User %+v has no phonenumber", user)
+			return fmt.Errorf("User %+v has no phonenumber", newState)
 		}
 
-		body, err := realtimeutil.ApplyTemplate(ruleName+"-sms-body", bodyTemplate, user.Attributes)
+		body, err := realtimeutil.ApplyTemplate(ruleName+"-sms-body", bodyTemplate, newState.Attributes)
 		if err != nil {
-			return fmt.Errorf("Error creating sms body for user %s:%s", user.UID, err)
+			return fmt.Errorf("Error creating sms body for newState %s:%s", newState.UID, err)
 		}
 
 		err = smsClient.Send(ctx, userPhoneNumber, body)
 		if err != nil {
-			return fmt.Errorf("Error sending sms for user %s:%s", user.UID, err)
+			return fmt.Errorf("Error sending sms for newState %s:%s", newState.UID, err)
 		}
 
 		return nil

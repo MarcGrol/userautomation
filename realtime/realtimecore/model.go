@@ -7,16 +7,16 @@ type User struct {
 	Attributes map[string]interface{}
 }
 
-type UserStatus int
+type UserChangeStatus int
 
 const (
-	UserCreated UserStatus = iota
+	UserCreated UserChangeStatus = iota
 	UserModified
 	UserRemoved
 )
 
 type UserFilterFunc func(ctx context.Context, u User) (bool, error)
-type UserActionFunc func(ctx context.Context, ruleName string, userStatus UserStatus, u User) error
+type UserActionFunc func(ctx context.Context, ruleName string, changeStatus UserChangeStatus, oldState *User, newState *User) error
 
 type UserSegmentRule struct {
 	Name                string

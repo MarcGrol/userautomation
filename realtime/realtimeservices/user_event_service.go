@@ -8,13 +8,13 @@ import (
 )
 
 type userEventHandler struct {
-	pubsub realtimecore.Pubsub
+	pubsub      realtimecore.Pubsub
 	ruleService realtimecore.SegmentRuleService
 }
 
 func NewUserEventHandler(pubsub realtimecore.Pubsub, ruleService realtimecore.SegmentRuleService) realtimecore.UserEventService {
 	return &userEventHandler{
-		pubsub: pubsub,
+		pubsub:      pubsub,
 		ruleService: ruleService,
 	}
 }
@@ -24,28 +24,42 @@ func (s *userEventHandler) Subscribe(ctx context.Context) error {
 }
 
 func (s *userEventHandler) OnEvent(ctx context.Context, topic string, event interface{}) error {
-	switch e := event.(type) {
-	case realtimecore.UserCreatedEvent:
-		return s.onUserCreated(ctx, e.State)
-	case realtimecore.UserModifiedEvent:
-		return s.onUserModified(ctx, e.OldState, e.NewState)
-	case realtimecore.UserRemovedEvent:
-		return s.onUserRemoved(ctx, e.State)
-	default:
-		return fmt.Errorf("Event %+v not supported", e)
-	}
-}
-
-func (s *userEventHandler) onUserCreated(ctx context.Context, user realtimecore.User) error {
-	return s.onUserEvent(ctx, realtimecore.UserCreated, user)
-}
-
-func (s *userEventHandler) onUserModified(ctx context.Context, oldState realtimecore.User, newState realtimecore.User) error {
 	rules, err := s.ruleService.List(ctx)
 	if err != nil {
 		return fmt.Errorf("Error fetching rules: %s", err)
 	}
 
+	switch e := event.(type) {
+	case realtimecore.UserCreatedEvent:
+		return s.onUserCreated(ctx, rules, e.State)
+	case realtimecore.UserModifiedEvent:
+		return s.onUserModified(ctx, rules, e.OldState, e.NewState)
+	case realtimecore.UserRemovedEvent:
+		return s.onUserRemoved(ctx, rules, e.State)
+	default:
+		return fmt.Errorf("Event %+v not supported", e)
+	}
+}
+
+func (s *userEventHandler) onUserCreated(ctx context.Context, rules []realtimecore.UserSegmentRule, user realtimecore.User) error {
+	for _, rule := range rules {
+		applicable, err := rule.IsApplicableForUser(ctx, user)
+		if err != nil {
+			return fmt.Errorf("Error determining if rule is applicable for user: %s", err)
+		}
+		if applicable {
+			err = rule.PerformAction(ctx, rule.Name, realtimecore.UserCreated, nil, &user)
+			if err != nil {
+				return fmt.Errorf("Error performing action for rule %s and useer %s: %s", rule.Name, user.UID, err)
+			}
+			// Should we keep track that this rule has fired for this user?
+			// To prevent event being dfire again when user re-enters again within particular time interval?
+		}
+	}
+	return nil
+}
+
+func (s *userEventHandler) onUserModified(ctx context.Context, rules []realtimecore.UserSegmentRule, oldState realtimecore.User, newState realtimecore.User) error {
 	for _, rule := range rules {
 		ruleApplicableBefore, err := rule.IsApplicableForUser(ctx, oldState)
 		if err != nil {
@@ -58,7 +72,7 @@ func (s *userEventHandler) onUserModified(ctx context.Context, oldState realtime
 		}
 
 		if !ruleApplicableBefore && ruleApplicableAfter {
-			err = rule.PerformAction(ctx, rule.Name, realtimecore.UserModified, newState)
+			err = rule.PerformAction(ctx, rule.Name, realtimecore.UserModified, &oldState, &newState)
 			if err != nil {
 				return fmt.Errorf("Error performing action for rule %s and us	er %s: %s", rule.Name, newState.UID, err)
 			}
@@ -70,25 +84,16 @@ func (s *userEventHandler) onUserModified(ctx context.Context, oldState realtime
 	return nil
 }
 
-func (s *userEventHandler) onUserRemoved(c context.Context, user realtimecore.User) error {
-	return s.onUserEvent(c, realtimecore.UserRemoved, user)
-}
-
-func (s *userEventHandler) onUserEvent(ctx context.Context, status realtimecore.UserStatus, user realtimecore.User) error {
-	rules, err := s.ruleService.List(ctx)
-	if err != nil {
-		return fmt.Errorf("Error fetching rules: %s", err)
-	}
-
+func (s *userEventHandler) onUserRemoved(ctx context.Context, rules []realtimecore.UserSegmentRule, user realtimecore.User) error {
 	for _, rule := range rules {
 		applicable, err := rule.IsApplicableForUser(ctx, user)
 		if err != nil {
 			return fmt.Errorf("Error determining if rule is applicable for user: %s", err)
 		}
 		if applicable {
-			err = rule.PerformAction(ctx, rule.Name, status, user)
+			err = rule.PerformAction(ctx, rule.Name, realtimecore.UserRemoved, &user, nil)
 			if err != nil {
-				return fmt.Errorf("Error performing action for rule %s and useer %s: %s", rule.Name, user.UID	, err)
+				return fmt.Errorf("Error performing action for rule %s and useer %s: %s", rule.Name, user.UID, err)
 			}
 			// Should we keep track that this rule has fired for this user?
 			// To prevent event being dfire again when user re-enters again within particular time interval?

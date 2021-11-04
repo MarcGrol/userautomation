@@ -1,7 +1,6 @@
 package realtimecore
 
-
-type UserCreatedEvent struct{
+type UserCreatedEvent struct {
 	State User
 }
 
@@ -13,4 +12,3 @@ type UserModifiedEvent struct {
 type UserRemovedEvent struct {
 	State User
 }
-
