@@ -9,7 +9,7 @@ import (
 	"github.com/MarcGrol/userautomation/realtime/realtimecore"
 )
 
-func TestCreateUser(t *testing.T) {
+func TestIt(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockEmailer := realtimeactions.NewMockEmailer(ctrl)
@@ -25,7 +25,7 @@ func TestCreateUser(t *testing.T) {
 		// expect
 
 		// when
-		createMarc(ctx, t, userService)
+		createUser(ctx, t, userService, 50)
 
 	})
 
@@ -38,7 +38,7 @@ func TestCreateUser(t *testing.T) {
 		// expect
 
 		// when
-		createMarc(ctx, t, userService)
+		createUser(ctx, t, userService, 50)
 
 	})
 
@@ -49,10 +49,10 @@ func TestCreateUser(t *testing.T) {
 		createYoungAgeRule(ctx, t, ruleService, mockSmser)
 
 		// expect
-		mockSmser.EXPECT().Send(gomock.Any(), "+31633333333", "young rule fired for Freek: your age is 12").Return(nil)
+		mockSmser.EXPECT().Send(gomock.Any(), "+31611111111", "young rule fired for Marc: your age is 12").Return(nil)
 
 		// when
-		createFreek(ctx, t, userService)
+		createUser(ctx, t, userService, 12)
 	})
 
 	t.Run("create user, old age rule matched -> email", func(t *testing.T) {
@@ -65,19 +65,7 @@ func TestCreateUser(t *testing.T) {
 		mockEmailer.EXPECT().Send(gomock.Any(), "marc@home.nl", "old rule fired", "Hoi Marc, your age is 50").Return(nil)
 
 		// when
-		createMarc(ctx, t, userService)
-
-	})
-
-	t.Run("modify user, no user exists", func(t *testing.T) {
-		_, userService := setup(ctx)
-
-		// given
-
-		// expect
-
-		// when
-		adjustMarc(ctx, t, userService)
+		createUser(ctx, t, userService, 50)
 
 	})
 
@@ -85,12 +73,12 @@ func TestCreateUser(t *testing.T) {
 		_, userService := setup(ctx)
 
 		// given
-		createMarc(ctx, t, userService)
+		createUser(ctx, t, userService, 50)
 
 		// expect
 
 		// when
-		adjustMarc(ctx, t, userService)
+		modifyUser(ctx, t, userService, 12)
 
 	})
 
@@ -98,13 +86,13 @@ func TestCreateUser(t *testing.T) {
 		ruleService, userService := setup(ctx)
 
 		// given
-		createFreek(ctx, t, userService)
+		createUser(ctx, t, userService, 12)
 		createOldAgeRule(ctx, t, ruleService, mockEmailer)
 
 		// expect
 
 		// when
-		adjustFreek(ctx, t, userService)
+		modifyUser(ctx, t, userService, 14)
 
 	})
 
@@ -112,14 +100,14 @@ func TestCreateUser(t *testing.T) {
 		ruleService, userService := setup(ctx)
 
 		// given
-		createMarc(ctx, t, userService)
+		createUser(ctx, t, userService, 50)
 		createYoungAgeRule(ctx, t, ruleService, mockSmser)
 
 		// expect
-		mockSmser.EXPECT().Send(gomock.Any(), "+31611111111", "young rule fired for Marc: your age is 10").Return(nil)
+		mockSmser.EXPECT().Send(gomock.Any(), "+31611111111", "young rule fired for Marc: your age is 12").Return(nil)
 
 		// when
-		adjustMarc(ctx, t, userService)
+		modifyUser(ctx, t, userService, 12)
 
 	})
 
@@ -128,13 +116,13 @@ func TestCreateUser(t *testing.T) {
 
 		// given
 		createOldAgeRule(ctx, t, ruleService, mockEmailer)
-		createFreek(ctx, t, userService)
+		createUser(ctx, t, userService, 12)
 
 		// expect
-		mockEmailer.EXPECT().Send(gomock.Any(), "freek@home.nl", "old rule fired", "Hoi Freek, your age is 41").Return(nil)
+		mockEmailer.EXPECT().Send(gomock.Any(), "marc@home.nl", "old rule fired", "Hoi Marc, your age is 50").Return(nil)
 
 		// when
-		adjustFreekAgain(ctx, t, userService)
+		modifyUser(ctx, t, userService, 50)
 
 	})
 
@@ -143,12 +131,12 @@ func TestCreateUser(t *testing.T) {
 
 		// given
 		createOldAgeRule(ctx, t, ruleService, mockEmailer)
-		createFreek(ctx, t, userService)
+		createUser(ctx, t, userService, 12)
 
 		// expect
 
 		// when
-		adjustFreek(ctx, t, userService)
+		modifyUser(ctx, t, userService, 14)
 
 	})
 
@@ -160,7 +148,7 @@ func TestCreateUser(t *testing.T) {
 		// expect
 
 		// when
-		deleteMarc(ctx, t, userService)
+		removeUser(ctx, t, userService)
 
 	})
 
@@ -168,12 +156,12 @@ func TestCreateUser(t *testing.T) {
 		_, userService := setup(ctx)
 
 		// given
-		createMarc(ctx, t, userService)
+		createUser(ctx, t, userService, 50)
 
 		// expect
 
 		// when
-		deleteMarc(ctx, t, userService)
+		removeUser(ctx, t, userService)
 
 	})
 
@@ -181,13 +169,13 @@ func TestCreateUser(t *testing.T) {
 		ruleService, userService := setup(ctx)
 
 		// given
-		createMarc(ctx, t, userService)
+		createUser(ctx, t, userService, 50)
 		createYoungAgeRule(ctx, t, ruleService, mockSmser)
 
 		// expect
 
 		// when
-		deleteMarc(ctx, t, userService)
+		removeUser(ctx, t, userService)
 
 	})
 
@@ -195,25 +183,25 @@ func TestCreateUser(t *testing.T) {
 		ruleService, userService := setup(ctx)
 
 		// given
-		createMarc(ctx, t, userService)
+		createUser(ctx, t, userService, 50)
 		createOldAgeRule(ctx, t, ruleService, mockEmailer)
 
 		// expect
 
 		// when
-		deleteMarc(ctx, t, userService)
+		removeUser(ctx, t, userService)
 
 	})
 }
 
-func createMarc(ctx context.Context, t *testing.T, userService realtimecore.UserService) {
+func createUser(ctx context.Context, t *testing.T, userService realtimecore.UserService, age int) {
 	err := userService.Put(ctx, realtimecore.User{
 		UID: "1",
 		Attributes: map[string]interface{}{
 			"firstname":    "Marc",
 			"emailaddress": "marc@home.nl",
 			"phonenumber":  "+31611111111",
-			"age":          50, // old
+			"age":          age,
 		},
 	})
 	if err != nil {
@@ -221,14 +209,14 @@ func createMarc(ctx context.Context, t *testing.T, userService realtimecore.User
 	}
 }
 
-func adjustMarc(ctx context.Context, t *testing.T, userService realtimecore.UserService) {
+func modifyUser(ctx context.Context, t *testing.T, userService realtimecore.UserService, age int) {
 	err := userService.Put(ctx, realtimecore.User{
 		UID: "1",
 		Attributes: map[string]interface{}{
 			"firstname":    "Marc",
 			"emailaddress": "marc@home.nl",
 			"phonenumber":  "+31611111111",
-			"age":          10, // now young
+			"age":          age,
 		},
 	})
 	if err != nil {
@@ -236,69 +224,8 @@ func adjustMarc(ctx context.Context, t *testing.T, userService realtimecore.User
 	}
 }
 
-func deleteMarc(ctx context.Context, t *testing.T, userService realtimecore.UserService) {
+func removeUser(ctx context.Context, t *testing.T, userService realtimecore.UserService) {
 	err := userService.Remove(ctx, "1")
-	if err != nil {
-		t.Error(err)
-	}
-}
-
-func createEva(ctx context.Context, t *testing.T, userService realtimecore.UserService) {
-
-	err := userService.Put(ctx, realtimecore.User{
-		UID: "2",
-		Attributes: map[string]interface{}{
-			"firstname":    "Eva",
-			"emailaddress": "eva@home.nl",
-			"phonenumber":  "+31622222222",
-			"age":          48, // old
-		},
-	})
-	if err != nil {
-		t.Error(err)
-	}
-}
-
-func createFreek(ctx context.Context, t *testing.T, userService realtimecore.UserService) {
-	err := userService.Put(ctx, realtimecore.User{
-		UID: "3",
-		Attributes: map[string]interface{}{
-			"firstname":    "Freek",
-			"emailaddress": "freek@home.nl",
-			"phonenumber":  "+31633333333",
-			"age":          12, // young
-		},
-	})
-	if err != nil {
-		t.Error(err)
-	}
-}
-
-func adjustFreek(ctx context.Context, t *testing.T, userService realtimecore.UserService) {
-	err := userService.Put(ctx, realtimecore.User{
-		UID: "3",
-		Attributes: map[string]interface{}{
-			"firstname":    "Freek",
-			"emailaddress": "freek@home.nl",
-			"phonenumber":  "+31633333333",
-			"age":          13, // slightly older but still young
-		},
-	})
-	if err != nil {
-		t.Error(err)
-	}
-}
-
-func adjustFreekAgain(ctx context.Context, t *testing.T, userService realtimecore.UserService) {
-	err := userService.Put(ctx, realtimecore.User{
-		UID: "3",
-		Attributes: map[string]interface{}{
-			"firstname":    "Freek",
-			"emailaddress": "freek@home.nl",
-			"phonenumber":  "+31633333333",
-			"age":          41, // big increase in age, now old
-		},
-	})
 	if err != nil {
 		t.Error(err)
 	}
@@ -350,5 +277,4 @@ func setup(ctx context.Context) (realtimecore.SegmentRuleService, realtimecore.U
 	userService := NewUserService(pubsub)
 
 	return ruleService, userService
-
 }
