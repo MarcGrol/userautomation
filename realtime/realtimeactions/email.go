@@ -7,6 +7,7 @@ import (
 	"github.com/MarcGrol/userautomation/realtime/realtimeutil"
 )
 
+//go:generate mockgen -source=email.go -destination=email_mock.go -package=realtimeactions Emailer
 type Emailer interface {
 	Send(c context.Context, recipient, subject, body string) error
 }

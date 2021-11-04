@@ -7,6 +7,7 @@ import (
 	"github.com/MarcGrol/userautomation/realtime/realtimeutil"
 )
 
+//go:generate mockgen -source=sms.go -destination=sms_mock.go -package=realtimeactions SmsSender
 type SmsSender interface {
 	Send(c context.Context, recipient, body string) error
 }

@@ -6,9 +6,9 @@ package userlookup
 
 import (
 	context "context"
-	core "github.com/MarcGrol/userautomation/batch/batchcore"
 	reflect "reflect"
 
+	batchcore "github.com/MarcGrol/userautomation/batch/batchcore"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -36,10 +36,10 @@ func (m *MockUserLookuper) EXPECT() *MockUserLookuperMockRecorder {
 }
 
 // GetUserOnUid mocks base method.
-func (m *MockUserLookuper) GetUserOnUid(c context.Context, uid string) (core.User, error) {
+func (m *MockUserLookuper) GetUserOnUid(c context.Context, uid string) (batchcore.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserOnUid", c, uid)
-	ret0, _ := ret[0].(core.User)
+	ret0, _ := ret[0].(batchcore.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -51,10 +51,10 @@ func (mr *MockUserLookuperMockRecorder) GetUserOnUid(c, uid interface{}) *gomock
 }
 
 // GetUserOnQuery mocks base method.
-func (m *MockUserLookuper) GetUserOnQuery(c context.Context, whereClause string) ([]core.User, error) {
+func (m *MockUserLookuper) GetUserOnQuery(c context.Context, whereClause string) ([]batchcore.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserOnQuery", c, whereClause)
-	ret0, _ := ret[0].([]core.User)
+	ret0, _ := ret[0].([]batchcore.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
