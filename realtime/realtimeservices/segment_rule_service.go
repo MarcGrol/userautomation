@@ -23,6 +23,7 @@ func (s *userSegmentRuleService) Put(ctx context.Context, SegmentRule realtimeco
 	defer s.Unlock()
 
 	s.rules[SegmentRule.Name] = SegmentRule
+
 	return nil
 }
 
@@ -31,6 +32,7 @@ func (s *userSegmentRuleService) Get(ctx context.Context, segmentUID string) (re
 	defer s.Unlock()
 
 	SegmentRule, exists := s.rules[segmentUID]
+
 	return SegmentRule, exists, nil
 }
 
@@ -39,6 +41,7 @@ func (s *userSegmentRuleService) Delete(ctx context.Context, segmentUID string) 
 	defer s.Unlock()
 
 	delete(s.rules, segmentUID)
+
 	return nil
 }
 

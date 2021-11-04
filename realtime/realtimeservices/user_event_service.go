@@ -52,8 +52,7 @@ func (s *userEventHandler) onUserCreated(ctx context.Context, rules []realtimeco
 			if err != nil {
 				return fmt.Errorf("Error performing action for rule %s and useer %s: %s", rule.Name, user.UID, err)
 			}
-			// Should we keep track that this rule has fired for this user?
-			// To prevent event being dfire again when user re-enters again within particular time interval?
+			s.onActionPerformed(ctx, rule, user)
 		}
 	}
 	return nil
@@ -76,6 +75,8 @@ func (s *userEventHandler) onUserModified(ctx context.Context, rules []realtimec
 			if err != nil {
 				return fmt.Errorf("Error performing action for rule %s and us	er %s: %s", rule.Name, newState.UID, err)
 			}
+			s.onActionPerformed(ctx, rule, newState)
+
 		} else {
 			// do not execute the action if the user already belongs to this segment
 		}
@@ -95,9 +96,13 @@ func (s *userEventHandler) onUserRemoved(ctx context.Context, rules []realtimeco
 			if err != nil {
 				return fmt.Errorf("Error performing action for rule %s and useer %s: %s", rule.Name, user.UID, err)
 			}
-			// Should we keep track that this rule has fired for this user?
-			// To prevent event being dfire again when user re-enters again within particular time interval?
+			s.onActionPerformed(ctx, rule, user)
 		}
 	}
 	return nil
+}
+
+func (s *userEventHandler) onActionPerformed(ctx context.Context, rule realtimecore.UserSegmentRule, user realtimecore.User) {
+	// Should we keep track that this rule has fired for this user?
+	// To prevent event being dfire again when user re-enters again within particular time interval?
 }
