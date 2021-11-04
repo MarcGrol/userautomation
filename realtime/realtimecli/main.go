@@ -13,18 +13,20 @@ func main() {
 	ruleService := realtimeservices.NewUserSegmentRuleService()
 	userEventService := realtimeservices.NewUserEventHandler(ruleService)
 	userService := realtimeservices.NewUserService(userEventService)
+	emailSender := realtimeactions.NewEmailSender()
+	smsSender := realtimeactions.NewSmsSender()
 
 	ctx := context.TODO()
 
 	preprovisionUsers(ctx, userService) // no rules present, nothing fires
-	preprovisionUserSegmentRules(ctx, ruleService)
+	preprovisionUserSegmentRules(ctx, ruleService, emailSender, smsSender)
 
 	adjustMarc(ctx, userService) // young-rule fires, sms action
 	deleteMarc(ctx, userService) // no rule fires
 
 	createFreek(ctx, userService)      // young-rule fires, sms action
 	adjustFreek(ctx, userService)      // still young-rule, no action
-	adjustFreekAgain(ctx, userService) // old-rule fires, email action
+	adjustFreekAgain(ctx, userService) // old-rule fires, email actio
 }
 
 func adjustMarc(ctx context.Context, userService realtimecore.UserService) {
@@ -128,7 +130,9 @@ func preprovisionUsers(ctx context.Context, userService realtimecore.UserService
 	}
 }
 
-func preprovisionUserSegmentRules(ctx context.Context, segmentService realtimecore.SegmentRuleService) {
+func preprovisionUserSegmentRules(ctx context.Context, segmentService realtimecore.SegmentRuleService,
+	emailSender realtimeactions.Emailer,
+	smsSender realtimeactions.SmsSender) {
 	err := segmentService.Put(ctx, realtimecore.UserSegmentRule{
 		Name: "OldRule",
 		IsApplicableForUser: func(ctx context.Context, user realtimecore.User) (bool, error) {
@@ -138,7 +142,7 @@ func preprovisionUserSegmentRules(ctx context.Context, segmentService realtimeco
 			}
 			return age > 40, nil
 		},
-		PerformAction: realtimeactions.EmailerAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", realtimeactions.NewEmailSender()),
+		PerformAction: realtimeactions.EmailerAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", emailSender),
 	})
 	if err != nil {
 		log.Fatalln(err)
@@ -153,7 +157,7 @@ func preprovisionUserSegmentRules(ctx context.Context, segmentService realtimeco
 			}
 			return age < 18, nil
 		},
-		PerformAction: realtimeactions.SmsAction("young rule fired for {{.firstname}}: your age is {{.age}}", realtimeactions.NewSmsSender()),
+		PerformAction: realtimeactions.SmsAction("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
 	})
 	if err != nil {
 		log.Fatalln(err)
