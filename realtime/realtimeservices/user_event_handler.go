@@ -7,20 +7,39 @@ import (
 )
 
 type userEventHandler struct {
+	pubsub Pubsub
 	ruleService realtimecore.SegmentRuleService
 }
 
-func NewUserEventHandler(ruleService realtimecore.SegmentRuleService) realtimecore.UserEventService {
+func NewUserEventHandler(pubsub Pubsub, ruleService realtimecore.SegmentRuleService) realtimecore.UserEventService {
 	return &userEventHandler{
+		pubsub: pubsub,
 		ruleService: ruleService,
 	}
 }
 
-func (s *userEventHandler) OnUserCreated(ctx context.Context, user realtimecore.User) error {
+func (s *userEventHandler) Subscribe(ctx context.Context) error {
+	return s.pubsub.Subscribe(ctx, "user", s.OnEvent)
+}
+
+func (s *userEventHandler) OnEvent(ctx context.Context, topic string, event interface{}) error {
+	switch e := event.(type) {
+	case realtimecore.UserCreatedEvent:
+		return s.onUserCreated(ctx, e.State)
+	case realtimecore.UserModifiedEvent:
+		return s.onUserModified(ctx, e.OldState, e.NewState)
+	case realtimecore.UserRemovedEvent:
+		return s.onUserRemoved(ctx, e.State)
+	default:
+		return fmt.Errorf("Event %+v not supported", e)
+	}
+}
+
+func (s *userEventHandler) onUserCreated(ctx context.Context, user realtimecore.User) error {
 	return s.onUserEvent(ctx, realtimecore.UserCreated, user)
 }
 
-func (s *userEventHandler) OnUserModified(ctx context.Context, before realtimecore.User, user realtimecore.User) error {
+func (s *userEventHandler) onUserModified(ctx context.Context, before realtimecore.User, user realtimecore.User) error {
 	rules, err := s.ruleService.List(ctx)
 	if err != nil {
 		return fmt.Errorf("Error fetching rules: %s", err)
@@ -48,7 +67,7 @@ func (s *userEventHandler) OnUserModified(ctx context.Context, before realtimeco
 	return nil
 }
 
-func (s *userEventHandler) OnUserRemoved(c context.Context, user realtimecore.User) error {
+func (s *userEventHandler) onUserRemoved(c context.Context, user realtimecore.User) error {
 	return s.onUserEvent(c, realtimecore.UserRemoved, user)
 }
 

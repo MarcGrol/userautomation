@@ -10,36 +10,38 @@ import (
 )
 
 func main() {
-	ruleService := realtimeservices.NewUserSegmentRuleService()
-	userEventService := realtimeservices.NewUserEventHandler(ruleService)
-	userService := realtimeservices.NewUserService(userEventService)
-	emailSender := realtimeactions.NewEmailSender()
-	smsSender := realtimeactions.NewSmsSender()
-
 	ctx := context.TODO()
 
-	preprovisionUsers(ctx, userService) // no rules present, nothing fires
-	preprovisionUserSegmentRules(ctx, ruleService, emailSender, smsSender)
+	pubsub := realtimeservices.NewPubSub()
 
+	ruleService := realtimeservices.NewUserSegmentRuleService()
+	userEventService := realtimeservices.NewUserEventHandler(pubsub, ruleService)
+	userEventService.Subscribe(ctx)
+
+	userService := realtimeservices.NewUserService(pubsub)
+
+	// pre-provision users: no rules yet so nothing fires
+	createMarc(ctx, userService)
+	createEva(ctx, userService)
+
+	// pre-provision segment rules
+	createOldRule(ctx, ruleService, realtimeactions.NewEmailSender())
+	createYoungRule(ctx, ruleService,  realtimeactions.NewSmsSender())
+
+	// Start processing commands on users
 	adjustMarc(ctx, userService) // young-rule fires, sms action
 	deleteMarc(ctx, userService) // no rule fires
-
+	
 	createFreek(ctx, userService)      // young-rule fires, sms action
 	adjustFreek(ctx, userService)      // still young-rule, no action
 	adjustFreekAgain(ctx, userService) // old-rule fires, email actio
 }
 
-func preprovisionUsers(ctx context.Context, userService realtimecore.UserService) {
-	createMarc(ctx, userService)
-	createEva(ctx, userService)
-}
-
 func createMarc(ctx context.Context, userService realtimecore.UserService) {
 	err := userService.Put(ctx, realtimecore.User{
 		UID:      "1",
-		FullName: "Marc Grol",
 		Attributes: map[string]interface{}{
-			"firstname":    "Marc Grol",
+			"firstname":    "Marc",
 			"emailaddress": "marc@home.nl",
 			"phonenumber":  "+31611111111",
 			"age":          50, // old
@@ -53,7 +55,6 @@ func createMarc(ctx context.Context, userService realtimecore.UserService) {
 func adjustMarc(ctx context.Context, userService realtimecore.UserService) {
 	err := userService.Put(ctx, realtimecore.User{
 		UID:      "1",
-		FullName: "Marc Grol",
 		Attributes: map[string]interface{}{
 			"firstname":    "Marc",
 			"emailaddress": "marc@home.nl",
@@ -77,7 +78,6 @@ func createEva(ctx context.Context, userService realtimecore.UserService) {
 
 	err := userService.Put(ctx, realtimecore.User{
 		UID:      "2",
-		FullName: "Eva Berkhout",
 		Attributes: map[string]interface{}{
 			"firstname":    "Eva",
 			"emailaddress": "eva@home.nl",
@@ -94,7 +94,6 @@ func createEva(ctx context.Context, userService realtimecore.UserService) {
 func createFreek(ctx context.Context, userService realtimecore.UserService) {
 	err := userService.Put(ctx, realtimecore.User{
 		UID:      "3",
-		FullName: "Freek Grol",
 		Attributes: map[string]interface{}{
 			"firstname":    "Freek",
 			"emailaddress": "freek@home.nl",
@@ -110,7 +109,6 @@ func createFreek(ctx context.Context, userService realtimecore.UserService) {
 func adjustFreek(ctx context.Context, userService realtimecore.UserService) {
 	err := userService.Put(ctx, realtimecore.User{
 		UID:      "3",
-		FullName: "Freek Grol",
 		Attributes: map[string]interface{}{
 			"firstname":    "Freek",
 			"emailaddress": "freek@home.nl",
@@ -126,7 +124,6 @@ func adjustFreek(ctx context.Context, userService realtimecore.UserService) {
 func adjustFreekAgain(ctx context.Context, userService realtimecore.UserService) {
 	err := userService.Put(ctx, realtimecore.User{
 		UID:      "3",
-		FullName: "Freek Grol",
 		Attributes: map[string]interface{}{
 			"firstname":    "Freek",
 			"emailaddress": "freek@home.nl",
@@ -139,9 +136,8 @@ func adjustFreekAgain(ctx context.Context, userService realtimecore.UserService)
 	}
 }
 
-func preprovisionUserSegmentRules(ctx context.Context, segmentService realtimecore.SegmentRuleService,
-	emailSender realtimeactions.Emailer,
-	smsSender realtimeactions.SmsSender) {
+func createOldRule(ctx context.Context, segmentService realtimecore.SegmentRuleService,
+	emailSender realtimeactions.Emailer) {
 	err := segmentService.Put(ctx, realtimecore.UserSegmentRule{
 		Name: "OldRule",
 		IsApplicableForUser: func(ctx context.Context, user realtimecore.User) (bool, error) {
@@ -156,8 +152,11 @@ func preprovisionUserSegmentRules(ctx context.Context, segmentService realtimeco
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
 
-	err = segmentService.Put(ctx, realtimecore.UserSegmentRule{
+func createYoungRule(ctx context.Context, segmentService realtimecore.SegmentRuleService, smsSender realtimeactions.SmsSender){
+
+	err := segmentService.Put(ctx, realtimecore.UserSegmentRule{
 		Name: "YoungRule",
 		IsApplicableForUser: func(ctx context.Context, user realtimecore.User) (bool, error) {
 			age, ok := user.Attributes["age"].(int)

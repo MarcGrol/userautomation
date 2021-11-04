@@ -5,51 +5,68 @@ import (
 	"fmt"
 	"github.com/MarcGrol/userautomation/realtime/realtimecore"
 	"reflect"
+	"sync"
 )
 
 type userService struct {
+	sync.Mutex
 	users            map[string]realtimecore.User
-	userEventService realtimecore.UserEventService
+	pubsub           Pubsub
 }
 
-func NewUserService(service realtimecore.UserEventService) realtimecore.UserService {
+func NewUserService(pubsub Pubsub) realtimecore.UserService {
 	return &userService{
 		users:            map[string]realtimecore.User{},
-		userEventService: service,
+		pubsub:           pubsub,
 	}
 }
 
 func (s *userService) Put(ctx context.Context, user realtimecore.User) error {
+	s.Lock()
+	defer s.Unlock()
+
 	originalUser, exists, err := s.Get(ctx, user.UID)
 	if err != nil {
 		return fmt.Errorf("Error fetching user with uid %s: %s", user.UID, err)
 	}
 
+	s.users[user.UID] = user
+
 	if !exists {
-		err = s.userEventService.OnUserCreated(ctx, user)
+		err := s.pubsub.Publish(ctx, "user", realtimecore.UserCreatedEvent{
+			State:user,
+		})
 		if err != nil {
-			return fmt.Errorf("OnUserCreated for user %s failed: %s", user.UID, err)
+			return fmt.Errorf("Error publishing UserCreatedEvent for user %s: %s", user, err)
 		}
 	} else if !reflect.DeepEqual(originalUser, user) {
-		err = s.userEventService.OnUserModified(ctx, originalUser, user)
+		err := s.pubsub.Publish(ctx, "user", realtimecore.UserModifiedEvent{
+			OldState:originalUser,
+			NewState: user,
+		})
 		if err != nil {
-			return fmt.Errorf("OnUserModified for user %s failed: %s", user.UID, err)
+			return fmt.Errorf("Error publishing UserModifiedEvent for user %s: %s", user, err)
 		}
 	} else {
 		// user unchanged
 	}
 
-	s.users[user.UID] = user
 
 	return nil
 }
 
 func (s *userService) Get(ctx context.Context, userUID string) (realtimecore.User, bool, error) {
+	s.Lock()
+	defer s.Unlock()
+
 	user, exists := s.users[userUID]
 	return user, exists, nil
 }
 
 func (s *userService) Query(ctx context.Context, filterFunc realtimecore.UserFilterFunc) ([]realtimecore.User, error) {
+	s.Lock()
+	defer s.Unlock()
+
 	result := []realtimecore.User{}
 
 	for _, u := range s.users {
@@ -66,13 +83,19 @@ func (s *userService) Query(ctx context.Context, filterFunc realtimecore.UserFil
 }
 
 func (s *userService) Delete(ctx context.Context, userUID string) error {
+	s.Lock()
+	defer s.Unlock()
+
 	user, exists := s.users[userUID]
 	if exists {
-		err := s.userEventService.OnUserRemoved(ctx, user)
-		if err != nil {
-			return fmt.Errorf("OnUserRemoved for user %s failed: %s", user.UID, err)
-		}
 		delete(s.users, userUID)
+
+		err := s.pubsub.Publish(ctx, "user", realtimecore.UserRemovedEvent{
+			State:user,
+		})
+		if err != nil {
+			return fmt.Errorf("Error publishing UserRemovedEvent for user %s: %s", user, err)
+		}
 	}
 
 	return nil
