@@ -2,23 +2,23 @@ package main
 
 import (
 	"context"
-	"github.com/MarcGrol/userautomation/actions"
-	"github.com/MarcGrol/userautomation/core"
-	"github.com/MarcGrol/userautomation/rules"
-	"github.com/MarcGrol/userautomation/userlookup"
+	actions2 "github.com/MarcGrol/userautomation/batch/batchactions"
+	"github.com/MarcGrol/userautomation/batch/batchcore"
+	"github.com/MarcGrol/userautomation/batch/batchrules"
+	"github.com/MarcGrol/userautomation/batch/userlookup"
 )
 
 func main() {
 	var userLookup userlookup.UserLookuper
-	var userGrouper actions.GroupApi
-	var emailer actions.Emailer
+	var userGrouper actions2.GroupApi
+	var emailer actions2.Emailer
 
-	userRules := rules.GetUserRules(userLookup, userGrouper, emailer)
+	userRules := batchrules.GetUserRules(userLookup, userGrouper, emailer)
 
-	event := core.Event{
+	event := batchcore.Event{
 		EventName: "Timer",
 		Payload:   map[string]interface{}{},
 	}
 
-	rules.EvaluateAllUserRules(context.TODO(), userRules, event)
+	batchrules.EvaluateAllUserRules(context.TODO(), userRules, event)
 }

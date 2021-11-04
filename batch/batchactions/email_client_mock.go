@@ -2,7 +2,7 @@
 // Source: email_client.go
 
 // Package actions is a generated GoMock package.
-package actions
+package batchactions
 
 import (
 	context "context"

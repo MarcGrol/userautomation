@@ -1,22 +1,21 @@
-package rules
+package batchrules
 
 import (
 	"context"
 	"fmt"
+	"github.com/MarcGrol/userautomation/batch/batchactions"
+	"github.com/MarcGrol/userautomation/batch/batchcore"
+	"github.com/MarcGrol/userautomation/batch/userlookup"
 	"strings"
-
-	"github.com/MarcGrol/userautomation/actions"
-	"github.com/MarcGrol/userautomation/core"
-	"github.com/MarcGrol/userautomation/userlookup"
 )
 
 type addToGroupUserRule struct {
 	userUID    string
 	userLookup userlookup.UserLookuper
-	groupApi   actions.GroupApi
+	groupApi   batchactions.GroupApi
 }
 
-func NewAddToGroupUserRule(userLookup userlookup.UserLookuper, groupApi actions.GroupApi) core.UserRule {
+func NewAddToGroupUserRule(userLookup userlookup.UserLookuper, groupApi batchactions.GroupApi) batchcore.UserRule {
 	return &addToGroupUserRule{
 		userLookup: userLookup,
 		groupApi:   groupApi,
@@ -27,20 +26,20 @@ func (r *addToGroupUserRule) Name() string {
 	return "AddUserToGroup"
 }
 
-func (r *addToGroupUserRule) ApplicableFor(event core.Event) bool {
+func (r *addToGroupUserRule) ApplicableFor(event batchcore.Event) bool {
 	r.userUID = event.UserUID
 	return event.EventName == "UserRegistered"
 }
 
-func (r *addToGroupUserRule) DetermineAudience(c context.Context) ([]core.User, error) {
+func (r *addToGroupUserRule) DetermineAudience(c context.Context) ([]batchcore.User, error) {
 	user, err := r.userLookup.GetUserOnUid(c, r.userUID)
 	if err != nil {
 		return nil, err
 	}
-	return []core.User{user}, nil
+	return []batchcore.User{user}, nil
 }
 
-func (r *addToGroupUserRule) ApplyAction(c context.Context, user core.User) error {
+func (r *addToGroupUserRule) ApplyAction(c context.Context, user batchcore.User) error {
 	groupName, err := r.deriveGroupFromEmailDomain(user.EmailAddress)
 	if err != nil {
 		return err

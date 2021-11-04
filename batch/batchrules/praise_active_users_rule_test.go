@@ -1,15 +1,14 @@
-package rules
+package batchrules
 
 import (
 	"context"
+	"github.com/MarcGrol/userautomation/batch/batchactions"
+	"github.com/MarcGrol/userautomation/batch/batchcore"
+	"github.com/MarcGrol/userautomation/batch/userlookup"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/MarcGrol/userautomation/actions"
-	"github.com/MarcGrol/userautomation/core"
-	"github.com/MarcGrol/userautomation/userlookup"
 )
 
 func TestPraiseActiveUser(t *testing.T) {
@@ -17,17 +16,17 @@ func TestPraiseActiveUser(t *testing.T) {
 	defer ctrl.Finish()
 
 	userLookup := userlookup.NewMockUserLookuper(ctrl)
-	emailer := actions.NewMockEmailer(ctrl)
+	emailer := batchactions.NewMockEmailer(ctrl)
 
 	testCases := []struct {
 		name              string
-		event             core.Event
+		event             batchcore.Event
 		setupExpectations func()
 		expectedResult    error
 	}{
 		{
 			name: "Unsupported event",
-			event: core.Event{
+			event: batchcore.Event{
 				EventName: "UserRegistered",
 				Payload:   map[string]interface{}{},
 			},
@@ -36,12 +35,12 @@ func TestPraiseActiveUser(t *testing.T) {
 		},
 		{
 			name: "Supported event",
-			event: core.Event{
+			event: batchcore.Event{
 				EventName: "Timer",
 				Payload:   map[string]interface{}{},
 			},
 			setupExpectations: func() {
-				userLookup.EXPECT().GetUserOnQuery(gomock.Any(), "publishCount > 10 && loginCount > 20").Return([]core.User{testUser}, nil)
+				userLookup.EXPECT().GetUserOnQuery(gomock.Any(), "publishCount > 10 && loginCount > 20").Return([]batchcore.User{testUser}, nil)
 				emailer.EXPECT().Send(gomock.Any(), "123@work.nl", "We praise your activity", "Hi Marc, well done").Return(nil)
 			},
 			expectedResult: nil,
@@ -51,7 +50,7 @@ func TestPraiseActiveUser(t *testing.T) {
 		sut := NewPraiseActiveUserRule(userLookup, emailer)
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setupExpectations()
-			err := core.EvaluateUserRule(context.TODO(), sut, tc.event)
+			err := batchcore.EvaluateUserRule(context.TODO(), sut, tc.event)
 			assert.NoError(t, err)
 		})
 	}

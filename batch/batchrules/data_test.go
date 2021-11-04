@@ -1,8 +1,10 @@
-package rules
+package batchrules
 
-import "github.com/MarcGrol/userautomation/core"
+import (
+	"github.com/MarcGrol/userautomation/batch/batchcore"
+)
 
-var testUser = core.User{
+var testUser = batchcore.User{
 	UserUID:      "123",
 	EmailAddress: "123@work.nl",
 	PhoneNumber:  "+31612345678",
