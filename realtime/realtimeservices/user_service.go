@@ -25,7 +25,7 @@ func (s *userService) Put(ctx context.Context, user realtimecore.User) error {
 	s.Lock()
 	defer s.Unlock()
 
-	originalUser, exists, err := s.get(ctx, user.UID)
+	originalUser, exists, err := s.getUnlocked(ctx, user.UID)
 	if err != nil {
 		return fmt.Errorf("Error fetching user with uid %s: %s", user.UID, err)
 	}
@@ -59,10 +59,10 @@ func (s *userService) Get(ctx context.Context, userUID string) (realtimecore.Use
 	s.Lock()
 	defer s.Unlock()
 
-	return s.get(ctx,userUID)
+	return s.getUnlocked(ctx,userUID)
 }
 
-func (s *userService) get(ctx context.Context, userUID string) (realtimecore.User, bool, error) {
+func (s *userService) getUnlocked(ctx context.Context, userUID string) (realtimecore.User, bool, error) {
 	user, exists := s.users[userUID]
 	return user, exists, nil
 }
