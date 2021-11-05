@@ -78,6 +78,11 @@ func TestDetectDifferences(t *testing.T) {
 			before: slice("a", "b"), after: []interface{}{"a", 1, 2},
 			removed: slice("b"), added: []interface{}{1, 2}, remained: slice("a"),
 		},
+		{
+			name:   "duplicates",
+			before: slice("a", "a"), after: slice("a", "a"),
+			removed: empty(), added: empty(), remained: slice("a"),
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {

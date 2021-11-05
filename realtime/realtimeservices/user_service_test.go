@@ -43,7 +43,8 @@ func TestUsingTableStrategy(t *testing.T) {
 				createUser(c.ctx, t, c.userService, 12)
 			},
 			then: func(c thenContext) {
-				c.smser.EXPECT().Send(gomock.Any(), "+31611111111", "young rule fired for Marc: your age is 12").Return(nil)
+				c.smser.EXPECT().Send(gomock.Any(), "+31611111111",
+					"young rule fired for Marc: your age is 12").Return(nil)
 			},
 		},
 
@@ -56,7 +57,8 @@ func TestUsingTableStrategy(t *testing.T) {
 				createUser(c.ctx, t, c.userService, 50)
 			},
 			then: func(c thenContext) {
-				c.emailer.EXPECT().Send(gomock.Any(), "marc@home.nl", "old rule fired", "Hoi Marc, your age is 50").Return(nil)
+				c.emailer.EXPECT().Send(gomock.Any(), "marc@home.nl",
+					"old rule fired", "Hoi Marc, your age is 50").Return(nil)
 			},
 		},
 		{
@@ -90,7 +92,8 @@ func TestUsingTableStrategy(t *testing.T) {
 				modifyUser(c.ctx, t, c.userService, 12)
 			},
 			then: func(c thenContext) {
-				c.smser.EXPECT().Send(gomock.Any(), "+31611111111", "young rule fired for Marc: your age is 12").Return(nil)
+				c.smser.EXPECT().Send(gomock.Any(), "+31611111111",
+					"young rule fired for Marc: your age is 12").Return(nil)
 			},
 		},
 		{
@@ -103,7 +106,8 @@ func TestUsingTableStrategy(t *testing.T) {
 				modifyUser(c.ctx, t, c.userService, 50)
 			},
 			then: func(c thenContext) {
-				c.emailer.EXPECT().Send(gomock.Any(), "marc@home.nl", "old rule fired", "Hoi Marc, your age is 50").Return(nil)
+				c.emailer.EXPECT().Send(gomock.Any(), "marc@home.nl",
+					"old rule fired", "Hoi Marc, your age is 50").Return(nil)
 			},
 		},
 		{
@@ -238,7 +242,8 @@ func TestUsingSubTests(t *testing.T) {
 		defer createUser(ctx, t, userService, 12)
 
 		// then
-		mockSmser.EXPECT().Send(gomock.Any(), "+31611111111", "young rule fired for Marc: your age is 12").Return(nil)
+		mockSmser.EXPECT().Send(gomock.Any(), "+31611111111",
+			"young rule fired for Marc: your age is 12").Return(nil)
 	})
 
 	t.Run("create user, old age rule matched -> email", func(t *testing.T) {
@@ -254,7 +259,8 @@ func TestUsingSubTests(t *testing.T) {
 		defer createUser(ctx, t, userService, 50)
 
 		// then
-		mockEmailer.EXPECT().Send(gomock.Any(), "marc@home.nl", "old rule fired", "Hoi Marc, your age is 50").Return(nil)
+		mockEmailer.EXPECT().Send(gomock.Any(), "marc@home.nl",
+			"old rule fired", "Hoi Marc, your age is 50").Return(nil)
 
 	})
 
@@ -305,7 +311,8 @@ func TestUsingSubTests(t *testing.T) {
 		defer modifyUser(ctx, t, userService, 12)
 
 		// then
-		mockSmser.EXPECT().Send(gomock.Any(), "+31611111111", "young rule fired for Marc: your age is 12").Return(nil)
+		mockSmser.EXPECT().Send(gomock.Any(), "+31611111111",
+			"young rule fired for Marc: your age is 12").Return(nil)
 
 	})
 
@@ -323,7 +330,8 @@ func TestUsingSubTests(t *testing.T) {
 		defer modifyUser(ctx, t, userService, 50)
 
 		// then
-		mockEmailer.EXPECT().Send(gomock.Any(), "marc@home.nl", "old rule fired", "Hoi Marc, your age is 50").Return(nil)
+		mockEmailer.EXPECT().Send(gomock.Any(), "marc@home.nl",
+			"old rule fired", "Hoi Marc, your age is 50").Return(nil)
 
 	})
 
