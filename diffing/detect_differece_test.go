@@ -1,6 +1,9 @@
 package diffing
 
 import (
+	"fmt"
+	"sort"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -79,9 +82,9 @@ func TestDetectDifferences(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			diff := DetectDifferences(tc.before, tc.after)
-			assert.Equal(t, tc.removed, diff.Removed)
-			assert.Equal(t, tc.added, diff.Added)
-			assert.Equal(t, tc.unchanged, diff.Unchanged)
+			assert.Equal(t, tc.removed, sortit(diff.Removed))
+			assert.Equal(t, tc.added, sortit(diff.Added))
+			assert.Equal(t, tc.unchanged, sortit(diff.Unchanged))
 		})
 	}
 }
@@ -96,4 +99,12 @@ func slice(varargs ...string) []interface{} {
 
 func empty() []interface{} {
 	return []interface{}{}
+}
+
+// We sort to make the result have a predefined order to ease testability
+func sortit(slice []interface{}) []interface{} {
+	sort.Slice(slice, func(i, j int) bool {
+		return strings.Compare(fmt.Sprintf("%s", slice[i]), fmt.Sprintf("%s", slice[j])) < 0
+	})
+	return slice
 }
