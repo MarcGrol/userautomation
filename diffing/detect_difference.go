@@ -16,6 +16,6 @@ func DetectDifferences(beforeSlice []interface{}, afterSlice []interface{}) Diff
 	return Difference{
 		Removed: beforeSet.Difference(afterSet).ToSlice(), // in before, not in after
 		Added:   afterSet.Difference(beforeSet).ToSlice(), // in after, not in before
-		InBoth:  afterSet.Intersect(beforeSet).ToSlice(),  // both in before and in after
+		InBoth:  beforeSet.Intersect(afterSet).ToSlice(),  // both in before and in after
 	}
 }
