@@ -73,7 +73,7 @@ func (s *userEventHandler) onUserModified(ctx context.Context, rules []realtimec
 		if !ruleApplicableBefore && ruleApplicableAfter {
 			err = rule.PerformAction(ctx, rule.Name, realtimecore.UserModified, &oldState, &newState)
 			if err != nil {
-				return fmt.Errorf("Error performing action for rule %s and us	er %s: %s", rule.Name, newState.UID, err)
+				return fmt.Errorf("Error performing action for rule %s and userService	er %s: %s", rule.Name, newState.UID, err)
 			}
 			s.onActionPerformed(ctx, rule, newState)
 

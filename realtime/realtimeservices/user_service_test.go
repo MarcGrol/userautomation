@@ -9,188 +9,399 @@ import (
 	"github.com/MarcGrol/userautomation/realtime/realtimecore"
 )
 
-func TestIt(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockEmailer := realtimeactions.NewMockEmailer(ctrl)
-	mockSmser := realtimeactions.NewMockSmsSender(ctrl)
+func TestUsingTableStrategy(t *testing.T) {
+	testCases := []struct {
+		name  string
+		given func(c givenContext)
+		when  func(c whenContext)
+		then  func(tc thenContext)
+	}{
+		{
+			name:  "create user, no rule exists",
+			given: nothingGiven(),
+			when: func(c whenContext) {
+				createUser(c.ctx, t, c.userService, 50)
+			},
+			then: nothing(),
+		},
+		{
+			name: "create user, no rule matched",
+			given: func(c givenContext) {
+				createYoungAgeRule(c.ctx, t, c.ruleService, c.smser)
+			},
+			when: func(c whenContext) {
+				createUser(c.ctx, t, c.userService, 50)
+			},
+			then: nothing(),
+		},
+		{
+			name: "create user, young age rule matched -> sms",
+			given: func(c givenContext) {
+				createYoungAgeRule(c.ctx, t, c.ruleService, c.smser)
+			},
+			when: func(c whenContext) {
+				createUser(c.ctx, t, c.userService, 12)
+			},
+			then: func(c thenContext) {
+				c.smser.EXPECT().Send(gomock.Any(), "+31611111111", "young rule fired for Marc: your age is 12").Return(nil)
+			},
+		},
 
+		{
+			name: "create user, old age rule matched -> email",
+			given: func(c givenContext) {
+				createOldAgeRule(c.ctx, t, c.ruleService, c.emailer)
+			},
+			when: func(c whenContext) {
+				createUser(c.ctx, t, c.userService, 50)
+			},
+			then: func(c thenContext) {
+				c.emailer.EXPECT().Send(gomock.Any(), "marc@home.nl", "old rule fired", "Hoi Marc, your age is 50").Return(nil)
+			},
+		},
+		{
+			name: "modify user, no rule exist",
+			given: func(c givenContext) {
+				createUser(c.ctx, t, c.userService, 50)
+			},
+			when: func(c whenContext) {
+				modifyUser(c.ctx, t, c.userService, 12)
+			},
+			then: nothing(),
+		},
+		{
+			name: "modify user, no rule matched",
+			given: func(c givenContext) {
+				createUser(c.ctx, t, c.userService, 12)
+				createOldAgeRule(c.ctx, t, c.ruleService, c.emailer)
+			},
+			when: func(c whenContext) {
+				modifyUser(c.ctx, t, c.userService, 14)
+			},
+			then: nothing(),
+		},
+		{
+			name: "modify user, young age rule matched -> sms",
+			given: func(c givenContext) {
+				createUser(c.ctx, t, c.userService, 50)
+				createYoungAgeRule(c.ctx, t, c.ruleService, c.smser)
+			},
+			when: func(c whenContext) {
+				modifyUser(c.ctx, t, c.userService, 12)
+			},
+			then: func(c thenContext) {
+				c.smser.EXPECT().Send(gomock.Any(), "+31611111111", "young rule fired for Marc: your age is 12").Return(nil)
+			},
+		},
+		{
+			name: "modify user, old age rule matched -> email",
+			given: func(c givenContext) {
+				createOldAgeRule(c.ctx, t, c.ruleService, c.emailer)
+				createUser(c.ctx, t, c.userService, 12)
+			},
+			when: func(c whenContext) {
+				modifyUser(c.ctx, t, c.userService, 50)
+			},
+			then: func(c thenContext) {
+				c.emailer.EXPECT().Send(gomock.Any(), "marc@home.nl", "old rule fired", "Hoi Marc, your age is 50").Return(nil)
+			},
+		},
+		{
+			name: "modify user, remains young",
+			given: func(c givenContext) {
+				createOldAgeRule(c.ctx, t, c.ruleService, c.emailer)
+				createUser(c.ctx, t, c.userService, 12)
+
+			},
+			when: func(c whenContext) {
+				modifyUser(c.ctx, t, c.userService, 14)
+			},
+			then: nothing(),
+		},
+		{
+			name:  "delete user, no user exists",
+			given: nothingGiven(),
+			when: func(c whenContext) {
+				removeUser(c.ctx, t, c.userService)
+			},
+			then: nothing(),
+		},
+
+		{
+			name: "delete user, no rule exist",
+			given: func(c givenContext) {
+				createUser(c.ctx, t, c.userService, 50)
+			},
+			when: func(c whenContext) {
+				removeUser(c.ctx, t, c.userService)
+			},
+			then: nothing(),
+		},
+		{
+			name: "delete user, no rule matched",
+			given: func(c givenContext) {
+				createUser(c.ctx, t, c.userService, 50)
+				createYoungAgeRule(c.ctx, t, c.ruleService, c.smser)
+
+			},
+			when: func(c whenContext) {
+				defer removeUser(c.ctx, t, c.userService)
+
+			},
+			then: nothing(),
+		},
+		{
+			name: "delete user, young age rule matched",
+			given: func(c givenContext) {
+				createUser(c.ctx, t, c.userService, 50)
+				createOldAgeRule(c.ctx, t, c.ruleService, c.emailer)
+			},
+			when: func(c whenContext) {
+				defer removeUser(c.ctx, t, c.userService)
+
+			},
+			then: nothing(),
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Start with a fully fresh environment each test
+			ctx := context.TODO()
+			mockEmailer, mockSmser, ctrl := setupMocks(t)
+			defer ctrl.Finish()
+			ruleService, userService := setupSut(ctx)
+
+			// execute the test
+			tc.given(givenContext{
+				ctx:         ctx,
+				ruleService: ruleService,
+				userService: userService,
+				emailer:     mockEmailer,
+				smser:       mockSmser,
+			})
+
+			defer tc.when(whenContext{
+				ctx:         ctx,
+				userService: userService,
+			})
+
+			tc.then(thenContext{
+				emailer: mockEmailer,
+				smser:   mockSmser,
+			})
+		})
+	}
+}
+
+func TestUsingSubTests(t *testing.T) {
 	ctx := context.TODO()
 
 	t.Run("create user, no rule exists", func(t *testing.T) {
-		_, userService := setup(ctx)
+		// setup
+		_, userService := setupSut(ctx)
+		_, _, ctrl := setupMocks(t)
+		defer ctrl.Finish()
 
 		// given
 
-		// expect
-
 		// when
-		createUser(ctx, t, userService, 50)
+		defer createUser(ctx, t, userService, 50)
 
+		// then
 	})
 
 	t.Run("create user, no rule matched", func(t *testing.T) {
-		ruleService, userService := setup(ctx)
+		// setup
+		ruleService, userService := setupSut(ctx)
+		_, mockSmser, ctrl := setupMocks(t)
+		defer ctrl.Finish()
 
 		// given
 		createYoungAgeRule(ctx, t, ruleService, mockSmser)
 
-		// expect
-
 		// when
-		createUser(ctx, t, userService, 50)
+		defer createUser(ctx, t, userService, 50)
 
+		// then
 	})
 
 	t.Run("create user, young age rule matched -> sms", func(t *testing.T) {
-		ruleService, userService := setup(ctx)
+		// setup
+		ruleService, userService := setupSut(ctx)
+		_, mockSmser, ctrl := setupMocks(t)
+		defer ctrl.Finish()
 
 		// given
 		createYoungAgeRule(ctx, t, ruleService, mockSmser)
 
-		// expect
-		mockSmser.EXPECT().Send(gomock.Any(), "+31611111111", "young rule fired for Marc: your age is 12").Return(nil)
-
 		// when
-		createUser(ctx, t, userService, 12)
+		defer createUser(ctx, t, userService, 12)
+
+		// then
+		mockSmser.EXPECT().Send(gomock.Any(), "+31611111111", "young rule fired for Marc: your age is 12").Return(nil)
 	})
 
 	t.Run("create user, old age rule matched -> email", func(t *testing.T) {
-		ruleService, userService := setup(ctx)
+		// setup
+		ruleService, userService := setupSut(ctx)
+		mockEmailer, _, ctrl := setupMocks(t)
+		defer ctrl.Finish()
 
 		// given
 		createOldAgeRule(ctx, t, ruleService, mockEmailer)
 
-		// expect
-		mockEmailer.EXPECT().Send(gomock.Any(), "marc@home.nl", "old rule fired", "Hoi Marc, your age is 50").Return(nil)
-
 		// when
-		createUser(ctx, t, userService, 50)
+		defer createUser(ctx, t, userService, 50)
+
+		// then
+		mockEmailer.EXPECT().Send(gomock.Any(), "marc@home.nl", "old rule fired", "Hoi Marc, your age is 50").Return(nil)
 
 	})
 
 	t.Run("modify user, no rule exist", func(t *testing.T) {
-		_, userService := setup(ctx)
-
-		// given
-		createUser(ctx, t, userService, 50)
+		// setup
+		_, userService := setupSut(ctx)
+		_, _, ctrl := setupMocks(t)
+		defer ctrl.Finish()
 
 		// expect
 
 		// when
-		modifyUser(ctx, t, userService, 12)
+		defer modifyUser(ctx, t, userService, 12)
+
+		// then
+		createUser(ctx, t, userService, 50)
 
 	})
 
 	t.Run("modify user, no rule matched", func(t *testing.T) {
-		ruleService, userService := setup(ctx)
+		// setup
+		ruleService, userService := setupSut(ctx)
+		mockEmailer, _, ctrl := setupMocks(t)
+		defer ctrl.Finish()
 
 		// given
 		createUser(ctx, t, userService, 12)
 		createOldAgeRule(ctx, t, ruleService, mockEmailer)
 
-		// expect
-
 		// when
-		modifyUser(ctx, t, userService, 14)
+		defer modifyUser(ctx, t, userService, 14)
+
+		// then
 
 	})
 
 	t.Run("modify user, young age rule matched -> sms", func(t *testing.T) {
-		ruleService, userService := setup(ctx)
+		// setup
+		ruleService, userService := setupSut(ctx)
+		_, mockSmser, ctrl := setupMocks(t)
+		defer ctrl.Finish()
 
 		// given
 		createUser(ctx, t, userService, 50)
 		createYoungAgeRule(ctx, t, ruleService, mockSmser)
 
-		// expect
-		mockSmser.EXPECT().Send(gomock.Any(), "+31611111111", "young rule fired for Marc: your age is 12").Return(nil)
-
 		// when
-		modifyUser(ctx, t, userService, 12)
+		defer modifyUser(ctx, t, userService, 12)
+
+		// then
+		mockSmser.EXPECT().Send(gomock.Any(), "+31611111111", "young rule fired for Marc: your age is 12").Return(nil)
 
 	})
 
 	t.Run("modify user, old age rule matched -> email", func(t *testing.T) {
-		ruleService, userService := setup(ctx)
+		// setup
+		ruleService, userService := setupSut(ctx)
+		mockEmailer, _, ctrl := setupMocks(t)
+		defer ctrl.Finish()
 
 		// given
 		createOldAgeRule(ctx, t, ruleService, mockEmailer)
 		createUser(ctx, t, userService, 12)
 
-		// expect
-		mockEmailer.EXPECT().Send(gomock.Any(), "marc@home.nl", "old rule fired", "Hoi Marc, your age is 50").Return(nil)
-
 		// when
-		modifyUser(ctx, t, userService, 50)
+		defer modifyUser(ctx, t, userService, 50)
+
+		// then
+		mockEmailer.EXPECT().Send(gomock.Any(), "marc@home.nl", "old rule fired", "Hoi Marc, your age is 50").Return(nil)
 
 	})
 
 	t.Run("modify user, remains young", func(t *testing.T) {
-		ruleService, userService := setup(ctx)
+		// setup
+		ruleService, userService := setupSut(ctx)
+		mockEmailer, _, ctrl := setupMocks(t)
+		defer ctrl.Finish()
 
 		// given
 		createOldAgeRule(ctx, t, ruleService, mockEmailer)
 		createUser(ctx, t, userService, 12)
 
-		// expect
-
 		// when
-		modifyUser(ctx, t, userService, 14)
+		defer modifyUser(ctx, t, userService, 14)
 
+		// then
 	})
 
 	t.Run("delete user, no user exists", func(t *testing.T) {
-		_, userService := setup(ctx)
+		// setup
+		_, userService := setupSut(ctx)
+		_, _, ctrl := setupMocks(t)
+		defer ctrl.Finish()
 
 		// given
 
-		// expect
-
 		// when
-		removeUser(ctx, t, userService)
+		defer removeUser(ctx, t, userService)
 
+		// then
 	})
 
 	t.Run("delete user, no rule exist", func(t *testing.T) {
-		_, userService := setup(ctx)
+		// setup
+		_, userService := setupSut(ctx)
+		_, _, ctrl := setupMocks(t)
+		defer ctrl.Finish()
 
 		// given
 		createUser(ctx, t, userService, 50)
 
-		// expect
-
 		// when
-		removeUser(ctx, t, userService)
+		defer removeUser(ctx, t, userService)
 
+		// then
 	})
 
 	t.Run("delete user, no rule matched", func(t *testing.T) {
-		ruleService, userService := setup(ctx)
+		// setup
+		ruleService, userService := setupSut(ctx)
+		_, mockSmser, ctrl := setupMocks(t)
+		defer ctrl.Finish()
 
 		// given
 		createUser(ctx, t, userService, 50)
 		createYoungAgeRule(ctx, t, ruleService, mockSmser)
 
-		// expect
-
 		// when
-		removeUser(ctx, t, userService)
+		defer removeUser(ctx, t, userService)
 
+		// then
 	})
 
 	t.Run("delete user, young age rule matched", func(t *testing.T) {
-		ruleService, userService := setup(ctx)
+		// setup
+		ruleService, userService := setupSut(ctx)
+		mockEmailer, _, ctrl := setupMocks(t)
+		defer ctrl.Finish()
 
 		// given
 		createUser(ctx, t, userService, 50)
 		createOldAgeRule(ctx, t, ruleService, mockEmailer)
 
-		// expect
-
 		// when
-		removeUser(ctx, t, userService)
+		defer removeUser(ctx, t, userService)
 
+		// then
 	})
 }
 
@@ -266,7 +477,14 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService realti
 	}
 }
 
-func setup(ctx context.Context) (realtimecore.SegmentRuleService, realtimecore.UserService) {
+func setupMocks(t *testing.T) (*realtimeactions.MockEmailer, *realtimeactions.MockSmsSender, *gomock.Controller) {
+	ctrl := gomock.NewController(t)
+	mockEmailer := realtimeactions.NewMockEmailer(ctrl)
+	mockSmser := realtimeactions.NewMockSmsSender(ctrl)
+	return mockEmailer, mockSmser, ctrl
+}
+
+func setupSut(ctx context.Context) (realtimecore.SegmentRuleService, realtimecore.UserService) {
 	pubsub := NewPubSub()
 
 	ruleService := NewUserSegmentRuleService()
@@ -277,4 +495,31 @@ func setup(ctx context.Context) (realtimecore.SegmentRuleService, realtimecore.U
 	userService := NewUserService(pubsub)
 
 	return ruleService, userService
+}
+
+type givenContext struct {
+	ctx         context.Context
+	ruleService realtimecore.SegmentRuleService
+	userService realtimecore.UserService
+	emailer     realtimeactions.Emailer
+	smser       realtimeactions.SmsSender
+}
+
+type whenContext struct {
+	ctx         context.Context
+	ruleService realtimecore.SegmentRuleService
+	userService realtimecore.UserService
+}
+
+type thenContext struct {
+	emailer *realtimeactions.MockEmailer
+	smser   *realtimeactions.MockSmsSender
+}
+
+func nothingGiven() func(c givenContext) {
+	return func(c givenContext) {}
+}
+
+func nothing() func(c thenContext) {
+	return func(c thenContext) {}
 }
