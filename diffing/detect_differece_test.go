@@ -7,91 +7,83 @@ import (
 )
 
 func TestDetectDifferences(t *testing.T) {
-
-	t.Run("all nil", func(t *testing.T) {
-		result := DetectDifferences(nil, nil)
-		assert.Equal(t, empty(), result.Removed)
-		assert.Equal(t, empty(), result.Added)
-		assert.Equal(t, empty(), result.Unchanged)
-	})
-
-	t.Run("before nil", func(t *testing.T) {
-		result := DetectDifferences(nil, slice("a", "b"))
-		assert.Equal(t, empty(), result.Removed)
-		assert.Equal(t, slice("a", "b"), result.Added)
-		assert.Equal(t, empty(), result.Unchanged)
-	})
-
-	t.Run("after nil", func(t *testing.T) {
-		result := DetectDifferences(slice("a", "b"), nil)
-		assert.Equal(t, slice("a", "b"), result.Removed)
-		assert.Equal(t, empty(), result.Added)
-		assert.Equal(t, empty(), result.Unchanged)
-	})
-
-	t.Run("all empty", func(t *testing.T) {
-		result := DetectDifferences(empty(), empty())
-		assert.Equal(t, empty(), result.Removed)
-		assert.Equal(t, empty(), result.Added)
-		assert.Equal(t, empty(), result.Unchanged)
-	})
-
-	t.Run("all same", func(t *testing.T) {
-		result := DetectDifferences(slice("a", "b"), slice("a", "b"))
-		assert.Equal(t, empty(), result.Removed)
-		assert.Equal(t, empty(), result.Added)
-		assert.Equal(t, slice("a", "b"), result.Unchanged)
-	})
-
-	t.Run("one removed", func(t *testing.T) {
-		result := DetectDifferences(slice("a", "b", "c"), slice("a", "b"))
-		assert.Equal(t, slice("c"), result.Removed)
-		assert.Equal(t, empty(), result.Added)
-		assert.Equal(t, slice("a", "b"), result.Unchanged)
-	})
-
-	t.Run("all removed", func(t *testing.T) {
-		result := DetectDifferences(slice("a", "b"), empty())
-		assert.Equal(t, slice("a", "b"), result.Removed)
-		assert.Equal(t, empty(), result.Added)
-		assert.Equal(t, empty(), result.Unchanged)
-	})
-
-	t.Run("one added", func(t *testing.T) {
-		result := DetectDifferences(slice("a", "b"), slice("a", "b", "c"))
-		assert.Equal(t, empty(), result.Removed)
-		assert.Equal(t, slice("c"), result.Added)
-		assert.Equal(t, slice("a", "b"), result.Unchanged)
-	})
-
-	t.Run("all added", func(t *testing.T) {
-		result := DetectDifferences(empty(), slice("a", "b"))
-		assert.Equal(t, empty(), result.Removed)
-		assert.Equal(t, slice("a", "b"), result.Added)
-		assert.Equal(t, empty(), result.Unchanged)
-	})
-
-	t.Run("one added, one removed", func(t *testing.T) {
-		result := DetectDifferences(slice("a", "b"), slice("b", "c"))
-		assert.Equal(t, slice("a"), result.Removed)
-		assert.Equal(t, slice("c"), result.Added)
-		assert.Equal(t, slice("b"), result.Unchanged)
-	})
-
-	t.Run("all added, all removed", func(t *testing.T) {
-		result := DetectDifferences(slice("a", "b"), slice("c", "d"))
-		assert.Equal(t, slice("a", "b"), result.Removed)
-		assert.Equal(t, slice("c", "d"), result.Added)
-		assert.Equal(t, empty(), result.Unchanged)
-	})
-
-	t.Run("mixed types", func(t *testing.T) {
-		result := DetectDifferences(slice("a", "b"), []interface{}{"a", 1, 2})
-		assert.Equal(t, slice("b"), result.Removed)
-		assert.Equal(t, []interface{}{1, 2}, result.Added)
-		assert.Equal(t, slice("a"), result.Unchanged)
-	})
-
+	testCases := []struct {
+		name      string
+		before    []interface{}
+		after     []interface{}
+		removed   []interface{}
+		added     []interface{}
+		unchanged []interface{}
+	}{
+		{
+			name:   "all nil",
+			before: nil, after: nil,
+			removed: empty(), added: empty(), unchanged: empty(),
+		},
+		{
+			name:   "before nil",
+			before: nil, after: slice("a", "b"),
+			removed: empty(), added: slice("a", "b"), unchanged: empty(),
+		},
+		{
+			name:   "after nil",
+			before: slice("a", "b"), after: nil,
+			removed: slice("a", "b"), added: empty(), unchanged: empty(),
+		},
+		{
+			name:   "all empty",
+			before: empty(), after: empty(),
+			removed: empty(), added: empty(), unchanged: empty(),
+		},
+		{
+			name:   "all same",
+			before: slice("a", "b"), after: slice("a", "b"),
+			removed: empty(), added: empty(), unchanged: slice("a", "b"),
+		},
+		{
+			name:   "one removed",
+			before: slice("a", "b"), after: slice("a"),
+			removed: slice("b"), added: empty(), unchanged: slice("a"),
+		},
+		{
+			name:   "all removed",
+			before: slice("a", "b"), after: empty(),
+			removed: slice("a", "b"), added: empty(), unchanged: empty(),
+		},
+		{
+			name:   "one added",
+			before: slice("a", "b"), after: slice("a", "b", "c"),
+			removed: empty(), added: slice("c"), unchanged: slice("a", "b"),
+		},
+		{
+			name:   "all added",
+			before: empty(), after: slice("a", "b"),
+			removed: empty(), added: slice("a", "b"), unchanged: empty(),
+		},
+		{
+			name:   "one added, one removed",
+			before: slice("a", "b"), after: slice("b", "c"),
+			removed: slice("a"), added: slice("c"), unchanged: slice("b"),
+		},
+		{
+			name:   "all added, all removed",
+			before: slice("a", "b"), after: slice("c", "d"),
+			removed: slice("a", "b"), added: slice("c", "d"), unchanged: empty(),
+		},
+		{
+			name:   "mixed types",
+			before: slice("a", "b"), after: []interface{}{"a", 1, 2},
+			removed: slice("b"), added: []interface{}{1, 2}, unchanged: slice("a"),
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			diff := DetectDifferences(tc.before, tc.after)
+			assert.Equal(t, tc.removed, diff.Removed)
+			assert.Equal(t, tc.added, diff.Added)
+			assert.Equal(t, tc.unchanged, diff.Unchanged)
+		})
+	}
 }
 
 func slice(varargs ...string) []interface{} {
