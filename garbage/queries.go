@@ -1,9 +1,10 @@
-package realtimeuserinsegment
+package garbage
 
 import (
 	"context"
 	"fmt"
-	"github.com/MarcGrol/userautomation/realtime/realtimecore"
+
+	"github.com/MarcGrol/userautomation/users"
 )
 
 type UserDatabase interface {
@@ -20,8 +21,8 @@ func (db *userDatabase) UserInSegment(ctx context.Context, whereClause string) (
 	return true, nil
 }
 
-func Query(db UserDatabase, segmentQuery string) realtimecore.UserFilterFunc {
-	return func(ctx context.Context, u realtimecore.User) (bool, error) {
+func Query(db UserDatabase, segmentQuery string) users.UserFilterFunc {
+	return func(ctx context.Context, u users.User) (bool, error) {
 		whereClause := fmt.Sprintf(`user_uid = '%s' AND %s`, u.UID, segmentQuery)
 		exists, err := db.UserInSegment(ctx, whereClause)
 		if err != nil {

@@ -1,4 +1,4 @@
-package realtimeutil
+package templating
 
 import (
 	"bytes"

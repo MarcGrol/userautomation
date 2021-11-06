@@ -1,30 +1,28 @@
-package realtimeservices
+package pubsub
 
 import (
 	"context"
 	"sync"
-
-	"github.com/MarcGrol/userautomation/realtime/realtimecore"
 )
 
 type pubsub struct {
 	sync.Mutex
-	topics map[string][]realtimecore.OnEventFunc
+	topics map[string][]OnEventFunc
 }
 
-func NewPubSub() realtimecore.Pubsub {
+func NewPubSub() Pubsub {
 	return &pubsub{
-		topics: map[string][]realtimecore.OnEventFunc{},
+		topics: map[string][]OnEventFunc{},
 	}
 }
 
-func (ps *pubsub) Subscribe(ctx context.Context, topic string, onEvent realtimecore.OnEventFunc) error {
+func (ps *pubsub) Subscribe(ctx context.Context, topic string, onEvent OnEventFunc) error {
 	ps.Lock()
 	defer ps.Unlock()
 
 	handlers, exists := ps.topics[topic]
 	if !exists {
-		handlers = []realtimecore.OnEventFunc{}
+		handlers = []OnEventFunc{}
 	}
 	handlers = append(handlers, onEvent)
 	ps.topics[topic] = handlers

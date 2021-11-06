@@ -1,4 +1,4 @@
-package realtimecore
+package users
 
 type UserCreatedEvent struct {
 	State User

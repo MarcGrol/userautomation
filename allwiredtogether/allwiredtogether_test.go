@@ -1,12 +1,14 @@
-package realtimeservices
+package allwiredtogether
 
 import (
 	"context"
-	"github.com/golang/mock/gomock"
 	"testing"
 
-	"github.com/MarcGrol/userautomation/realtime/realtimeactions"
-	"github.com/MarcGrol/userautomation/realtime/realtimecore"
+	"github.com/MarcGrol/userautomation/actions/email"
+	"github.com/MarcGrol/userautomation/actions/sms"
+	"github.com/MarcGrol/userautomation/rules"
+	"github.com/MarcGrol/userautomation/users"
+	"github.com/golang/mock/gomock"
 )
 
 func TestUsingTableStrategy(t *testing.T) {
@@ -173,6 +175,7 @@ func TestUsingTableStrategy(t *testing.T) {
 			ctx := context.TODO()
 			mockEmailer, mockSmser, ctrl := setupMocks(t)
 			defer ctrl.Finish()
+
 			ruleService, userService := setupSut(ctx)
 
 			// execute the test
@@ -382,7 +385,7 @@ func TestUsingSubTests(t *testing.T) {
 
 	t.Run("delete user, no rule matched", func(t *testing.T) {
 		// setup
-		ruleService, userService := setupSut(ctx)
+		ruleService, userService  := setupSut(ctx)
 		_, mockSmser, ctrl := setupMocks(t)
 		defer ctrl.Finish()
 
@@ -413,8 +416,13 @@ func TestUsingSubTests(t *testing.T) {
 	})
 }
 
-func createUser(ctx context.Context, t *testing.T, userService realtimecore.UserService, age int) {
-	err := userService.Put(ctx, realtimecore.User{
+func setupSut(ctx context.Context) (rules.SegmentRuleService, users.UserService) {
+	sut := New(ctx)
+	return sut.GetSegmentRuleService(), sut.GetUserService()
+}
+
+func createUser(ctx context.Context, t *testing.T, userService users.UserService, age int) {
+	err := userService.Put(ctx, users.User{
 		UID: "1",
 		Attributes: map[string]interface{}{
 			"firstname":    "Marc",
@@ -428,8 +436,8 @@ func createUser(ctx context.Context, t *testing.T, userService realtimecore.User
 	}
 }
 
-func modifyUser(ctx context.Context, t *testing.T, userService realtimecore.UserService, age int) {
-	err := userService.Put(ctx, realtimecore.User{
+func modifyUser(ctx context.Context, t *testing.T, userService users.UserService, age int) {
+	err := userService.Put(ctx, users.User{
 		UID: "1",
 		Attributes: map[string]interface{}{
 			"firstname":    "Marc",
@@ -443,85 +451,72 @@ func modifyUser(ctx context.Context, t *testing.T, userService realtimecore.User
 	}
 }
 
-func removeUser(ctx context.Context, t *testing.T, userService realtimecore.UserService) {
+func removeUser(ctx context.Context, t *testing.T, userService users.UserService) {
 	err := userService.Remove(ctx, "1")
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-func createOldAgeRule(ctx context.Context, t *testing.T, segmentService realtimecore.SegmentRuleService,
-	emailSender realtimeactions.Emailer) {
-	err := segmentService.Put(ctx, realtimecore.UserSegmentRule{
+func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rules.SegmentRuleService,
+	emailSender email.EmailSender) {
+	err := segmentService.Put(ctx, rules.UserSegmentRule{
 		Name: "OldRule",
-		IsApplicableForUser: func(ctx context.Context, user realtimecore.User) (bool, error) {
+		IsApplicableForUser: func(ctx context.Context, user users.User) (bool, error) {
 			age, ok := user.Attributes["age"].(int)
 			if !ok {
 				return false, nil
 			}
 			return age > 40, nil
 		},
-		PerformAction: realtimeactions.EmailerAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", emailSender),
+		PerformAction: email.EmailerAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", emailSender),
 	})
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService realtimecore.SegmentRuleService, smsSender realtimeactions.SmsSender) {
-	err := segmentService.Put(ctx, realtimecore.UserSegmentRule{
+func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rules.SegmentRuleService, smsSender sms.SmsSender) {
+	err := segmentService.Put(ctx, rules.UserSegmentRule{
 		Name: "YoungRule",
-		IsApplicableForUser: func(ctx context.Context, user realtimecore.User) (bool, error) {
+		IsApplicableForUser: func(ctx context.Context, user users.User) (bool, error) {
 			age, ok := user.Attributes["age"].(int)
 			if !ok {
 				return false, nil
 			}
 			return age < 18, nil
 		},
-		PerformAction: realtimeactions.SmsAction("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
+		PerformAction: sms.SmsAction("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
 	})
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-func setupMocks(t *testing.T) (*realtimeactions.MockEmailer, *realtimeactions.MockSmsSender, *gomock.Controller) {
+func setupMocks(t *testing.T) (*email.MockEmailSender, *sms.MockSmsSender, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
-	mockEmailer := realtimeactions.NewMockEmailer(ctrl)
-	mockSmser := realtimeactions.NewMockSmsSender(ctrl)
+	mockEmailer := email.NewMockEmailSender(ctrl)
+	mockSmser := sms.NewMockSmsSender(ctrl)
 	return mockEmailer, mockSmser, ctrl
-}
-
-func setupSut(ctx context.Context) (realtimecore.SegmentRuleService, realtimecore.UserService) {
-	pubsub := NewPubSub()
-
-	ruleService := NewUserSegmentRuleService()
-
-	userEventService := NewUserEventService(pubsub, ruleService)
-	userEventService.Subscribe(ctx)
-
-	userService := NewUserService(pubsub)
-
-	return ruleService, userService
 }
 
 type givenContext struct {
 	ctx         context.Context
-	ruleService realtimecore.SegmentRuleService
-	userService realtimecore.UserService
-	emailer     realtimeactions.Emailer
-	smser       realtimeactions.SmsSender
+	ruleService rules.SegmentRuleService
+	userService users.UserService
+	emailer     email.EmailSender
+	smser   sms.SmsSender
 }
 
 type whenContext struct {
 	ctx         context.Context
-	ruleService realtimecore.SegmentRuleService
-	userService realtimecore.UserService
+	ruleService rules.SegmentRuleService
+	userService users.UserService
 }
 
 type thenContext struct {
-	emailer *realtimeactions.MockEmailer
-	smser   *realtimeactions.MockSmsSender
+	emailer *email.MockEmailSender
+	smser   *sms.MockSmsSender
 }
 
 func nothingGiven() func(c givenContext) {

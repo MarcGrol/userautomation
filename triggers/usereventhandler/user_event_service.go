@@ -1,18 +1,20 @@
-package realtimeservices
+package usereventhandler
 
 import (
 	"context"
 	"fmt"
+	"github.com/MarcGrol/userautomation/infra/pubsub"
 
-	"github.com/MarcGrol/userautomation/realtime/realtimecore"
+	"github.com/MarcGrol/userautomation/rules"
+	"github.com/MarcGrol/userautomation/users"
 )
 
 type userEventHandler struct {
-	pubsub      realtimecore.Pubsub
-	ruleService realtimecore.SegmentRuleService
+	pubsub      pubsub.Pubsub
+	ruleService rules.SegmentRuleService
 }
 
-func NewUserEventService(pubsub realtimecore.Pubsub, ruleService realtimecore.SegmentRuleService) realtimecore.UserEventService {
+func NewUserEventService(pubsub pubsub.Pubsub, ruleService rules.SegmentRuleService) UserEventService {
 	return &userEventHandler{
 		pubsub:      pubsub,
 		ruleService: ruleService,
@@ -30,25 +32,25 @@ func (s *userEventHandler) OnEvent(ctx context.Context, topic string, event inte
 	}
 
 	switch e := event.(type) {
-	case realtimecore.UserCreatedEvent:
+	case users.UserCreatedEvent:
 		return s.onUserCreated(ctx, rules, e.State)
-	case realtimecore.UserModifiedEvent:
+	case users.UserModifiedEvent:
 		return s.onUserModified(ctx, rules, e.OldState, e.NewState)
-	case realtimecore.UserRemovedEvent:
+	case users.UserRemovedEvent:
 		return s.onUserRemoved(ctx, rules, e.State)
 	default:
 		return fmt.Errorf("Event %+v not supported", e)
 	}
 }
 
-func (s *userEventHandler) onUserCreated(ctx context.Context, rules []realtimecore.UserSegmentRule, user realtimecore.User) error {
-	for _, rule := range rules {
+func (s *userEventHandler) onUserCreated(ctx context.Context, ruleSlice []rules.UserSegmentRule, user users.User) error {
+	for _, rule := range ruleSlice {
 		applicable, err := rule.IsApplicableForUser(ctx, user)
 		if err != nil {
 			return fmt.Errorf("Error determining if rule is applicable for user: %s", err)
 		}
 		if applicable {
-			err = rule.PerformAction(ctx, rule.Name, realtimecore.UserCreated, nil, &user)
+			err = rule.PerformAction(ctx, rule.Name, rules.UserCreated, nil, &user)
 			if err != nil {
 				return fmt.Errorf("Error performing action for rule %s and useer %s: %s", rule.Name, user.UID, err)
 			}
@@ -58,8 +60,8 @@ func (s *userEventHandler) onUserCreated(ctx context.Context, rules []realtimeco
 	return nil
 }
 
-func (s *userEventHandler) onUserModified(ctx context.Context, rules []realtimecore.UserSegmentRule, oldState realtimecore.User, newState realtimecore.User) error {
-	for _, rule := range rules {
+func (s *userEventHandler) onUserModified(ctx context.Context, ruleSlice []rules.UserSegmentRule, oldState users.User, newState users.User) error {
+	for _, rule := range ruleSlice {
 		ruleApplicableBefore, err := rule.IsApplicableForUser(ctx, oldState)
 		if err != nil {
 			return fmt.Errorf("Error determining if rule is applicable for newState: %s", err)
@@ -71,7 +73,7 @@ func (s *userEventHandler) onUserModified(ctx context.Context, rules []realtimec
 		}
 
 		if !ruleApplicableBefore && ruleApplicableAfter {
-			err = rule.PerformAction(ctx, rule.Name, realtimecore.UserModified, &oldState, &newState)
+			err = rule.PerformAction(ctx, rule.Name, rules.UserModified, &oldState, &newState)
 			if err != nil {
 				return fmt.Errorf("Error performing action for rule %s and userService	er %s: %s", rule.Name, newState.UID, err)
 			}
@@ -85,14 +87,14 @@ func (s *userEventHandler) onUserModified(ctx context.Context, rules []realtimec
 	return nil
 }
 
-func (s *userEventHandler) onUserRemoved(ctx context.Context, rules []realtimecore.UserSegmentRule, user realtimecore.User) error {
-	for _, rule := range rules {
+func (s *userEventHandler) onUserRemoved(ctx context.Context, ruleSlice []rules.UserSegmentRule, user users.User) error {
+	for _, rule := range ruleSlice {
 		applicable, err := rule.IsApplicableForUser(ctx, user)
 		if err != nil {
 			return fmt.Errorf("Error determining if rule is applicable for user: %s", err)
 		}
 		if applicable {
-			err = rule.PerformAction(ctx, rule.Name, realtimecore.UserRemoved, &user, nil)
+			err = rule.PerformAction(ctx, rule.Name, rules.UserRemoved, &user, nil)
 			if err != nil {
 				return fmt.Errorf("Error performing action for rule %s and useer %s: %s", rule.Name, user.UID, err)
 			}
@@ -102,7 +104,7 @@ func (s *userEventHandler) onUserRemoved(ctx context.Context, rules []realtimeco
 	return nil
 }
 
-func (s *userEventHandler) onActionPerformed(ctx context.Context, rule realtimecore.UserSegmentRule, user realtimecore.User) {
+func (s *userEventHandler) onActionPerformed(ctx context.Context, rule rules.UserSegmentRule, user users.User) {
 	// Should we keep track that this rule has fired for this user?
 	// To prevent event being dfire again when user re-enters again within particular time interval?
 }

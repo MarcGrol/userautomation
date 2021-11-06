@@ -1,13 +1,15 @@
-package realtimeactions
+package sms
 
 import (
 	"context"
 	"fmt"
-	"github.com/MarcGrol/userautomation/realtime/realtimecore"
-	"github.com/MarcGrol/userautomation/realtime/realtimeutil"
+	"github.com/MarcGrol/userautomation/actions/actionutil"
+	"github.com/MarcGrol/userautomation/actions/templating"
+	"github.com/MarcGrol/userautomation/rules"
+	"github.com/MarcGrol/userautomation/users"
 )
 
-//go:generate mockgen -source=sms.go -destination=sms_mock.go -package=realtimeactions SmsSender
+//go:generate mockgen -source=sms.go -destination=sms_mock.go -package=sms SmsSender
 type SmsSender interface {
 	Send(c context.Context, recipient, body string) error
 }
@@ -24,11 +26,11 @@ func (es *smsSender) Send(c context.Context, recipient, body string) error {
 	return nil
 }
 
-func SmsAction(bodyTemplate string, smsClient SmsSender) realtimecore.UserActionFunc {
-	return func(ctx context.Context, ruleName string, userStatus realtimecore.UserChangeStatus, oldState *realtimecore.User, newState *realtimecore.User) error {
-		logFunc(ctx, ruleName, userStatus, oldState, newState)
+func SmsAction(bodyTemplate string, smsClient SmsSender) rules.UserActionFunc {
+	return func(ctx context.Context, ruleName string, userStatus rules.UserChangeStatus, oldState *users.User, newState *users.User) error {
+		actionutil.LogFunc(ctx, ruleName, userStatus, oldState, newState)
 
-		if userStatus == realtimecore.UserRemoved {
+		if userStatus == rules.UserRemoved {
 			return nil
 		}
 
@@ -37,7 +39,7 @@ func SmsAction(bodyTemplate string, smsClient SmsSender) realtimecore.UserAction
 			return fmt.Errorf("User %+v has no phonenumber", newState)
 		}
 
-		body, err := realtimeutil.ApplyTemplate(ruleName+"-sms-body", bodyTemplate, newState.Attributes)
+		body, err := templating.ApplyTemplate(ruleName+"-sms-body", bodyTemplate, newState.Attributes)
 		if err != nil {
 			return fmt.Errorf("Error creating sms body for newState %s:%s", newState.UID, err)
 		}
