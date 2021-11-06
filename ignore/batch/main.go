@@ -10,7 +10,7 @@ import (
 
 func main() {
 	var userLookup userlookup.UserLookuper
-	var userGrouper batchactions.GroupApi
+	var userGrouper batchactions.GroupAPI
 	var emailer batchactions.Emailer
 
 	userRules := batchrules.GetUserRules(userLookup, userGrouper, emailer)

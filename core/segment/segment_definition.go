@@ -9,7 +9,7 @@ import (
 type UserSegmentDefinition struct {
 	UID                 string
 	Description         string
-	IsApplicableForUser user.UserFilterFunc // Could use a WHERE clause alternatively
+	IsApplicableForUser user.FilterFunc // Could use a WHERE clause alternatively
 }
 
 type UserSegmentService interface {

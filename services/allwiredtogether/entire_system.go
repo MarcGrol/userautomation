@@ -13,12 +13,12 @@ import (
 )
 
 type EntireSystem interface {
-	GetUserService() user.UserService
+	GetUserService() user.Service
 	GetSegmentRuleService() rule.SegmentRuleService
 }
 
 type entireSystemWiredTogether struct {
-	userService user.UserService
+	userService user.Service
 	ruleService rule.SegmentRuleService
 }
 
@@ -40,7 +40,7 @@ func New(ctx context.Context) EntireSystem {
 	}
 }
 
-func (s *entireSystemWiredTogether) GetUserService() user.UserService {
+func (s *entireSystemWiredTogether) GetUserService() user.Service {
 	return s.userService
 }
 

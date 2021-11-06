@@ -16,7 +16,7 @@ func TestAddToGroup(t *testing.T) {
 	defer ctrl.Finish()
 
 	userLookup := userlookup.NewMockUserLookuper(ctrl)
-	groupApi := batchactions.NewMockGroupApi(ctrl)
+	groupAPI := batchactions.NewMockGroupApi(ctrl)
 
 	testCases := []struct {
 		name              string
@@ -42,14 +42,14 @@ func TestAddToGroup(t *testing.T) {
 			},
 			setupExpectations: func() {
 				userLookup.EXPECT().GetUserOnUid(gomock.Any(), "123").Return(testUser, nil)
-				groupApi.EXPECT().GroupExists(gomock.Any(), "work.nl").Return(true, nil)
-				groupApi.EXPECT().AddUserToGroup(gomock.Any(), "work.nl", "123").Return(nil)
+				groupAPI.EXPECT().GroupExists(gomock.Any(), "work.nl").Return(true, nil)
+				groupAPI.EXPECT().AddUserToGroup(gomock.Any(), "work.nl", "123").Return(nil)
 			},
 			expectedResult: nil,
 		},
 	}
 	for _, tc := range testCases {
-		sut := NewAddToGroupUserRule(userLookup, groupApi)
+		sut := NewAddToGroupUserRule(userLookup, groupAPI)
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setupExpectations()
 			err := batchcore.EvaluateUserRule(context.TODO(), sut, tc.event)

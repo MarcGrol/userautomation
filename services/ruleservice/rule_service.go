@@ -35,7 +35,7 @@ func (s *userSegmentRuleService) Put(ctx context.Context, rule rule2.UserSegment
 		}
 
 		if !exists {
-			err = s.pubsub.Publish(ctx, rule2.RuleTopicName, rule2.RuleCreatedEvent{
+			err = s.pubsub.Publish(ctx, rule2.RuleTopicName, rule2.CreatedEvent{
 				State: rule,
 			})
 			if err != nil {
@@ -43,7 +43,7 @@ func (s *userSegmentRuleService) Put(ctx context.Context, rule rule2.UserSegment
 			}
 
 		} else if !reflect.DeepEqual(originalRule, rule) {
-			err := s.pubsub.Publish(ctx, rule2.RuleTopicName, rule2.RuleModifiedEvent{
+			err := s.pubsub.Publish(ctx, rule2.RuleTopicName, rule2.ModifiedEvent{
 				OldState: originalRule.(rule2.UserSegmentRule),
 				NewState: rule,
 			})
@@ -92,7 +92,7 @@ func (s *userSegmentRuleService) Delete(ctx context.Context, ruleUID string) err
 				return fmt.Errorf("Error deleting rule with uid %s: %s", ruleUID, err)
 			}
 
-			err = s.pubsub.Publish(ctx, rule2.RuleTopicName, rule2.RuleRemovedEvent{
+			err = s.pubsub.Publish(ctx, rule2.RuleTopicName, rule2.RemovedEvent{
 				State: rule.(rule2.UserSegmentRule),
 			})
 			if err != nil {

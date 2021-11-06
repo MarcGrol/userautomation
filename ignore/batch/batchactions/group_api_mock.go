@@ -11,7 +11,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockGroupApi is a mock of GroupApi interface.
+// MockGroupApi is a mock of GroupAPI interface.
 type MockGroupApi struct {
 	ctrl     *gomock.Controller
 	recorder *MockGroupApiMockRecorder

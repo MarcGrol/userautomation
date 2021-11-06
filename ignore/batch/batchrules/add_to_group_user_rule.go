@@ -12,13 +12,13 @@ import (
 type addToGroupUserRule struct {
 	userUID    string
 	userLookup userlookup.UserLookuper
-	groupApi   batchactions.GroupApi
+	groupAPI   batchactions.GroupAPI
 }
 
-func NewAddToGroupUserRule(userLookup userlookup.UserLookuper, groupApi batchactions.GroupApi) batchcore.UserRule {
+func NewAddToGroupUserRule(userLookup userlookup.UserLookuper, groupAPI batchactions.GroupAPI) batchcore.UserRule {
 	return &addToGroupUserRule{
 		userLookup: userLookup,
-		groupApi:   groupApi,
+		groupAPI:   groupAPI,
 	}
 }
 
@@ -45,13 +45,13 @@ func (r *addToGroupUserRule) ApplyAction(c context.Context, user batchcore.User)
 		return err
 	}
 
-	exists, err := r.groupApi.GroupExists(c, groupName)
+	exists, err := r.groupAPI.GroupExists(c, groupName)
 	if err != nil {
 		return err
 	}
 
 	if exists {
-		err = r.groupApi.AddUserToGroup(c, groupName, user.UserUID)
+		err = r.groupAPI.AddUserToGroup(c, groupName, user.UserUID)
 		if err != nil {
 			return err
 		}

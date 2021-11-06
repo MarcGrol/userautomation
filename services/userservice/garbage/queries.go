@@ -20,7 +20,7 @@ func (db *userDatabase) UserInSegment(ctx context.Context, whereClause string) (
 	return true, nil
 }
 
-func Query(db UserDatabase, segmentQuery string) user.UserFilterFunc {
+func Query(db UserDatabase, segmentQuery string) user.FilterFunc {
 	return func(ctx context.Context, u user.User) (bool, error) {
 		whereClause := fmt.Sprintf(`user_uid = '%s' AND %s`, u.UID, segmentQuery)
 		exists, err := db.UserInSegment(ctx, whereClause)

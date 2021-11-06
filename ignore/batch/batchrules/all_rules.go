@@ -7,7 +7,7 @@ import (
 	"github.com/MarcGrol/userautomation/ignore/batch/userlookup"
 )
 
-func GetUserRules(userLookup userlookup.UserLookuper, userGrouper batchactions.GroupApi, emailer batchactions.Emailer) []batchcore.UserRule {
+func GetUserRules(userLookup userlookup.UserLookuper, userGrouper batchactions.GroupAPI, emailer batchactions.Emailer) []batchcore.UserRule {
 	return []batchcore.UserRule{
 		NewPraiseActiveUserRule(userLookup, emailer),
 		NewStimulateInactiveUserRule(userLookup, emailer),

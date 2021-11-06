@@ -14,12 +14,12 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func setupSut(ctx context.Context) (rule.SegmentRuleService, user.UserService) {
+func setupSut(ctx context.Context) (rule.SegmentRuleService, user.Service) {
 	sut := New(ctx)
 	return sut.GetSegmentRuleService(), sut.GetUserService()
 }
 
-func createUser(ctx context.Context, t *testing.T, userService user.UserService, age int) {
+func createUser(ctx context.Context, t *testing.T, userService user.Service, age int) {
 	err := userService.Put(ctx, user.User{
 		UID: "1",
 		Attributes: map[string]interface{}{
@@ -34,7 +34,7 @@ func createUser(ctx context.Context, t *testing.T, userService user.UserService,
 	}
 }
 
-func modifyUser(ctx context.Context, t *testing.T, userService user.UserService, age int) {
+func modifyUser(ctx context.Context, t *testing.T, userService user.Service, age int) {
 	err := userService.Put(ctx, user.User{
 		UID: "1",
 		Attributes: map[string]interface{}{
@@ -49,7 +49,7 @@ func modifyUser(ctx context.Context, t *testing.T, userService user.UserService,
 	}
 }
 
-func removeUser(ctx context.Context, t *testing.T, userService user.UserService) {
+func removeUser(ctx context.Context, t *testing.T, userService user.Service) {
 	err := userService.Remove(ctx, "1")
 	if err != nil {
 		t.Error(err)

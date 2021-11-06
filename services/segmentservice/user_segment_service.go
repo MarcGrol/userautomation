@@ -20,7 +20,7 @@ type SegmentService interface {
 	pubsub.SubscribingService
 	// Early warning system. This service will break when "users"-module introduces new events.
 	// In this case this service should also introduce these new events.
-	user.UserEventHandler
+	user.EventHandler
 	segment.UserSegmentService
 }
 

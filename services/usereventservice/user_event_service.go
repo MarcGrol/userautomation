@@ -20,7 +20,7 @@ type UserEventService interface {
 	pubsub.SubscribingService
 	// Early warning system. This service will break when "users"-module introduces new events.
 	// In this case this service should also introduce these new events.
-	user.UserEventHandler
+	user.EventHandler
 }
 
 func NewUserEventService(pubsub pubsub.Pubsub, ruleService rule.SegmentRuleService) UserEventService {
@@ -133,5 +133,5 @@ func (s *userEventHandler) OnUserRemoved(ctx context.Context, u user.User) error
 
 func (s *userEventHandler) onActionPerformed(ctx context.Context, rule rule.UserSegmentRule, user user.User) {
 	// Should we keep track that this rule has fired for this user?
-	// To prevent event being dfire again when user re-enters again within particular time interval?
+	// To prevent event being fired again when user re-enters again within particular time interval?
 }

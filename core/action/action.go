@@ -28,10 +28,10 @@ type UserAction struct {
 
 func (a UserAction) String() string {
 	return fmt.Sprintf("UserActioner for rule '%s' triggered action om User '%s' - status: %+v\n",
-		a.RuleName, getUserUid(a.OldState, a.NewState), a.UserChangeType)
+		a.RuleName, getUserUID(a.OldState, a.NewState), a.UserChangeType)
 }
 
-func getUserUid(oldState *user.User, newState *user.User) string {
+func getUserUID(oldState *user.User, newState *user.User) string {
 	if oldState != nil {
 		return oldState.UID
 	}
