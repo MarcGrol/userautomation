@@ -64,7 +64,7 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rules.Se
 			}
 			return age > 40, nil
 		},
-		PerformAction: email.EmailerAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", emailSender),
+		PerformActionForUser: email.EmailerAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", emailSender),
 	})
 	if err != nil {
 		t.Error(err)
@@ -81,7 +81,7 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rules.
 			}
 			return age < 18, nil
 		},
-		PerformAction: sms.SmsAction("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
+		PerformActionForUser: sms.SmsAction("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
 	})
 	if err != nil {
 		t.Error(err)

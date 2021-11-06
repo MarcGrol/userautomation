@@ -15,7 +15,7 @@ type EntireSystem interface {
 	GetSegmentRuleService() rules.SegmentRuleService
 }
 
-type allComponentsWiredTogether struct {
+type entireSystemWiredTogether struct {
 	userService users.UserService
 	ruleService rules.SegmentRuleService
 }
@@ -32,16 +32,16 @@ func New(ctx context.Context) EntireSystem {
 	userEventService := userchanged.NewUserEventService(pubsub, ruleService)
 	userEventService.Subscribe(ctx)
 
-	return &allComponentsWiredTogether{
+	return &entireSystemWiredTogether{
 		userService: userService,
 		ruleService: ruleService,
 	}
 }
 
-func (s *allComponentsWiredTogether) GetUserService() users.UserService {
+func (s *entireSystemWiredTogether) GetUserService() users.UserService {
 	return s.userService
 }
 
-func (s *allComponentsWiredTogether) GetSegmentRuleService() rules.SegmentRuleService {
+func (s *entireSystemWiredTogether) GetSegmentRuleService() rules.SegmentRuleService {
 	return s.ruleService
 }
