@@ -6,9 +6,9 @@ package userlookup
 
 import (
 	context "context"
-	"github.com/MarcGrol/userautomation/ignore/batch/batchcore"
 	reflect "reflect"
 
+	batchcore "github.com/MarcGrol/userautomation/ignore/batch/batchcore"
 	gomock "github.com/golang/mock/gomock"
 )
 
