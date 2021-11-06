@@ -46,22 +46,13 @@ func (s *userEventHandler) OnUserCreated(ctx context.Context, u user.User) error
 		return fmt.Errorf("Error fetching rules: %s", err)
 	}
 
-	for _, rule := range ruleSlice {
-		applicable, err := rule.UserSegment.IsApplicableForUser(ctx, u)
+	for _, r := range ruleSlice {
+		executed, err := executeRuleForUser(ctx, r, u, action.UserCreated)
 		if err != nil {
-			return fmt.Errorf("Error determining if rule %s is applicable for u %s: %s", rule.UID, u.UID, err)
+			return fmt.Errorf("Error executing r %s for user %s: %s", r.UID, u.UID, err)
 		}
-		if applicable {
-			err = rule.Action.Perform(ctx, action.UserAction{
-				RuleName:       rule.UID,
-				UserChangeType: action.UserCreated,
-				OldState:       nil,
-				NewState:       &u,
-			})
-			if err != nil {
-				return fmt.Errorf("Error performing action for rule %s and u %s: %s", rule.UID, u.UID, err)
-			}
-			s.onActionPerformed(ctx, rule, u)
+		if executed {
+			s.onActionPerformed(ctx, r, u)
 		}
 	}
 	return nil
@@ -86,10 +77,10 @@ func (s *userEventHandler) OnUserModified(ctx context.Context, oldState user.Use
 
 		if !ruleApplicableBefore && ruleApplicableAfter {
 			err = rule.Action.Perform(ctx, action.UserAction{
-				RuleName:       rule.UID,
-				UserChangeType: action.UserModified,
-				OldState:       &oldState,
-				NewState:       &newState,
+				RuleName:    rule.UID,
+				TriggerType: action.UserModified,
+				OldState:    &oldState,
+				NewState:    &newState,
 			})
 			if err != nil {
 				return fmt.Errorf("Error performing action for rule %s and user %s: %s", rule.UID, newState.UID, err)
@@ -110,22 +101,13 @@ func (s *userEventHandler) OnUserRemoved(ctx context.Context, u user.User) error
 		return fmt.Errorf("Error fetching rules: %s", err)
 	}
 
-	for _, rule := range ruleSlice {
-		applicable, err := rule.UserSegment.IsApplicableForUser(ctx, u)
+	for _, r := range ruleSlice {
+		executed, err := executeRuleForUser(ctx, r, u, action.UserRemoved)
 		if err != nil {
-			return fmt.Errorf("Error determining if rule %s is applicable for u %s: %s", rule.UID, u.UID, err)
+			return fmt.Errorf("Error executing r %s for user %s: %s", r.UID, u.UID, err)
 		}
-		if applicable {
-			err = rule.Action.Perform(ctx, action.UserAction{
-				RuleName:       rule.UID,
-				UserChangeType: action.UserRemoved,
-				OldState:       nil,
-				NewState:       &u,
-			})
-			if err != nil {
-				return fmt.Errorf("Error performing action for rule %s and useer %s: %s", rule.UID, u.UID, err)
-			}
-			s.onActionPerformed(ctx, rule, u)
+		if executed {
+			s.onActionPerformed(ctx, r, u)
 		}
 	}
 	return nil
@@ -134,4 +116,33 @@ func (s *userEventHandler) OnUserRemoved(ctx context.Context, u user.User) error
 func (s *userEventHandler) onActionPerformed(ctx context.Context, rule rule.UserSegmentRule, user user.User) {
 	// Should we keep track that this rule has fired for this user?
 	// To prevent event being fired again when user re-enters again within particular time interval?
+}
+
+func executeRuleForUser(ctx context.Context, r rule.UserSegmentRule, user user.User, triggerType action.TriggerType) (bool, error) {
+
+	// TODO this breaks tests
+	//if (r.TriggerKindMask & rule.TriggerUserChange) == 1 {
+	//	return false, nil
+	//}
+
+	applicable, err := r.UserSegment.IsApplicableForUser(ctx, user)
+	if err != nil {
+		return false, fmt.Errorf("Error determining if rule %s is applicable for u %s: %s", r.UID, user.UID, err)
+	}
+
+	if !applicable {
+		return false, nil
+	}
+
+	err = r.Action.Perform(ctx, action.UserAction{
+		RuleName:    r.UID,
+		TriggerType: triggerType,
+		OldState:    nil,
+		NewState:    &user,
+	})
+	if err != nil {
+		return false, fmt.Errorf("Error performing action for rule %s and useer %s: %s", r.UID, user.UID, err)
+	}
+
+	return true, nil
 }

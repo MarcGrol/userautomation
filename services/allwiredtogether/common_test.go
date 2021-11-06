@@ -92,7 +92,8 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.S
 				return age < 18, nil
 			},
 		},
-		Action: smsaction.New("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
+		Action:          smsaction.New("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
+		TriggerKindMask: rule.TriggerUserChange,
 	})
 	if err != nil {
 		t.Error(err)

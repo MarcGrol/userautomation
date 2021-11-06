@@ -3,118 +3,68 @@ package ruleservice
 import (
 	"context"
 	"fmt"
-	rule2 "github.com/MarcGrol/userautomation/core/rule"
-	"github.com/MarcGrol/userautomation/infra/pubsub"
-	"reflect"
 
+	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/infra/datastore"
+	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
 
 type userSegmentRuleService struct {
-	datastore datastore.Datastore
-	pubsub    pubsub.Pubsub
+	segmentStore datastore.Datastore
 }
 
-func NewUserSegmentRuleService(datastore datastore.Datastore, pubsub pubsub.Pubsub) rule2.SegmentRuleService {
+func NewUserSegmentRuleService(segmentStore datastore.Datastore, pubsub pubsub.Pubsub) rule.SegmentRuleService {
 	return &userSegmentRuleService{
-		datastore: datastore,
-		pubsub:    pubsub, // TODO might signal rule change to dedicated service
+		segmentStore: segmentStore,
 	}
 }
 
-func (s *userSegmentRuleService) Put(ctx context.Context, rule rule2.UserSegmentRule) error {
-	return s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		originalRule, exists, err := s.datastore.Get(ctx, rule.UID)
-		if err != nil {
-			return fmt.Errorf("Error fetching rule with uid %s: %s", rule.UID, err)
-		}
-
-		err = s.datastore.Put(ctx, rule.UID, rule)
-		if err != nil {
-			return fmt.Errorf("Error storing rule with uid %s: %s", rule.UID, err)
-		}
-
-		if !exists {
-			err = s.pubsub.Publish(ctx, rule2.RuleTopicName, rule2.CreatedEvent{
-				State: rule,
-			})
-			if err != nil {
-				return fmt.Errorf("Error publishing rule-created-event uid %s: %s", rule.UID, err)
-			}
-
-		} else if !reflect.DeepEqual(originalRule, rule) {
-			err := s.pubsub.Publish(ctx, rule2.RuleTopicName, rule2.ModifiedEvent{
-				OldState: originalRule.(rule2.UserSegmentRule),
-				NewState: rule,
-			})
-			if err != nil {
-				return fmt.Errorf("Error publishing rule-modified-event for user %s: %s", rule.UID, err)
-			}
-		} else {
-			// rule unchanged: do not notify
-		}
-
-		return nil
+func (s *userSegmentRuleService) Put(ctx context.Context, rule rule.UserSegmentRule) error {
+	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
+		return s.segmentStore.Put(ctx, rule.UID, rule)
 	})
 }
 
-func (s *userSegmentRuleService) Get(ctx context.Context, ruleUID string) (rule2.UserSegmentRule, bool, error) {
-	rule := rule2.UserSegmentRule{}
+func (s *userSegmentRuleService) Get(ctx context.Context, ruleUID string) (rule.UserSegmentRule, bool, error) {
+	r := rule.UserSegmentRule{}
 	ruleExists := false
 	var err error
 
-	err = s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		item, exists, err := s.datastore.Get(ctx, ruleUID)
+	err = s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
+		item, exists, err := s.segmentStore.Get(ctx, ruleUID)
 		if err != nil {
 			return fmt.Errorf("Error fetching rule with uid %s: %s", ruleUID, err)
 		}
-		rule = item.(rule2.UserSegmentRule)
+		r = item.(rule.UserSegmentRule)
 		ruleExists = exists
 
 		return nil
 	})
 	if err != nil {
-		return rule, false, err
+		return r, false, err
 	}
 
-	return rule, ruleExists, nil
+	return r, ruleExists, nil
 }
 
 func (s *userSegmentRuleService) Delete(ctx context.Context, ruleUID string) error {
-	return s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		rule, exists, err := s.datastore.Get(ctx, ruleUID)
-		if err != nil {
-			return fmt.Errorf("Error fetching rule with uid %s: %s", ruleUID, err)
-		}
-		if exists {
-			err = s.datastore.Remove(ctx, ruleUID)
-			if err != nil {
-				return fmt.Errorf("Error deleting rule with uid %s: %s", ruleUID, err)
-			}
-
-			err = s.pubsub.Publish(ctx, rule2.RuleTopicName, rule2.RemovedEvent{
-				State: rule.(rule2.UserSegmentRule),
-			})
-			if err != nil {
-				return fmt.Errorf("Error publishing rule-created-event uid %s: %s", ruleUID, err)
-			}
-		}
-		return nil
+	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
+		return s.segmentStore.Remove(ctx, ruleUID)
 	})
 }
 
-func (s *userSegmentRuleService) List(ctx context.Context) ([]rule2.UserSegmentRule, error) {
-	rules := []rule2.UserSegmentRule{}
+func (s *userSegmentRuleService) List(ctx context.Context) ([]rule.UserSegmentRule, error) {
+	rules := []rule.UserSegmentRule{}
 	var err error
 
-	err = s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		items, err := s.datastore.GetAll(ctx)
+	err = s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
+		items, err := s.segmentStore.GetAll(ctx)
 		if err != nil {
 			return fmt.Errorf("Error fetching all rules: %s", err)
 		}
 
 		for _, item := range items {
-			rules = append(rules, item.(rule2.UserSegmentRule))
+			rules = append(rules, item.(rule.UserSegmentRule))
 		}
 		return nil
 	})
