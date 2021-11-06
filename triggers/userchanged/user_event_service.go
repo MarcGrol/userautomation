@@ -14,6 +14,13 @@ type userEventHandler struct {
 	ruleService rules.SegmentRuleService
 }
 
+type UserEventService interface {
+	// Flags that this service is an event consumer
+	pubsub.SubscribingService
+	// Early warning system. This service will break when "users" introduces new events. This service should also implement these new events.
+	users.UserEventHandler
+}
+
 func NewUserEventService(pubsub pubsub.Pubsub, ruleService rules.SegmentRuleService) UserEventService {
 	return &userEventHandler{
 		pubsub:      pubsub,
@@ -22,35 +29,26 @@ func NewUserEventService(pubsub pubsub.Pubsub, ruleService rules.SegmentRuleServ
 }
 
 func (s *userEventHandler) Subscribe(ctx context.Context) error {
-	return s.pubsub.Subscribe(ctx, "user", s.OnEvent)
+	return s.pubsub.Subscribe(ctx, users.UserTopicName, s.OnEvent)
 }
 
 func (s *userEventHandler) OnEvent(ctx context.Context, topic string, event interface{}) error {
-	rules, err := s.ruleService.List(ctx)
+	return users.DispatchEvent(ctx, s, topic, event)
+}
+
+func (s *userEventHandler) OnUserCreated(ctx context.Context, user users.User) error {
+	ruleSlice, err := s.ruleService.List(ctx)
 	if err != nil {
 		return fmt.Errorf("Error fetching rules: %s", err)
 	}
 
-	switch e := event.(type) {
-	case users.UserCreatedEvent:
-		return s.onUserCreated(ctx, rules, e.State)
-	case users.UserModifiedEvent:
-		return s.onUserModified(ctx, rules, e.OldState, e.NewState)
-	case users.UserRemovedEvent:
-		return s.onUserRemoved(ctx, rules, e.State)
-	default:
-		return fmt.Errorf("Event %+v not supported", e)
-	}
-}
-
-func (s *userEventHandler) onUserCreated(ctx context.Context, ruleSlice []rules.UserSegmentRule, user users.User) error {
 	for _, rule := range ruleSlice {
 		applicable, err := rule.IsApplicableForUser(ctx, user)
 		if err != nil {
 			return fmt.Errorf("Error determining if rule is applicable for user: %s", err)
 		}
 		if applicable {
-			err = rule.PerformAction(ctx, rule.Name, rules.UserCreated, nil, &user)
+			err = rule.PerformActionForUser(ctx, rule.Name, rules.UserCreated, nil, &user)
 			if err != nil {
 				return fmt.Errorf("Error performing action for rule %s and useer %s: %s", rule.Name, user.UID, err)
 			}
@@ -60,7 +58,12 @@ func (s *userEventHandler) onUserCreated(ctx context.Context, ruleSlice []rules.
 	return nil
 }
 
-func (s *userEventHandler) onUserModified(ctx context.Context, ruleSlice []rules.UserSegmentRule, oldState users.User, newState users.User) error {
+func (s *userEventHandler) OnUserModified(ctx context.Context, oldState users.User, newState users.User) error {
+	ruleSlice, err := s.ruleService.List(ctx)
+	if err != nil {
+		return fmt.Errorf("Error fetching rules: %s", err)
+	}
+
 	for _, rule := range ruleSlice {
 		ruleApplicableBefore, err := rule.IsApplicableForUser(ctx, oldState)
 		if err != nil {
@@ -73,7 +76,7 @@ func (s *userEventHandler) onUserModified(ctx context.Context, ruleSlice []rules
 		}
 
 		if !ruleApplicableBefore && ruleApplicableAfter {
-			err = rule.PerformAction(ctx, rule.Name, rules.UserModified, &oldState, &newState)
+			err = rule.PerformActionForUser(ctx, rule.Name, rules.UserModified, &oldState, &newState)
 			if err != nil {
 				return fmt.Errorf("Error performing action for rule %s and userService	er %s: %s", rule.Name, newState.UID, err)
 			}
@@ -87,14 +90,19 @@ func (s *userEventHandler) onUserModified(ctx context.Context, ruleSlice []rules
 	return nil
 }
 
-func (s *userEventHandler) onUserRemoved(ctx context.Context, ruleSlice []rules.UserSegmentRule, user users.User) error {
+func (s *userEventHandler) OnUserRemoved(ctx context.Context, user users.User) error {
+	ruleSlice, err := s.ruleService.List(ctx)
+	if err != nil {
+		return fmt.Errorf("Error fetching rules: %s", err)
+	}
+
 	for _, rule := range ruleSlice {
 		applicable, err := rule.IsApplicableForUser(ctx, user)
 		if err != nil {
 			return fmt.Errorf("Error determining if rule is applicable for user: %s", err)
 		}
 		if applicable {
-			err = rule.PerformAction(ctx, rule.Name, rules.UserRemoved, &user, nil)
+			err = rule.PerformActionForUser(ctx, rule.Name, rules.UserRemoved, &user, nil)
 			if err != nil {
 				return fmt.Errorf("Error performing action for rule %s and useer %s: %s", rule.Name, user.UID, err)
 			}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
+	"reflect"
 
 	"github.com/MarcGrol/userautomation/infra/datastore"
 )
@@ -20,9 +21,39 @@ func NewUserSegmentRuleService(datastore datastore.Datastore, pubsub pubsub.Pubs
 	}
 }
 
-func (s *userSegmentRuleService) Put(ctx context.Context, segmentRule UserSegmentRule) error {
+func (s *userSegmentRuleService) Put(ctx context.Context, rule UserSegmentRule) error {
 	return s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		return s.datastore.Put(ctx, segmentRule.Name, segmentRule)
+		originalRule, exists, err := s.datastore.Get(ctx, rule.Name)
+		if err != nil {
+			return fmt.Errorf("Error fetching rule with uid %s: %s", rule.Name, err)
+		}
+
+		err = s.datastore.Put(ctx, rule.Name, rule)
+		if err != nil {
+			return fmt.Errorf("Error storing rule with uid %s: %s", rule.Name, err)
+		}
+
+		if !exists {
+			err = s.pubsub.Publish(ctx, RuleTopicName, RuleCreatedEvent{
+				State: rule,
+			})
+			if err != nil {
+				return fmt.Errorf("Error publishing rule-created-event uid %s: %s", rule.Name, err)
+			}
+
+		} else if !reflect.DeepEqual(originalRule, rule) {
+			err := s.pubsub.Publish(ctx, RuleTopicName, RuleModifiedEvent{
+				OldState: originalRule.(UserSegmentRule),
+				NewState: rule,
+			})
+			if err != nil {
+				return fmt.Errorf("Error publishing rule-modified-event for user %s: %s", rule.Name, err)
+			}
+		} else {
+			// rule unchanged: do not notify
+		}
+
+		return nil
 	})
 }
 
@@ -50,7 +81,24 @@ func (s *userSegmentRuleService) Get(ctx context.Context, ruleName string) (User
 
 func (s *userSegmentRuleService) Delete(ctx context.Context, ruleName string) error {
 	return s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		return s.datastore.Remove(ctx, ruleName)
+		rule, exists, err := s.datastore.Get(ctx, ruleName)
+		if err != nil {
+			return fmt.Errorf("Error fetching rule with uid %s: %s", ruleName, err)
+		}
+		if exists {
+			err = s.datastore.Remove(ctx, ruleName)
+			if err != nil {
+				return fmt.Errorf("Error deleting rule with uid %s: %s", ruleName, err)
+			}
+
+			err = s.pubsub.Publish(ctx, RuleTopicName, RuleRemovedEvent{
+				State: rule.(UserSegmentRule),
+			})
+			if err != nil {
+				return fmt.Errorf("Error publishing rule-created-event uid %s: %s", ruleName, err)
+			}
+		}
+		return nil
 	})
 }
 

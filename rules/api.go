@@ -16,9 +16,9 @@ const (
 type UserActionFunc func(ctx context.Context, ruleName string, changeStatus UserChangeStatus, oldState *users.User, newState *users.User) error
 
 type UserSegmentRule struct {
-	Name                string
-	IsApplicableForUser users.UserFilterFunc // Could use a WHERE clause alternatively
-	PerformAction       UserActionFunc
+	Name                 string
+	IsApplicableForUser  users.UserFilterFunc // Could use a WHERE clause alternatively
+	PerformActionForUser UserActionFunc
 }
 
 type SegmentRuleService interface {

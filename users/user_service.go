@@ -22,6 +22,13 @@ func NewUserService(datastore datastore.Datastore, pubsub pubsub.Pubsub) UserSer
 }
 
 func (s *userService) Put(ctx context.Context, user User) error {
+	// About publication of event:
+	// - Should be published inside transaction? When if commit fails?
+	// - Should be published outside transaction? When if publish fails?
+	// - Maybe the event should just be stored as part of the transaction
+	//     and be published by a dedicated process (and retry if publication failed)
+
+	var eventToPublish interface{} = nil
 	err := s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 		originalUser, exists, err := s.datastore.Get(ctx, user.UID)
 		if err != nil {
@@ -34,14 +41,14 @@ func (s *userService) Put(ctx context.Context, user User) error {
 		}
 
 		if !exists {
-			err := s.pubsub.Publish(ctx, "user", UserCreatedEvent{
+			err := s.pubsub.Publish(ctx, UserTopicName, UserCreatedEvent{
 				State: user,
 			})
 			if err != nil {
 				return fmt.Errorf("Error publishing UserCreatedEvent for user %s: %s", user.UID, err)
 			}
 		} else if !reflect.DeepEqual(originalUser, user) {
-			err := s.pubsub.Publish(ctx, "user", UserModifiedEvent{
+			err := s.pubsub.Publish(ctx, UserTopicName, UserModifiedEvent{
 				OldState: originalUser.(User),
 				NewState: user,
 			})
@@ -55,6 +62,10 @@ func (s *userService) Put(ctx context.Context, user User) error {
 	})
 	if err != nil {
 		return err
+	}
+
+	if eventToPublish != nil {
+
 	}
 
 	return nil
@@ -73,7 +84,7 @@ func (s *userService) Remove(ctx context.Context, userUID string) error {
 				return fmt.Errorf("Error removing user with uid %s: %s", userUID, err)
 			}
 
-			err = s.pubsub.Publish(ctx, "user", UserRemovedEvent{
+			err = s.pubsub.Publish(ctx, UserTopicName, UserRemovedEvent{
 				State: user.(User),
 			})
 			if err != nil {
