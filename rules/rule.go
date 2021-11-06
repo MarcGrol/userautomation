@@ -5,16 +5,6 @@ import (
 	"github.com/MarcGrol/userautomation/users"
 )
 
-type UserChangeStatus int
-
-const (
-	UserCreated UserChangeStatus = iota
-	UserModified
-	UserRemoved
-)
-
-type UserActionFunc func(ctx context.Context, ruleName string, changeStatus UserChangeStatus, oldState *users.User, newState *users.User) error
-
 type UserSegmentRule struct {
 	Name                 string
 	IsApplicableForUser  users.UserFilterFunc // Could use a WHERE clause alternatively

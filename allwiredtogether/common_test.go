@@ -4,9 +4,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/MarcGrol/userautomation/actions/email"
-	"github.com/MarcGrol/userautomation/actions/sms"
+	"github.com/MarcGrol/userautomation/integrations/emailsending"
+	"github.com/MarcGrol/userautomation/integrations/smssending"
 	"github.com/MarcGrol/userautomation/rules"
+	"github.com/MarcGrol/userautomation/useractions/emailaction"
+	"github.com/MarcGrol/userautomation/useractions/sms"
 	"github.com/MarcGrol/userautomation/users"
 	"github.com/golang/mock/gomock"
 )
@@ -54,7 +56,7 @@ func removeUser(ctx context.Context, t *testing.T, userService users.UserService
 }
 
 func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rules.SegmentRuleService,
-	emailSender email.EmailSender) {
+	emailSender emailsending.EmailSender) {
 	err := segmentService.Put(ctx, rules.UserSegmentRule{
 		Name: "OldRule",
 		IsApplicableForUser: func(ctx context.Context, user users.User) (bool, error) {
@@ -64,14 +66,14 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rules.Se
 			}
 			return age > 40, nil
 		},
-		PerformActionForUser: email.EmailerAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", emailSender),
+		PerformActionForUser: emailaction.EmailerAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", emailSender),
 	})
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rules.SegmentRuleService, smsSender sms.SmsSender) {
+func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rules.SegmentRuleService, smsSender smssending.SmsSender) {
 	err := segmentService.Put(ctx, rules.UserSegmentRule{
 		Name: "YoungRule",
 		IsApplicableForUser: func(ctx context.Context, user users.User) (bool, error) {
@@ -88,9 +90,9 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rules.
 	}
 }
 
-func setupMocks(t *testing.T) (*email.MockEmailSender, *sms.MockSmsSender, *gomock.Controller) {
+func setupMocks(t *testing.T) (*emailsending.MockEmailSender, *smssending.MockSmsSender, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
-	mockEmailer := email.NewMockEmailSender(ctrl)
-	mockSmser := sms.NewMockSmsSender(ctrl)
+	mockEmailer := emailsending.NewMockEmailSender(ctrl)
+	mockSmser := smssending.NewMockSmsSender(ctrl)
 	return mockEmailer, mockSmser, ctrl
 }

@@ -49,9 +49,14 @@ func (s *userEventHandler) OnUserCreated(ctx context.Context, user users.User) e
 			return fmt.Errorf("Error determining if rule is applicable for user: %s", err)
 		}
 		if applicable {
-			err = rule.PerformActionForUser(ctx, rule.Name, rules.UserCreated, nil, &user)
+			err = rule.PerformActionForUser(ctx, rules.UserAction{
+				RuleName:       rule.Name,
+				UserChangeType: rules.UserCreated,
+				OldState:       nil,
+				NewState:       &user,
+			})
 			if err != nil {
-				return fmt.Errorf("Error performing action for rule %s and useer %s: %s", rule.Name, user.UID, err)
+				return fmt.Errorf("Error performing action for rule %s and user %s: %s", rule.Name, user.UID, err)
 			}
 			s.onActionPerformed(ctx, rule, user)
 		}
@@ -77,7 +82,12 @@ func (s *userEventHandler) OnUserModified(ctx context.Context, oldState users.Us
 		}
 
 		if !ruleApplicableBefore && ruleApplicableAfter {
-			err = rule.PerformActionForUser(ctx, rule.Name, rules.UserModified, &oldState, &newState)
+			err = rule.PerformActionForUser(ctx, rules.UserAction{
+				RuleName:       rule.Name,
+				UserChangeType: rules.UserModified,
+				OldState:       &oldState,
+				NewState:       &newState,
+			})
 			if err != nil {
 				return fmt.Errorf("Error performing action for rule %s and userService	er %s: %s", rule.Name, newState.UID, err)
 			}
@@ -103,7 +113,12 @@ func (s *userEventHandler) OnUserRemoved(ctx context.Context, user users.User) e
 			return fmt.Errorf("Error determining if rule is applicable for user: %s", err)
 		}
 		if applicable {
-			err = rule.PerformActionForUser(ctx, rule.Name, rules.UserRemoved, &user, nil)
+			err = rule.PerformActionForUser(ctx, rules.UserAction{
+				RuleName:       rule.Name,
+				UserChangeType: rules.UserRemoved,
+				OldState:       nil,
+				NewState:       &user,
+			})
 			if err != nil {
 				return fmt.Errorf("Error performing action for rule %s and useer %s: %s", rule.Name, user.UID, err)
 			}

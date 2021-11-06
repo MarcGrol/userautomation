@@ -2,10 +2,10 @@ package allwiredtogether
 
 import (
 	"context"
+	emailsending2 "github.com/MarcGrol/userautomation/integrations/emailsending"
+	smssending2 "github.com/MarcGrol/userautomation/integrations/smssending"
 	"testing"
 
-	"github.com/MarcGrol/userautomation/actions/email"
-	"github.com/MarcGrol/userautomation/actions/sms"
 	"github.com/MarcGrol/userautomation/rules"
 	"github.com/MarcGrol/userautomation/users"
 	"github.com/golang/mock/gomock"
@@ -204,8 +204,8 @@ type givenContext struct {
 	ctx         context.Context
 	ruleService rules.SegmentRuleService
 	userService users.UserService
-	emailer     email.EmailSender
-	smser       sms.SmsSender
+	emailer     emailsending2.EmailSender
+	smser       smssending2.SmsSender
 }
 
 type whenContext struct {
@@ -215,8 +215,8 @@ type whenContext struct {
 }
 
 type thenContext struct {
-	emailer *email.MockEmailSender
-	smser   *sms.MockSmsSender
+	emailer *emailsending2.MockEmailSender
+	smser   *smssending2.MockSmsSender
 }
 
 func nothingGiven() func(c givenContext) {
