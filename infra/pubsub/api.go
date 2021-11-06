@@ -9,3 +9,10 @@ type Pubsub interface {
 	Subscribe(ctx context.Context, topic string, onEvent OnEventFunc) error
 	Publish(ctx context.Context, topic string, event interface{}) error
 }
+
+// This interface is a marker that indicates that service is an event consumer
+type SubscribingService interface {
+	IamSubscribing()
+	Subscribe(c context.Context) error
+	OnEvent(c context.Context, topic string, event interface{}) error
+}
