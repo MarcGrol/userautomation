@@ -9,7 +9,7 @@ import (
 	"github.com/MarcGrol/userautomation/integrations/smssending"
 	"github.com/MarcGrol/userautomation/rules"
 	"github.com/MarcGrol/userautomation/useractions/emailaction"
-	"github.com/MarcGrol/userautomation/useractions/sms"
+	"github.com/MarcGrol/userautomation/useractions/smsaction"
 	"github.com/MarcGrol/userautomation/users"
 	"github.com/golang/mock/gomock"
 )
@@ -71,7 +71,7 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rules.Se
 			},
 			Users: []users.User{}, // start empty
 		},
-		PerformActionForUser: emailaction.EmailerAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", emailSender),
+		Action: emailaction.NewEmailAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", emailSender),
 	})
 	if err != nil {
 		t.Error(err)
@@ -92,7 +92,7 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rules.
 			},
 			Users: []users.User{}, // start empty
 		},
-		PerformActionForUser: sms.SmsAction("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
+		Action: smsaction.New("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
 	})
 	if err != nil {
 		t.Error(err)

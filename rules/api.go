@@ -2,14 +2,14 @@ package rules
 
 import (
 	"context"
+	"github.com/MarcGrol/userautomation/action"
 	"github.com/MarcGrol/userautomation/segments"
 )
 
 type UserSegmentRule struct {
 	Name        string
 	UserSegment segments.UserSegment
-	//IsApplicableForUser  users.UserFilterFunc // Could use a WHERE clause alternatively
-	PerformActionForUser UserActionFunc
+	Action      action.UserActioner
 }
 
 type SegmentRuleService interface {

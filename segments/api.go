@@ -7,7 +7,7 @@ import (
 
 type UserSegment struct {
 	Name                string
-	IsApplicableForUser users.UserFilterFunc
+	IsApplicableForUser users.UserFilterFunc // Could use a WHERE clause alternatively
 	Users               []users.User
 }
 

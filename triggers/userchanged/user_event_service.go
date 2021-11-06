@@ -3,6 +3,7 @@ package userchanged
 import (
 	"context"
 	"fmt"
+	"github.com/MarcGrol/userautomation/action"
 
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"github.com/MarcGrol/userautomation/rules"
@@ -49,9 +50,9 @@ func (s *userEventHandler) OnUserCreated(ctx context.Context, user users.User) e
 			return fmt.Errorf("Error determining if rule is applicable for user: %s", err)
 		}
 		if applicable {
-			err = rule.PerformActionForUser(ctx, rules.UserAction{
+			err = rule.Action.Perform(ctx, action.UserAction{
 				RuleName:       rule.Name,
-				UserChangeType: rules.UserCreated,
+				UserChangeType: action.UserCreated,
 				OldState:       nil,
 				NewState:       &user,
 			})
@@ -82,9 +83,9 @@ func (s *userEventHandler) OnUserModified(ctx context.Context, oldState users.Us
 		}
 
 		if !ruleApplicableBefore && ruleApplicableAfter {
-			err = rule.PerformActionForUser(ctx, rules.UserAction{
+			err = rule.Action.Perform(ctx, action.UserAction{
 				RuleName:       rule.Name,
-				UserChangeType: rules.UserModified,
+				UserChangeType: action.UserModified,
 				OldState:       &oldState,
 				NewState:       &newState,
 			})
@@ -113,9 +114,9 @@ func (s *userEventHandler) OnUserRemoved(ctx context.Context, user users.User) e
 			return fmt.Errorf("Error determining if rule is applicable for user: %s", err)
 		}
 		if applicable {
-			err = rule.PerformActionForUser(ctx, rules.UserAction{
+			err = rule.Action.Perform(ctx, action.UserAction{
 				RuleName:       rule.Name,
-				UserChangeType: rules.UserRemoved,
+				UserChangeType: action.UserRemoved,
 				OldState:       nil,
 				NewState:       &user,
 			})

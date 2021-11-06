@@ -1,4 +1,4 @@
-package rules
+package action
 
 import (
 	"context"
@@ -15,7 +15,9 @@ const (
 	UserRemoved
 )
 
-type UserActionFunc func(ctx context.Context, action UserAction) error
+type UserActioner interface {
+	Perform(ctx context.Context, action UserAction) error
+}
 
 type UserAction struct {
 	RuleName       string
@@ -25,7 +27,7 @@ type UserAction struct {
 }
 
 func (a UserAction) String() string {
-	return fmt.Sprintf("Action for rule '%s' triggered action om User '%s' - status: %+v\n",
+	return fmt.Sprintf("UserActioner for rule '%s' triggered action om User '%s' - status: %+v\n",
 		a.RuleName, getUserUid(a.OldState, a.NewState), a.UserChangeType)
 }
 
