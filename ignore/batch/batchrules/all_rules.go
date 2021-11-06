@@ -2,12 +2,12 @@ package batchrules
 
 import (
 	"context"
-	actions2 "github.com/MarcGrol/userautomation/batch/batchactions"
-	"github.com/MarcGrol/userautomation/batch/batchcore"
-	"github.com/MarcGrol/userautomation/batch/userlookup"
+	"github.com/MarcGrol/userautomation/ignore/batch/batchactions"
+	"github.com/MarcGrol/userautomation/ignore/batch/batchcore"
+	"github.com/MarcGrol/userautomation/ignore/batch/userlookup"
 )
 
-func GetUserRules(userLookup userlookup.UserLookuper, userGrouper actions2.GroupApi, emailer actions2.Emailer) []batchcore.UserRule {
+func GetUserRules(userLookup userlookup.UserLookuper, userGrouper batchactions.GroupApi, emailer batchactions.Emailer) []batchcore.UserRule {
 	return []batchcore.UserRule{
 		NewPraiseActiveUserRule(userLookup, emailer),
 		NewStimulateInactiveUserRule(userLookup, emailer),

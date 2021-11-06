@@ -3,9 +3,9 @@ package batchrules
 import (
 	"context"
 	"fmt"
-	"github.com/MarcGrol/userautomation/batch/batchactions"
-	"github.com/MarcGrol/userautomation/batch/batchcore"
-	"github.com/MarcGrol/userautomation/batch/userlookup"
+	"github.com/MarcGrol/userautomation/ignore/batch/batchactions"
+	"github.com/MarcGrol/userautomation/ignore/batch/batchcore"
+	"github.com/MarcGrol/userautomation/ignore/batch/userlookup"
 	"strings"
 )
 

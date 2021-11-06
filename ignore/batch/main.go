@@ -2,16 +2,16 @@ package main
 
 import (
 	"context"
-	actions2 "github.com/MarcGrol/userautomation/batch/batchactions"
-	"github.com/MarcGrol/userautomation/batch/batchcore"
-	"github.com/MarcGrol/userautomation/batch/batchrules"
-	"github.com/MarcGrol/userautomation/batch/userlookup"
+	"github.com/MarcGrol/userautomation/ignore/batch/batchactions"
+	"github.com/MarcGrol/userautomation/ignore/batch/batchcore"
+	"github.com/MarcGrol/userautomation/ignore/batch/batchrules"
+	"github.com/MarcGrol/userautomation/ignore/batch/userlookup"
 )
 
 func main() {
 	var userLookup userlookup.UserLookuper
-	var userGrouper actions2.GroupApi
-	var emailer actions2.Emailer
+	var userGrouper batchactions.GroupApi
+	var emailer batchactions.Emailer
 
 	userRules := batchrules.GetUserRules(userLookup, userGrouper, emailer)
 

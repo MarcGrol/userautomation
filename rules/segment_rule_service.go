@@ -2,56 +2,76 @@ package rules
 
 import (
 	"context"
-	"sync"
+	"fmt"
+	"github.com/MarcGrol/userautomation/infra/pubsub"
+
+	"github.com/MarcGrol/userautomation/infra/datastore"
 )
 
 type userSegmentRuleService struct {
-	sync.Mutex
-	rules map[string]UserSegmentRule
+	datastore datastore.Datastore
+	pubsub    pubsub.Pubsub
 }
 
-func NewUserSegmentRuleService() SegmentRuleService {
+func NewUserSegmentRuleService(datastore datastore.Datastore, pubsub pubsub.Pubsub) SegmentRuleService {
 	return &userSegmentRuleService{
-		rules: map[string]UserSegmentRule{},
+		datastore: datastore,
+		pubsub:    pubsub, // TODO might signal rule change to dedicated service
 	}
 }
 
-func (s *userSegmentRuleService) Put(ctx context.Context, SegmentRule UserSegmentRule) error {
-	s.Lock()
-	defer s.Unlock()
-
-	s.rules[SegmentRule.Name] = SegmentRule
-
-	return nil
+func (s *userSegmentRuleService) Put(ctx context.Context, segmentRule UserSegmentRule) error {
+	return s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		return s.datastore.Put(ctx, segmentRule.Name, segmentRule)
+	})
 }
 
-func (s *userSegmentRuleService) Get(ctx context.Context, segmentUID string) (UserSegmentRule, bool, error) {
-	s.Lock()
-	defer s.Unlock()
+func (s *userSegmentRuleService) Get(ctx context.Context, ruleName string) (UserSegmentRule, bool, error) {
+	rule := UserSegmentRule{}
+	ruleExists := false
+	var err error
 
-	SegmentRule, exists := s.rules[segmentUID]
+	err = s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		item, exists, err := s.datastore.Get(ctx, ruleName)
+		if err != nil {
+			return fmt.Errorf("Error fetching rule with uid %s: %s", ruleName, err)
+		}
+		rule = item.(UserSegmentRule)
+		ruleExists = exists
 
-	return SegmentRule, exists, nil
+		return nil
+	})
+	if err != nil {
+		return rule, false, err
+	}
+
+	return rule, ruleExists, nil
 }
 
-func (s *userSegmentRuleService) Delete(ctx context.Context, segmentUID string) error {
-	s.Lock()
-	defer s.Unlock()
-
-	delete(s.rules, segmentUID)
-
-	return nil
+func (s *userSegmentRuleService) Delete(ctx context.Context, ruleName string) error {
+	return s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		return s.datastore.Remove(ctx, ruleName)
+	})
 }
 
 func (s *userSegmentRuleService) List(ctx context.Context) ([]UserSegmentRule, error) {
-	s.Lock()
-	defer s.Unlock()
+	rules := []UserSegmentRule{}
+	var err error
 
-	segments := []UserSegmentRule{}
+	err = s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		items, err := s.datastore.GetAll(ctx)
+		if err != nil {
+			return fmt.Errorf("Error fetching all rules: %s", err)
+		}
 
-	for _, sd := range s.rules {
-		segments = append(segments, sd)
+		for _, item := range items {
+			rules = append(rules, item.(UserSegmentRule))
+		}
+		return nil
+	})
+	if err != nil {
+		return rules, err
 	}
 
-	return segments, nil
+	return rules, nil
 }

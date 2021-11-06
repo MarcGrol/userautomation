@@ -3,105 +3,139 @@ package users
 import (
 	"context"
 	"fmt"
-	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"reflect"
-	"sync"
+
+	"github.com/MarcGrol/userautomation/infra/datastore"
+	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
 
 type userService struct {
-	sync.Mutex
-	users  map[string]User
-	pubsub pubsub.Pubsub
+	datastore datastore.Datastore
+	pubsub    pubsub.Pubsub
 }
 
-func NewUserService(pubsub pubsub.Pubsub) UserService {
+func NewUserService(datastore datastore.Datastore, pubsub pubsub.Pubsub) UserService {
 	return &userService{
-		users:  map[string]User{},
-		pubsub: pubsub,
+		datastore: datastore,
+		pubsub:    pubsub,
 	}
 }
 
 func (s *userService) Put(ctx context.Context, user User) error {
-	s.Lock()
-	defer s.Unlock()
+	err := s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		originalUser, exists, err := s.datastore.Get(ctx, user.UID)
+		if err != nil {
+			return fmt.Errorf("Error fetching user with uid %s: %s", user.UID, err)
+		}
 
-	originalUser, exists, err := s.getUnlocked(ctx, user.UID)
+		err = s.datastore.Put(ctx, user.UID, user)
+		if err != nil {
+			return fmt.Errorf("Error storing user with uid %s: %s", user.UID, err)
+		}
+
+		if !exists {
+			err := s.pubsub.Publish(ctx, "user", UserCreatedEvent{
+				State: user,
+			})
+			if err != nil {
+				return fmt.Errorf("Error publishing UserCreatedEvent for user %s: %s", user.UID, err)
+			}
+		} else if !reflect.DeepEqual(originalUser, user) {
+			err := s.pubsub.Publish(ctx, "user", UserModifiedEvent{
+				OldState: originalUser.(User),
+				NewState: user,
+			})
+			if err != nil {
+				return fmt.Errorf("Error publishing UserModifiedEvent for user %s: %s", user.UID, err)
+			}
+		} else {
+			// user unchanged: do not notify
+		}
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("Error fetching user with uid %s: %s", user.UID, err)
-	}
-
-	// store in memory
-	s.users[user.UID] = user
-
-	if !exists {
-		err := s.pubsub.Publish(ctx, "user", UserCreatedEvent{
-			State: user,
-		})
-		if err != nil {
-			return fmt.Errorf("Error publishing UserCreatedEvent for user %s: %s", user.UID, err)
-		}
-	} else if !reflect.DeepEqual(originalUser, user) {
-		err := s.pubsub.Publish(ctx, "user", UserModifiedEvent{
-			OldState: originalUser,
-			NewState: user,
-		})
-		if err != nil {
-			return fmt.Errorf("Error publishing UserModifiedEvent for user %s: %s", user.UID, err)
-		}
-	} else {
-		// user unchanged
+		return err
 	}
 
 	return nil
 }
 
 func (s *userService) Remove(ctx context.Context, userUID string) error {
-	s.Lock()
-	defer s.Unlock()
-
-	user, exists := s.users[userUID]
-	if exists {
-		// remove from memory
-		delete(s.users, userUID)
-
-		err := s.pubsub.Publish(ctx, "user", UserRemovedEvent{
-			State: user,
-		})
+	err := s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		user, exists, err := s.datastore.Get(ctx, userUID)
 		if err != nil {
-			return fmt.Errorf("Error publishing UserRemovedEvent for user %s: %s", user.UID, err)
+			return fmt.Errorf("Error fetching user with uid %s: %s", userUID, err)
 		}
+
+		if exists {
+			err = s.datastore.Remove(ctx, userUID)
+			if err != nil {
+				return fmt.Errorf("Error removing user with uid %s: %s", userUID, err)
+			}
+
+			err = s.pubsub.Publish(ctx, "user", UserRemovedEvent{
+				State: user.(User),
+			})
+			if err != nil {
+				return fmt.Errorf("Error publishing UserRemovedEvent for user %s: %s", userUID, err)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func (s *userService) Get(ctx context.Context, userUID string) (User, bool, error) {
-	s.Lock()
-	defer s.Unlock()
+	user := User{}
+	userExists := false
+	var err error
 
-	return s.getUnlocked(ctx, userUID)
-}
+	err = s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		found, exists, err := s.datastore.Get(ctx, userUID)
+		if err != nil {
+			return fmt.Errorf("Error fetching user with uid %s: %s", userUID, err)
+		}
+		user = found.(User)
+		userExists = exists
 
-func (s *userService) getUnlocked(ctx context.Context, userUID string) (User, bool, error) {
-	user, exists := s.users[userUID]
-	return user, exists, nil
+		return nil
+	})
+	if err != nil {
+		return user, false, err
+	}
+
+	return user, userExists, nil
 }
 
 func (s *userService) Query(ctx context.Context, filterFunc UserFilterFunc) ([]User, error) {
-	s.Lock()
-	defer s.Unlock()
+	users := []User{}
+	var err error
 
-	result := []User{}
-
-	for _, u := range s.users {
-		match, err := filterFunc(ctx, u)
+	err = s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		items, err := s.datastore.GetAll(ctx)
 		if err != nil {
-			return []User{}, err
+			return fmt.Errorf("Error fetching all users: %s", err)
 		}
-		if match {
-			result = append(result, u)
+
+		for _, u := range items {
+			user := u.(User)
+			match, err := filterFunc(ctx, user)
+			if err != nil {
+				return err
+			}
+			if match {
+				users = append(users, user)
+			}
 		}
+		return nil
+	})
+	if err != nil {
+		return users, err
 	}
 
-	return result, nil
+	return users, nil
 }

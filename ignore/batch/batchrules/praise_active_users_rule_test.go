@@ -2,21 +2,21 @@ package batchrules
 
 import (
 	"context"
-	"github.com/MarcGrol/userautomation/batch/batchactions"
-	"github.com/MarcGrol/userautomation/batch/batchcore"
-	"github.com/MarcGrol/userautomation/batch/userlookup"
+	"github.com/MarcGrol/userautomation/ignore/batch/batchactions"
+	"github.com/MarcGrol/userautomation/ignore/batch/batchcore"
+	"github.com/MarcGrol/userautomation/ignore/batch/userlookup"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAddToGroup(t *testing.T) {
+func TestPraiseActiveUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	userLookup := userlookup.NewMockUserLookuper(ctrl)
-	groupApi := batchactions.NewMockGroupApi(ctrl)
+	emailer := batchactions.NewMockEmailer(ctrl)
 
 	testCases := []struct {
 		name              string
@@ -27,7 +27,7 @@ func TestAddToGroup(t *testing.T) {
 		{
 			name: "Unsupported event",
 			event: batchcore.Event{
-				EventName: "Timer",
+				EventName: "UserRegistered",
 				Payload:   map[string]interface{}{},
 			},
 			setupExpectations: func() {},
@@ -36,20 +36,18 @@ func TestAddToGroup(t *testing.T) {
 		{
 			name: "Supported event",
 			event: batchcore.Event{
-				EventName: "UserRegistered",
-				UserUID:   "123",
+				EventName: "Timer",
 				Payload:   map[string]interface{}{},
 			},
 			setupExpectations: func() {
-				userLookup.EXPECT().GetUserOnUid(gomock.Any(), "123").Return(testUser, nil)
-				groupApi.EXPECT().GroupExists(gomock.Any(), "work.nl").Return(true, nil)
-				groupApi.EXPECT().AddUserToGroup(gomock.Any(), "work.nl", "123").Return(nil)
+				userLookup.EXPECT().GetUserOnQuery(gomock.Any(), "publishCount > 10 && loginCount > 20").Return([]batchcore.User{testUser}, nil)
+				emailer.EXPECT().Send(gomock.Any(), "123@work.nl", "We praise your activity", "Hi Marc, well done").Return(nil)
 			},
 			expectedResult: nil,
 		},
 	}
 	for _, tc := range testCases {
-		sut := NewAddToGroupUserRule(userLookup, groupApi)
+		sut := NewPraiseActiveUserRule(userLookup, emailer)
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setupExpectations()
 			err := batchcore.EvaluateUserRule(context.TODO(), sut, tc.event)

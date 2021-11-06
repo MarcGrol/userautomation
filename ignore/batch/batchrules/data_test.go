@@ -1,7 +1,7 @@
 package batchrules
 
 import (
-	"github.com/MarcGrol/userautomation/batch/batchcore"
+	"github.com/MarcGrol/userautomation/ignore/batch/batchcore"
 )
 
 var testUser = batchcore.User{

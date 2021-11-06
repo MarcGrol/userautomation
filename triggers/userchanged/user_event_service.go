@@ -1,10 +1,10 @@
-package usereventhandler
+package userchanged
 
 import (
 	"context"
 	"fmt"
-	"github.com/MarcGrol/userautomation/infra/pubsub"
 
+	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"github.com/MarcGrol/userautomation/rules"
 	"github.com/MarcGrol/userautomation/users"
 )

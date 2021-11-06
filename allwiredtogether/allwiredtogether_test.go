@@ -385,7 +385,7 @@ func TestUsingSubTests(t *testing.T) {
 
 	t.Run("delete user, no rule matched", func(t *testing.T) {
 		// setup
-		ruleService, userService  := setupSut(ctx)
+		ruleService, userService := setupSut(ctx)
 		_, mockSmser, ctrl := setupMocks(t)
 		defer ctrl.Finish()
 
@@ -505,7 +505,7 @@ type givenContext struct {
 	ruleService rules.SegmentRuleService
 	userService users.UserService
 	emailer     email.EmailSender
-	smser   sms.SmsSender
+	smser       sms.SmsSender
 }
 
 type whenContext struct {

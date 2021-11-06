@@ -27,5 +27,3 @@ type SegmentRuleService interface {
 	Delete(ctx context.Context, name string) error
 	List(ctx context.Context) ([]UserSegmentRule, error)
 }
-
-
