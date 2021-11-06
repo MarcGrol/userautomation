@@ -75,7 +75,7 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.Seg
 	emailSender emailsending.EmailSender) {
 	err := segmentService.Put(ctx, rule.UserSegmentRule{
 		UID: "OldRule",
-		UserSegment: segment.UserSegmentDefinition{
+		UserSegment: segment.UserSegment{
 			UID:         "old users segment",
 			Description: "old users segment",
 			IsApplicableForUser: func(ctx context.Context, user user.User) (bool, error) {
@@ -96,7 +96,7 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.Seg
 func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.SegmentRuleService, smsSender smssending.SmsSender) {
 	err := segmentService.Put(ctx, rule.UserSegmentRule{
 		UID: "YoungRule",
-		UserSegment: segment.UserSegmentDefinition{
+		UserSegment: segment.UserSegment{
 			UID:         "young users segment",
 			Description: "young users segment",
 			IsApplicableForUser: func(ctx context.Context, user user.User) (bool, error) {

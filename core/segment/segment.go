@@ -6,16 +6,20 @@ import (
 	"github.com/MarcGrol/userautomation/core/user"
 )
 
-type UserSegmentDefinition struct {
+type UserSegment struct {
 	UID                 string
 	Description         string
 	IsApplicableForUser user.FilterFunc // Could use a WHERE clause alternatively
+	Users               map[string]user.User
 }
 
 type UserSegmentService interface {
-	Put(ctx context.Context, userSegment UserSegmentDefinition) error
-	Get(ctx context.Context, userSegmentUID string) (UserSegmentDefinition, bool, error)
-	List(ctx context.Context) ([]UserSegmentDefinition, error)
+	Put(ctx context.Context, userSegment UserSegment) error
+	Get(ctx context.Context, userSegmentUID string) (UserSegment, bool, error)
+	List(ctx context.Context) ([]UserSegment, error)
 	Remove(ctx context.Context, userUID string) error
+}
+
+type UserSegmentQueryService interface {
 	GetUsersForSegment(ctx context.Context, userSegmentUID string) ([]user.User, error)
 }

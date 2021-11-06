@@ -18,7 +18,7 @@ const (
 type UserSegmentRule struct {
 	UID             string
 	Description     string
-	UserSegment     segment.UserSegmentDefinition
+	UserSegment     segment.UserSegment
 	Action          action.UserActioner
 	TriggerKindMask TriggerKind
 }

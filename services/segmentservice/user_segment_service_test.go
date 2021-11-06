@@ -31,3 +31,7 @@ func TestRemove(t *testing.T) {
 func TestList(t *testing.T) {
 	// TODO
 }
+
+func TestUsersForSegment(t *testing.T) {
+	// TODO
+}
