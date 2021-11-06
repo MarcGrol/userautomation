@@ -17,7 +17,8 @@ type userEventHandler struct {
 type UserEventService interface {
 	// Flags that this service is an event consumer
 	pubsub.SubscribingService
-	// Early warning system. This service will break when "users" introduces new events. This service should also implement these new events.
+	// Early warning system. This service will break when "users"-module introduces new events.
+	// In this case this service should also introduce these new events.
 	users.UserEventHandler
 }
 
