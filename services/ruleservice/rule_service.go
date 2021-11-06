@@ -35,6 +35,9 @@ func (s *userSegmentRuleService) Get(ctx context.Context, ruleUID string) (rule.
 		if err != nil {
 			return fmt.Errorf("Error fetching rule with uid %s: %s", ruleUID, err)
 		}
+		if !exists {
+			return fmt.Errorf("Rule with uid %s not found", ruleUID)
+		}
 		r = item.(rule.UserSegmentRule)
 		ruleExists = exists
 

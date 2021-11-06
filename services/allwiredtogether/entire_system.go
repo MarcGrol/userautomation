@@ -4,7 +4,9 @@ import (
 	"context"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/user"
+	"github.com/MarcGrol/userautomation/services/ondemandservice"
 	"github.com/MarcGrol/userautomation/services/ruleservice"
+	"github.com/MarcGrol/userautomation/services/segmentservice"
 	"github.com/MarcGrol/userautomation/services/usereventservice"
 	"github.com/MarcGrol/userautomation/services/userservice"
 
@@ -14,12 +16,16 @@ import (
 
 type EntireSystem interface {
 	GetUserService() user.Service
-	GetSegmentRuleService() rule.SegmentRuleService
+	GetRuleService() rule.SegmentRuleService
+	GetSegmentService() segmentservice.SegmentService
+	GetOnDemandExecutionService() rule.SegmentRuleExecutionService
 }
 
 type entireSystemWiredTogether struct {
-	userService user.Service
-	ruleService rule.SegmentRuleService
+	userService     user.Service
+	ruleService     rule.SegmentRuleService
+	segmentService  segmentservice.SegmentService
+	ondemandService rule.SegmentRuleExecutionService
 }
 
 func New(ctx context.Context) EntireSystem {
@@ -31,12 +37,19 @@ func New(ctx context.Context) EntireSystem {
 	ruleStore := datastore.NewDatastore()
 	ruleService := ruleservice.NewUserSegmentRuleService(ruleStore, pubsub)
 
+	segmentStore := datastore.NewDatastore()
+	segmentService := segmentservice.NewSegmentService(segmentStore, pubsub)
+
 	userEventService := usereventservice.NewUserEventService(pubsub, ruleService)
 	userEventService.Subscribe(ctx)
 
+	ondemandService := ondemandservice.New(ruleService, userService)
+
 	return &entireSystemWiredTogether{
-		userService: userService,
-		ruleService: ruleService,
+		userService:     userService,
+		ruleService:     ruleService,
+		segmentService:  segmentService,
+		ondemandService: ondemandService,
 	}
 }
 
@@ -44,6 +57,14 @@ func (s *entireSystemWiredTogether) GetUserService() user.Service {
 	return s.userService
 }
 
-func (s *entireSystemWiredTogether) GetSegmentRuleService() rule.SegmentRuleService {
+func (s *entireSystemWiredTogether) GetRuleService() rule.SegmentRuleService {
 	return s.ruleService
+}
+
+func (s *entireSystemWiredTogether) GetSegmentService() segmentservice.SegmentService {
+	return s.segmentService
+}
+
+func (s *entireSystemWiredTogether) GetOnDemandExecutionService() rule.SegmentRuleExecutionService {
+	return s.ondemandService
 }

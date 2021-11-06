@@ -16,7 +16,7 @@ import (
 
 func setupSut(ctx context.Context) (rule.SegmentRuleService, user.Service) {
 	sut := New(ctx)
-	return sut.GetSegmentRuleService(), sut.GetUserService()
+	return sut.GetRuleService(), sut.GetUserService()
 }
 
 func createUser(ctx context.Context, t *testing.T, userService user.Service, age int) {
@@ -26,6 +26,21 @@ func createUser(ctx context.Context, t *testing.T, userService user.Service, age
 			"firstname":    "Marc",
 			"emailaddress": "marc@home.nl",
 			"phonenumber":  "+31611111111",
+			"age":          age,
+		},
+	})
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func createOtherUser(ctx context.Context, t *testing.T, userService user.Service, age int) {
+	err := userService.Put(ctx, user.User{
+		UID: "2",
+		Attributes: map[string]interface{}{
+			"firstname":    "Eva",
+			"emailaddress": "eva@home.nl",
+			"phonenumber":  "+31622222222",
 			"age":          age,
 		},
 	})
@@ -95,6 +110,28 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.S
 		Action:          smsaction.New("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
 		TriggerKindMask: rule.TriggerUserChange,
 	})
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func executeYoungAgeRuleReturnError(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionService) error {
+	err := ondemandService.Execute(ctx, "YoungRule")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func executeYoungAgeRule(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionService) {
+	err := executeYoungAgeRuleReturnError(ctx, t, ondemandService)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func executeOldAgeRule(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionService) {
+	err := ondemandService.Execute(ctx, "OldRule")
 	if err != nil {
 		t.Error(err)
 	}

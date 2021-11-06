@@ -9,19 +9,19 @@ import (
 	"github.com/MarcGrol/userautomation/core/user"
 )
 
-type ondemandService struct {
+type OnDemandService struct {
 	ruleService rule.SegmentRuleService
 	userService user.Service
 }
 
 func New(ruleService rule.SegmentRuleService, userService user.Service) rule.SegmentRuleExecutionService {
-	return &ondemandService{
+	return &OnDemandService{
 		ruleService: ruleService,
 		userService: userService,
 	}
 }
 
-func (s *ondemandService) Execute(ctx context.Context, ruleUID string) error {
+func (s *OnDemandService) Execute(ctx context.Context, ruleUID string) error {
 	r, exists, err := s.ruleService.Get(ctx, ruleUID)
 	if err != nil {
 		return fmt.Errorf("Error getting rule with uid %s: %s", ruleUID, err)
