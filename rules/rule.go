@@ -2,12 +2,13 @@ package rules
 
 import (
 	"context"
-	"github.com/MarcGrol/userautomation/users"
+	"github.com/MarcGrol/userautomation/segments"
 )
 
 type UserSegmentRule struct {
-	Name                 string
-	IsApplicableForUser  users.UserFilterFunc // Could use a WHERE clause alternatively
+	Name        string
+	UserSegment segments.UserSegment
+	//IsApplicableForUser  users.UserFilterFunc // Could use a WHERE clause alternatively
 	PerformActionForUser UserActionFunc
 }
 

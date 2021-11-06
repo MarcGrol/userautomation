@@ -2,6 +2,7 @@ package allwiredtogether
 
 import (
 	"context"
+	"github.com/MarcGrol/userautomation/segments"
 	"testing"
 
 	"github.com/MarcGrol/userautomation/integrations/emailsending"
@@ -59,12 +60,16 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rules.Se
 	emailSender emailsending.EmailSender) {
 	err := segmentService.Put(ctx, rules.UserSegmentRule{
 		Name: "OldRule",
-		IsApplicableForUser: func(ctx context.Context, user users.User) (bool, error) {
-			age, ok := user.Attributes["age"].(int)
-			if !ok {
-				return false, nil
-			}
-			return age > 40, nil
+		UserSegment: segments.UserSegment{
+			Name: "old users segment",
+			IsApplicableForUser: func(ctx context.Context, user users.User) (bool, error) {
+				age, ok := user.Attributes["age"].(int)
+				if !ok {
+					return false, nil
+				}
+				return age > 40, nil
+			},
+			Users: []users.User{}, // start empty
 		},
 		PerformActionForUser: emailaction.EmailerAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", emailSender),
 	})
@@ -76,12 +81,16 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rules.Se
 func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rules.SegmentRuleService, smsSender smssending.SmsSender) {
 	err := segmentService.Put(ctx, rules.UserSegmentRule{
 		Name: "YoungRule",
-		IsApplicableForUser: func(ctx context.Context, user users.User) (bool, error) {
-			age, ok := user.Attributes["age"].(int)
-			if !ok {
-				return false, nil
-			}
-			return age < 18, nil
+		UserSegment: segments.UserSegment{
+			Name: "young users segment",
+			IsApplicableForUser: func(ctx context.Context, user users.User) (bool, error) {
+				age, ok := user.Attributes["age"].(int)
+				if !ok {
+					return false, nil
+				}
+				return age < 18, nil
+			},
+			Users: []users.User{}, // start empty
 		},
 		PerformActionForUser: sms.SmsAction("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
 	})

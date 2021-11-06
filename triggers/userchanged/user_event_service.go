@@ -44,7 +44,7 @@ func (s *userEventHandler) OnUserCreated(ctx context.Context, user users.User) e
 	}
 
 	for _, rule := range ruleSlice {
-		applicable, err := rule.IsApplicableForUser(ctx, user)
+		applicable, err := rule.UserSegment.IsApplicableForUser(ctx, user)
 		if err != nil {
 			return fmt.Errorf("Error determining if rule is applicable for user: %s", err)
 		}
@@ -71,12 +71,12 @@ func (s *userEventHandler) OnUserModified(ctx context.Context, oldState users.Us
 	}
 
 	for _, rule := range ruleSlice {
-		ruleApplicableBefore, err := rule.IsApplicableForUser(ctx, oldState)
+		ruleApplicableBefore, err := rule.UserSegment.IsApplicableForUser(ctx, oldState)
 		if err != nil {
 			return fmt.Errorf("Error determining if rule is applicable for newState: %s", err)
 		}
 
-		ruleApplicableAfter, err := rule.IsApplicableForUser(ctx, newState)
+		ruleApplicableAfter, err := rule.UserSegment.IsApplicableForUser(ctx, newState)
 		if err != nil {
 			return fmt.Errorf("Error determining if rule is applicable for newState: %s", err)
 		}
@@ -108,7 +108,7 @@ func (s *userEventHandler) OnUserRemoved(ctx context.Context, user users.User) e
 	}
 
 	for _, rule := range ruleSlice {
-		applicable, err := rule.IsApplicableForUser(ctx, user)
+		applicable, err := rule.UserSegment.IsApplicableForUser(ctx, user)
 		if err != nil {
 			return fmt.Errorf("Error determining if rule is applicable for user: %s", err)
 		}
