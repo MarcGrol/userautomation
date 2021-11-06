@@ -5,18 +5,18 @@ import (
 	"sync"
 )
 
-type pubsub struct {
+type simplisticPubsub struct {
 	sync.Mutex
 	topics map[string][]OnEventFunc
 }
 
 func NewPubSub() Pubsub {
-	return &pubsub{
+	return &simplisticPubsub{
 		topics: map[string][]OnEventFunc{},
 	}
 }
 
-func (ps *pubsub) Subscribe(ctx context.Context, topic string, onEvent OnEventFunc) error {
+func (ps *simplisticPubsub) Subscribe(ctx context.Context, topic string, onEvent OnEventFunc) error {
 	ps.Lock()
 	defer ps.Unlock()
 
@@ -30,7 +30,7 @@ func (ps *pubsub) Subscribe(ctx context.Context, topic string, onEvent OnEventFu
 	return nil
 }
 
-func (ps *pubsub) Publish(ctx context.Context, topic string, event interface{}) error {
+func (ps *simplisticPubsub) Publish(ctx context.Context, topic string, event interface{}) error {
 	ps.Lock()
 	defer ps.Unlock()
 
@@ -40,9 +40,11 @@ func (ps *pubsub) Publish(ctx context.Context, topic string, event interface{}) 
 	}
 
 	for _, handler := range handlers {
+		// This should run in the background
 		err := handler(ctx, topic, event)
 		if err != nil {
-			return err
+			// Although this single subscriber fails handling the event,
+			// all the other subscribers should still be triggered
 		}
 	}
 

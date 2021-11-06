@@ -2,11 +2,11 @@ package allwiredtogether
 
 import (
 	"context"
-	"github.com/MarcGrol/userautomation/triggers/userchanged"
 
 	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"github.com/MarcGrol/userautomation/rules"
+	"github.com/MarcGrol/userautomation/triggers/userchanged"
 	"github.com/MarcGrol/userautomation/users"
 )
 
