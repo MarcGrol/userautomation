@@ -23,11 +23,11 @@ type entireSystemWiredTogether struct {
 func New(ctx context.Context) EntireSystem {
 	pubsub := pubsub.NewPubSub()
 
-	ruleStore := datastore.NewDatastore()
-	ruleService := rules.NewUserSegmentRuleService(ruleStore, pubsub)
-
 	userStore := datastore.NewDatastore()
 	userService := users.NewUserService(userStore, pubsub)
+
+	ruleStore := datastore.NewDatastore()
+	ruleService := rules.NewUserSegmentRuleService(ruleStore, pubsub)
 
 	userEventService := userchanged.NewUserEventService(pubsub, ruleService)
 	userEventService.Subscribe(ctx)
