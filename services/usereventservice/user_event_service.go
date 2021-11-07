@@ -33,14 +33,16 @@ func NewUserEventService(pubsub pubsub.Pubsub, ruleService rule.SegmentRuleServi
 func (s *userEventHandler) IamSubscribing() {}
 
 func (s *userEventHandler) Subscribe(ctx context.Context) error {
-	return s.pubsub.Subscribe(ctx, user.UserTopicName, s.OnEvent)
+	return s.pubsub.Subscribe(ctx, user.TopicName, s.OnEvent)
 }
 
 func (s *userEventHandler) OnEvent(ctx context.Context, topic string, event interface{}) error {
 	return user.DispatchEvent(ctx, s, topic, event)
 }
 
-func (s *userEventHandler) OnUserCreated(ctx context.Context, u user.User) error {
+func (s *userEventHandler) OnUserCreated(ctx context.Context, event user.CreatedEvent) error {
+	u := event.UserState
+
 	ruleSlice, err := s.ruleService.List(ctx)
 	if err != nil {
 		return fmt.Errorf("Error fetching rules: %s", err)
@@ -58,7 +60,10 @@ func (s *userEventHandler) OnUserCreated(ctx context.Context, u user.User) error
 	return nil
 }
 
-func (s *userEventHandler) OnUserModified(ctx context.Context, oldState user.User, newState user.User) error {
+func (s *userEventHandler) OnUserModified(ctx context.Context, event user.ModifiedEvent) error {
+	oldState := event.OldUserState
+	newState := event.NewUserState
+
 	ruleSlice, err := s.ruleService.List(ctx)
 	if err != nil {
 		return fmt.Errorf("Error fetching rules: %s", err)
@@ -95,7 +100,9 @@ func (s *userEventHandler) OnUserModified(ctx context.Context, oldState user.Use
 	return nil
 }
 
-func (s *userEventHandler) OnUserRemoved(ctx context.Context, u user.User) error {
+func (s *userEventHandler) OnUserRemoved(ctx context.Context, event user.RemovedEvent) error {
+	u := event.UserState
+
 	ruleSlice, err := s.ruleService.List(ctx)
 	if err != nil {
 		return fmt.Errorf("Error fetching rules: %s", err)

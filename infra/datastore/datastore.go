@@ -5,6 +5,8 @@ import (
 	"sync"
 )
 
+// TODO integrate with 3rd party persistent datastore
+
 type lockedInMemoryDatastore struct {
 	sync.Mutex // Poor-mans transaction
 	items      map[string]interface{}

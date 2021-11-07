@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/golang/mock/gomock"
 	"github.com/MarcGrol/userautomation/actions/emailaction"
 	"github.com/MarcGrol/userautomation/actions/smsaction"
 	"github.com/MarcGrol/userautomation/core/rule"
@@ -12,6 +11,7 @@ import (
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/integrations/emailsending"
 	"github.com/MarcGrol/userautomation/integrations/smssending"
+	"github.com/golang/mock/gomock"
 )
 
 func TestUsingClassicSubTests(t *testing.T) {
@@ -262,13 +262,15 @@ func setup() (rule.SegmentRuleService, UserEventService) {
 func noUsers() {}
 
 func userCreated(ctx context.Context, t *testing.T, service UserEventService, age int) {
-	err := service.OnUserCreated(ctx, user.User{
-		UID: "1",
-		Attributes: map[string]interface{}{
-			"firstname":    "Marc",
-			"emailaddress": "marc@home.nl",
-			"phonenumber":  "+31611111111",
-			"age":          age,
+	err := service.OnUserCreated(ctx, user.CreatedEvent{
+		UserState: user.User{
+			UID: "1",
+			Attributes: map[string]interface{}{
+				"firstname":    "Marc",
+				"emailaddress": "marc@home.nl",
+				"phonenumber":  "+31611111111",
+				"age":          age,
+			},
 		},
 	})
 	if err != nil {
@@ -292,21 +294,24 @@ func createOtherUser(ctx context.Context, t *testing.T, userService user.Service
 }
 
 func userModified(ctx context.Context, t *testing.T, service UserEventService, oldAge, nnewAge int) {
-	err := service.OnUserModified(ctx, user.User{
-		UID: "1",
-		Attributes: map[string]interface{}{
-			"firstname":    "Marc",
-			"emailaddress": "marc@home.nl",
-			"phonenumber":  "+31611111111",
-			"age":          oldAge,
+	err := service.OnUserModified(ctx, user.ModifiedEvent{
+		OldUserState: user.User{
+			UID: "1",
+			Attributes: map[string]interface{}{
+				"firstname":    "Marc",
+				"emailaddress": "marc@home.nl",
+				"phonenumber":  "+31611111111",
+				"age":          oldAge,
+			},
 		},
-	}, user.User{
-		UID: "1",
-		Attributes: map[string]interface{}{
-			"firstname":    "Marc",
-			"emailaddress": "marc@home.nl",
-			"phonenumber":  "+31611111111",
-			"age":          nnewAge,
+		NewUserState: user.User{
+			UID: "1",
+			Attributes: map[string]interface{}{
+				"firstname":    "Marc",
+				"emailaddress": "marc@home.nl",
+				"phonenumber":  "+31611111111",
+				"age":          nnewAge,
+			},
 		},
 	})
 	if err != nil {
@@ -315,13 +320,15 @@ func userModified(ctx context.Context, t *testing.T, service UserEventService, o
 }
 
 func userRemoved(ctx context.Context, t *testing.T, service UserEventService) {
-	err := service.OnUserRemoved(ctx, user.User{
-		UID: "1",
-		Attributes: map[string]interface{}{
-			"firstname":    "Marc",
-			"emailaddress": "marc@home.nl",
-			"phonenumber":  "+31611111111",
-			"age":          50,
+	err := service.OnUserRemoved(ctx, user.RemovedEvent{
+		UserState: user.User{
+			UID: "1",
+			Attributes: map[string]interface{}{
+				"firstname":    "Marc",
+				"emailaddress": "marc@home.nl",
+				"phonenumber":  "+31611111111",
+				"age":          50,
+			},
 		},
 	})
 	if err != nil {

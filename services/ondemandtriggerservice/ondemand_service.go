@@ -1,4 +1,4 @@
-package ondemandservice
+package ondemandtriggerservice
 
 import (
 	"context"

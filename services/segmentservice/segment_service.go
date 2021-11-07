@@ -36,14 +36,16 @@ func New(datastore datastore.Datastore, userService user.Service, pubsub pubsub.
 func (s *segmentService) IamSubscribing() {}
 
 func (s *segmentService) Subscribe(ctx context.Context) error {
-	return s.pubsub.Subscribe(ctx, user.UserTopicName, s.OnEvent)
+	return s.pubsub.Subscribe(ctx, user.TopicName, s.OnEvent)
 }
 
 func (s *segmentService) OnEvent(ctx context.Context, topic string, event interface{}) error {
 	return user.DispatchEvent(ctx, s, topic, event)
 }
 
-func (s *segmentService) OnUserCreated(ctx context.Context, u user.User) error {
+func (s *segmentService) OnUserCreated(ctx context.Context, event user.CreatedEvent) error {
+	u := event.UserState
+
 	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		// check if user must be added to segments
 		segments, err := s.segmentStore.GetAll(ctx)
@@ -69,7 +71,9 @@ func (s *segmentService) OnUserCreated(ctx context.Context, u user.User) error {
 	})
 }
 
-func (s *segmentService) OnUserModified(ctx context.Context, _ user.User, u user.User) error {
+func (s *segmentService) OnUserModified(ctx context.Context, event user.ModifiedEvent) error {
+	u := event.NewUserState
+
 	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
 
 		segments, err := s.segmentStore.GetAll(ctx)
@@ -98,7 +102,9 @@ func (s *segmentService) OnUserModified(ctx context.Context, _ user.User, u user
 	})
 }
 
-func (s *segmentService) OnUserRemoved(ctx context.Context, u user.User) error {
+func (s *segmentService) OnUserRemoved(ctx context.Context, event user.RemovedEvent) error {
+	u := event.UserState
+
 	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		// check if user must be added to segments
 		segments, err := s.segmentStore.GetAll(ctx)
@@ -121,20 +127,27 @@ func (s *segmentService) OnUserRemoved(ctx context.Context, u user.User) error {
 
 func (s *segmentService) Put(ctx context.Context, segm segment.UserSegment) error {
 	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
-		users, err := s.userService.Query(ctx, segm.IsApplicableForUser)
+		_, exists, err := s.segmentStore.Get(ctx, segm.UID)
 		if err != nil {
 			return err
 		}
-
-		// recalculate list of users
-		segm.Users = map[string]user.User{}
-		for _, u := range users {
-			applicable, err := segm.IsApplicableForUser(ctx, u)
+		if !exists {
+			err = s.addMatchingUsersToNewlyCreatedSegment(ctx, &segm)
 			if err != nil {
 				return err
 			}
-			if applicable {
-				segm.Users[u.UID] = u
+		} else {
+			{
+				err = s.addRemoveExistingUsersForModifiedSegment(ctx, &segm)
+				if err != nil {
+					return err
+				}
+			}
+			{
+				err = s.addOtherMatchingUsersForModifiedSegment(ctx, &segm)
+				if err != nil {
+					return err
+				}
 			}
 		}
 
@@ -144,6 +157,60 @@ func (s *segmentService) Put(ctx context.Context, segm segment.UserSegment) erro
 		}
 
 		return nil
+	})
+}
+
+func (s *segmentService) addOtherMatchingUsersForModifiedSegment(ctx context.Context, segm *segment.UserSegment) error {
+	users, err := s.userService.Query(ctx, segm.IsApplicableForUser)
+	if err != nil {
+		return err
+	}
+	segm.Users = map[string]user.User{}
+	for _, u := range users {
+		_, exists := segm.Users[u.UID]
+		if !exists {
+			segm.Users[u.UID] = u
+			s.pubsub.Publish(ctx, segment.TopicName, segment.UserAddedToSegmentEvent{SegmentUID: segm.UID, User: u})
+		}
+	}
+	return nil
+}
+
+func (s *segmentService) addRemoveExistingUsersForModifiedSegment(ctx context.Context, segm *segment.UserSegment) error {
+	for _, u := range segm.Users {
+		applicable, err := segm.IsApplicableForUser(ctx, u)
+		if err != nil {
+			return err
+		}
+		if applicable {
+			segm.Users[u.UID] = u
+			s.pubsub.Publish(ctx, segment.TopicName, segment.UserAddedToSegmentEvent{SegmentUID: segm.UID, User: u})
+		} else {
+			delete(segm.Users, u.UID)
+			s.pubsub.Publish(ctx, segment.TopicName, segment.UserRemovedFromSegmentEvent{SegmentUID: segm.UID, User: u})
+		}
+	}
+	return nil
+}
+
+func (s *segmentService) addMatchingUsersToNewlyCreatedSegment(ctx context.Context, segm *segment.UserSegment) error {
+	users, err := s.userService.Query(ctx, segm.IsApplicableForUser)
+	if err != nil {
+		return err
+	}
+	segm.Users = map[string]user.User{}
+	for _, u := range users {
+		segm.Users[u.UID] = u
+		s.pubsub.Publish(ctx, segment.TopicName, segment.UserAddedToSegmentEvent{SegmentUID: segm.UID, User: u})
+	}
+	return nil
+}
+
+func (s *segmentService) Remove(ctx context.Context, userSegmentUID string) error {
+	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
+		// Can we remove a segment? I might still be in use by a rule
+
+		return fmt.Errorf("Not implemented")
 	})
 }
 
@@ -189,14 +256,6 @@ func (s *segmentService) List(ctx context.Context) ([]segment.UserSegment, error
 		return segments, err
 	}
 	return segments, nil
-}
-
-func (s *segmentService) Remove(ctx context.Context, userSegmentUID string) error {
-	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
-		// Can we remove a segment? I might still be in use by a rule
-
-		return fmt.Errorf("Not implemented")
-	})
 }
 
 func (s *segmentService) GetUsersForSegment(ctx context.Context, userSegmentUID string) ([]user.User, error) {

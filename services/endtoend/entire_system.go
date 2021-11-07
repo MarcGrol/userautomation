@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/user"
-	"github.com/MarcGrol/userautomation/services/ondemandservice"
+	"github.com/MarcGrol/userautomation/services/ondemandtriggerservice"
 	"github.com/MarcGrol/userautomation/services/ruleservice"
 	"github.com/MarcGrol/userautomation/services/segmentservice"
 	"github.com/MarcGrol/userautomation/services/usereventservice"
@@ -43,7 +43,7 @@ func New(ctx context.Context) EntireSystem {
 	userEventService := usereventservice.NewUserEventService(pubsub, ruleService)
 	userEventService.Subscribe(ctx)
 
-	ondemandService := ondemandservice.New(ruleService, userService)
+	ondemandService := ondemandtriggerservice.New(ruleService, userService)
 
 	return &entireSystemWiredTogether{
 		userService:     userService,

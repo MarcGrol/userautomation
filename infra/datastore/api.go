@@ -4,7 +4,6 @@ import (
 	"context"
 )
 
-//go:generate mockgen -source=api.go -destination=datastore_mock.go -package=datastore Datastore
 type Datastore interface {
 	RunInTransaction(ctx context.Context, callback func(ctx context.Context) error) error
 	Put(ctx context.Context, uid string, item interface{}) error

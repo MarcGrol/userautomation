@@ -3,10 +3,10 @@ package emailaction
 import (
 	"context"
 	"fmt"
-	"github.com/MarcGrol/userautomation/core/action"
 	"log"
 
 	"github.com/MarcGrol/userautomation/actions/templating"
+	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/integrations/emailsending"
 )
 

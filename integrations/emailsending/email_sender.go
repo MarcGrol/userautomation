@@ -14,5 +14,8 @@ func NewEmailSender() EmailSender {
 
 func (es *emailSender) Send(c context.Context, recipient, subject, body string) error {
 	fmt.Printf("send email to address: '%s' with subject '%s' and body: '%s'\n", recipient, subject, body)
+
+	// TODO integrate with 3rd party product like Sendgrid
+
 	return nil
 }

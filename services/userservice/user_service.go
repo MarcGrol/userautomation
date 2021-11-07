@@ -43,16 +43,16 @@ func (s *userService) Put(ctx context.Context, u user.User) error {
 		}
 
 		if !exists {
-			err := s.pubsub.Publish(ctx, user.UserTopicName, user.CreatedEvent{
-				State: u,
+			err := s.pubsub.Publish(ctx, user.TopicName, user.CreatedEvent{
+				UserState: u,
 			})
 			if err != nil {
 				return fmt.Errorf("Error publishing CreatedEvent for user %s: %s", u.UID, err)
 			}
 		} else if !reflect.DeepEqual(originalUser, u) {
-			err := s.pubsub.Publish(ctx, user.UserTopicName, user.ModifiedEvent{
-				OldState: originalUser.(user.User),
-				NewState: u,
+			err := s.pubsub.Publish(ctx, user.TopicName, user.ModifiedEvent{
+				OldUserState: originalUser.(user.User),
+				NewUserState: u,
 			})
 			if err != nil {
 				return fmt.Errorf("Error publishing ModifiedEvent for user %s: %s", u.UID, err)
@@ -86,8 +86,8 @@ func (s *userService) Remove(ctx context.Context, userUID string) error {
 				return fmt.Errorf("Error removing user with uid %s: %s", userUID, err)
 			}
 
-			err = s.pubsub.Publish(ctx, user.UserTopicName, user.RemovedEvent{
-				State: u.(user.User),
+			err = s.pubsub.Publish(ctx, user.TopicName, user.RemovedEvent{
+				UserState: u.(user.User),
 			})
 			if err != nil {
 				return fmt.Errorf("Error publishing RemovedEvent for user %s: %s", userUID, err)

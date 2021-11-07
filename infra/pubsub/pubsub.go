@@ -5,6 +5,8 @@ import (
 	"sync"
 )
 
+// TODO integrate with 3rd party product like Google pubsub
+
 type simplisticPubsub struct {
 	sync.Mutex
 	topics map[string][]OnEventFunc

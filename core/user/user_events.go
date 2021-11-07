@@ -6,42 +6,42 @@ import (
 )
 
 const (
-	UserTopicName = "user"
+	TopicName = "user"
 )
 
 // When new events are being introduced, this interface (and the dispatcher below) must be extended.
 // Subscribers should implement this interface. This way, all subscribers can be easily detected and fixed (=extended)
 type EventHandler interface {
-	OnUserCreated(ctx context.Context, user User) error
-	OnUserModified(ctx context.Context, oldState User, newState User) error
-	OnUserRemoved(ctx context.Context, user User) error
+	OnUserCreated(ctx context.Context, event CreatedEvent) error
+	OnUserModified(ctx context.Context, event ModifiedEvent) error
+	OnUserRemoved(ctx context.Context, event RemovedEvent) error
 }
 
 type CreatedEvent struct {
-	State User
+	UserState User
 }
 
 type ModifiedEvent struct {
-	OldState User
-	NewState User
+	OldUserState User
+	NewUserState User
 }
 
 type RemovedEvent struct {
-	State User
+	UserState User
 }
 
 func DispatchEvent(ctx context.Context, handler EventHandler, topic string, event interface{}) error {
-	if topic != UserTopicName {
-		return fmt.Errorf("Topic '%+v' is not right for user events. Must be: '%s'", topic, UserTopicName)
+	if topic != TopicName {
+		return fmt.Errorf("Topic '%+v' is not right for user events. Must be: '%s'", topic, TopicName)
 	}
 	switch e := event.(type) {
 	case CreatedEvent:
-		return handler.OnUserCreated(ctx, e.State)
+		return handler.OnUserCreated(ctx, e)
 	case ModifiedEvent:
-		return handler.OnUserModified(ctx, e.OldState, e.NewState)
+		return handler.OnUserModified(ctx, e)
 	case RemovedEvent:
-		return handler.OnUserRemoved(ctx, e.State)
+		return handler.OnUserRemoved(ctx, e)
 	default:
-		return fmt.Errorf("Event %+v is not supported for topic %s", e, UserTopicName)
+		return fmt.Errorf("Event %+v is not supported for topic %s", e, TopicName)
 	}
 }
