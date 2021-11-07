@@ -11,7 +11,7 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func TestUsingTableStrategy(t *testing.T) {
+func TestUserChange(t *testing.T) {
 	testCases := []struct {
 		name  string
 		given func(c givenContext)

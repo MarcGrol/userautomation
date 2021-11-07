@@ -8,7 +8,7 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func TestOnDemand(t *testing.T) {
+func TestOnDemandTrigger(t *testing.T) {
 	ctx := context.TODO()
 
 	t.Run("execute rule, no rule exists", func(t *testing.T) {
