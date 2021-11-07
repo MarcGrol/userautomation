@@ -60,7 +60,7 @@ func executeRuleForUser(ctx context.Context, r rule.UserSegmentRule, user user.U
 	}
 
 	act := action.UserAction{
-		RuleName:    r.UID,
+		RuleUID:     r.UID,
 		TriggerType: action.OnDemand,
 		OldState:    nil,
 		NewState:    &user,

@@ -33,7 +33,7 @@ func (ea *SmsAction) Perform(ctx context.Context, a action.UserAction) error {
 		return fmt.Errorf("User %+v has no phonenumber", a.NewState)
 	}
 
-	body, err := templating.ApplyTemplate(a.RuleName+"-sms-body", ea.bodyTemplate, a.NewState.Attributes)
+	body, err := templating.ApplyTemplate(a.RuleUID+"-sms-body", ea.bodyTemplate, a.NewState.Attributes)
 	if err != nil {
 		return fmt.Errorf("Error creating sms body for newState %s:%s", a.NewState.UID, err)
 	}

@@ -20,10 +20,12 @@ const (
 	UserRemoved
 	OnDemand
 	Cron
+	UserAddedToSegment
+	UserRemovedFromSegment
 )
 
 type UserAction struct {
-	RuleName    string
+	RuleUID     string
 	TriggerType TriggerType
 	OldState    *user.User
 	NewState    *user.User
@@ -31,7 +33,7 @@ type UserAction struct {
 
 func (a UserAction) String() string {
 	return fmt.Sprintf("UserActioner for rule '%s' triggered action om User '%s' - status: %+v\n",
-		a.RuleName, getUserUID(a.OldState, a.NewState), a.TriggerType)
+		a.RuleUID, getUserUID(a.OldState, a.NewState), a.TriggerType)
 }
 
 func getUserUID(oldState *user.User, newState *user.User) string {

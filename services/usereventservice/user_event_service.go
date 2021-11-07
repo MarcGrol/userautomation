@@ -82,7 +82,7 @@ func (s *userEventHandler) OnUserModified(ctx context.Context, event user.Modifi
 
 		if !ruleApplicableBefore && ruleApplicableAfter {
 			err = rule.Action.Perform(ctx, action.UserAction{
-				RuleName:    rule.UID,
+				RuleUID:     rule.UID,
 				TriggerType: action.UserModified,
 				OldState:    &oldState,
 				NewState:    &newState,
@@ -142,7 +142,7 @@ func executeRuleForUser(ctx context.Context, r rule.UserSegmentRule, user user.U
 	}
 
 	err = r.Action.Perform(ctx, action.UserAction{
-		RuleName:    r.UID,
+		RuleUID:     r.UID,
 		TriggerType: triggerType,
 		OldState:    nil,
 		NewState:    &user,

@@ -70,7 +70,7 @@ func TestOnDemand(t *testing.T) {
 
 		// then
 		actionerMock.EXPECT().Perform(gomock.Any(), action.UserAction{
-			RuleName:    "YoungRule",
+			RuleUID:     "YoungRule",
 			TriggerType: action.OnDemand,
 			OldState:    nil,
 			NewState:    &u,
@@ -109,7 +109,7 @@ func TestOnDemand(t *testing.T) {
 
 		// then
 		actionerMock.EXPECT().Perform(gomock.Any(), action.UserAction{
-			RuleName:    "OldRule",
+			RuleUID:     "OldRule",
 			TriggerType: action.OnDemand,
 			OldState:    nil,
 			NewState:    &u,
