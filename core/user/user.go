@@ -11,7 +11,6 @@ type User struct {
 
 type FilterFunc func(ctx context.Context, u User) (bool, error)
 
-//go:generate mockgen -source=user.go -destination=user_service_mock.go -package=user Service
 type Service interface {
 	Put(ctx context.Context, user User) error
 	Get(ctx context.Context, userUID string) (User, bool, error)

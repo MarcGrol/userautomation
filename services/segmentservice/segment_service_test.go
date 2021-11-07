@@ -23,7 +23,6 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, nil)
 
 		// given
-		userService.EXPECT().Query(ctx, gomock.Any()).Return([]user.User{}, nil)
 
 		// when
 		createYoungSegment(ctx, t, sut, "x")
@@ -41,7 +40,7 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, nil)
 
 		// given
-		userService.EXPECT().Query(ctx, gomock.Any()).Return([]user.User{getUser(50)}, nil)
+		createUser(ctx, t, userService, 50)
 
 		// when
 		createYoungSegment(ctx, t, sut, "x")
@@ -51,7 +50,7 @@ func TestSegment(t *testing.T) {
 		assert.Empty(t, getYoungSegment(ctx, t, sut).Users)
 	})
 
-	t.Run("create segment, with matching users", func(t *testing.T) {
+	t.Run("create segment, with matching user", func(t *testing.T) {
 		// setup
 
 		segmentStore, userService, ctrl := setupMocks(t)
@@ -59,7 +58,7 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, nil)
 
 		// given
-		userService.EXPECT().Query(ctx, gomock.Any()).Return([]user.User{getUser(12)}, nil)
+		createUser(ctx, t, userService, 12)
 
 		// when
 		createYoungSegment(ctx, t, sut, "x")
@@ -76,7 +75,8 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, nil)
 
 		// given
-		userService.EXPECT().Query(ctx, gomock.Any()).Return([]user.User{getUser(12), getOtherUser(15)}, nil).Times(2)
+		createUser(ctx, t, userService, 12)
+		createOtherUser(ctx, t, userService, 12)
 		createYoungSegment(ctx, t, sut, "x")
 
 		// when
@@ -94,7 +94,8 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, nil)
 
 		// given
-		userService.EXPECT().Query(ctx, gomock.Any()).Return([]user.User{getUser(12), getOtherUser(15)}, nil)
+		createUser(ctx, t, userService, 12)
+		createOtherUser(ctx, t, userService, 12)
 		createYoungSegment(ctx, t, sut, "x")
 
 		// when
@@ -125,7 +126,6 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, nil)
 
 		// given
-		userService.EXPECT().Query(ctx, gomock.Any()).Return([]user.User{}, nil)
 		createYoungSegment(ctx, t, sut, "x")
 
 		// when
@@ -141,7 +141,6 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, nil)
 
 		// given
-		userService.EXPECT().Query(ctx, gomock.Any()).Return([]user.User{}, nil)
 		createYoungSegment(ctx, t, sut, "x")
 		assert.Len(t, getYoungSegment(ctx, t, sut).Users, 0)
 
@@ -160,7 +159,7 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, nil)
 
 		// given
-		userService.EXPECT().Query(ctx, gomock.Any()).Return([]user.User{getUser(50)}, nil)
+		createUser(ctx, t, userService, 50)
 		createYoungSegment(ctx, t, sut, "x")
 		sut.OnUserCreated(ctx, getUser(50))
 		assert.Len(t, getYoungSegment(ctx, t, sut).Users, 0)
@@ -180,7 +179,7 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, nil)
 
 		// given
-		userService.EXPECT().Query(ctx, gomock.Any()).Return([]user.User{getUser(12)}, nil)
+		createUser(ctx, t, userService, 12)
 		createYoungSegment(ctx, t, sut, "x")
 		sut.OnUserCreated(ctx, getUser(12))
 		assert.Len(t, getYoungSegment(ctx, t, sut).Users, 1)
@@ -199,7 +198,7 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, nil)
 
 		// given
-		userService.EXPECT().Query(ctx, gomock.Any()).Return([]user.User{getUser(12)}, nil)
+		createUser(ctx, t, userService, 13)
 		createYoungSegment(ctx, t, sut, "x")
 		sut.OnUserCreated(ctx, getUser(12))
 		assert.Len(t, getYoungSegment(ctx, t, sut).Users, 1)
@@ -212,10 +211,11 @@ func TestSegment(t *testing.T) {
 	})
 
 }
-func setupMocks(t *testing.T) (*datastore.DatastoreStub, *user.MockService, *gomock.Controller) {
+
+func setupMocks(t *testing.T) (*datastore.DatastoreStub, *user.UserServiceStub, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 	segmentStore := datastore.NewDatastoreStub()
-	userService := user.NewMockService(ctrl)
+	userService := user.NewUserServiceStub()
 	return segmentStore, userService, ctrl
 }
 
@@ -245,14 +245,6 @@ func removeYoungSegment(ctx context.Context, t *testing.T, sut SegmentService) e
 	return nil
 }
 
-func existsYoungSegment(ctx context.Context, t *testing.T, sut SegmentService) bool {
-	_, exists, err := sut.Get(ctx, "YoungSegment")
-	if err != nil || !exists {
-		t.Error(err)
-	}
-	return exists
-}
-
 func getYoungSegment(ctx context.Context, t *testing.T, sut SegmentService) segment.UserSegment {
 	segm, exists, err := sut.Get(ctx, "YoungSegment")
 	if err != nil || !exists {
@@ -265,6 +257,38 @@ func existsUserInYoungSegment(ctx context.Context, t *testing.T, sut SegmentServ
 	segm := getYoungSegment(ctx, t, sut)
 	_, exists := segm.Users[userId]
 	return exists
+}
+
+func createUser(ctx context.Context, t *testing.T, userService user.Service, age int) user.User {
+	u := user.User{
+		UID: "1",
+		Attributes: map[string]interface{}{
+			"firstname":    "Marc",
+			"emailaddress": "marc@home.nl",
+			"phonenumber":  "+31611111111",
+			"age":          age,
+		},
+	}
+	err := userService.Put(ctx, u)
+	if err != nil {
+		t.Error(err)
+	}
+	return u
+}
+
+func createOtherUser(ctx context.Context, t *testing.T, userService user.Service, age int) {
+	err := userService.Put(ctx, user.User{
+		UID: "2",
+		Attributes: map[string]interface{}{
+			"firstname":    "Eva",
+			"emailaddress": "eva@home.nl",
+			"phonenumber":  "+31622222222",
+			"age":          age,
+		},
+	})
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func getUser(age int) user.User {

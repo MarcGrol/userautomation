@@ -7,6 +7,7 @@ import (
 	"github.com/MarcGrol/userautomation/core/user"
 )
 
+//go:generate mockgen -source=action.go -destination=actioner_mock.go -package=action UserActioner
 type UserActioner interface {
 	Perform(ctx context.Context, action UserAction) error
 }

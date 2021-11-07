@@ -116,7 +116,7 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.S
 }
 
 func executeYoungAgeRuleReturnError(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionService) error {
-	err := ondemandService.Execute(ctx, "YoungRule")
+	err := ondemandService.Trigger(ctx, "YoungRule")
 	if err != nil {
 		return err
 	}
@@ -131,7 +131,7 @@ func executeYoungAgeRule(ctx context.Context, t *testing.T, ondemandService rule
 }
 
 func executeOldAgeRule(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionService) {
-	err := ondemandService.Execute(ctx, "OldRule")
+	err := ondemandService.Trigger(ctx, "OldRule")
 	if err != nil {
 		t.Error(err)
 	}

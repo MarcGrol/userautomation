@@ -26,10 +26,11 @@ type UserSegmentRule struct {
 type SegmentRuleService interface {
 	Put(ctx context.Context, segmentRule UserSegmentRule) error
 	Get(ctx context.Context, ruleUID string) (UserSegmentRule, bool, error)
-	Delete(ctx context.Context, ruleUID string) error
+	Remove(ctx context.Context, ruleUID string) error
 	List(ctx context.Context) ([]UserSegmentRule, error)
 }
 
+//go:generate mockgen -source=rule.go -destination=rule_execution_mock.go -package=rule SegmentRuleExecutionService
 type SegmentRuleExecutionService interface {
-	Execute(ctx context.Context, ruleUID string) error
+	Trigger(ctx context.Context, ruleUID string) error
 }

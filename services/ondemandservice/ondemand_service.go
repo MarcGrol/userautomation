@@ -3,7 +3,6 @@ package ondemandservice
 import (
 	"context"
 	"fmt"
-
 	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/user"
@@ -21,7 +20,7 @@ func New(ruleService rule.SegmentRuleService, userService user.Service) rule.Seg
 	}
 }
 
-func (s *OnDemandService) Execute(ctx context.Context, ruleUID string) error {
+func (s *OnDemandService) Trigger(ctx context.Context, ruleUID string) error {
 	r, exists, err := s.ruleService.Get(ctx, ruleUID)
 	if err != nil {
 		return fmt.Errorf("Error getting rule with uid %s: %s", ruleUID, err)
@@ -60,12 +59,14 @@ func executeRuleForUser(ctx context.Context, r rule.UserSegmentRule, user user.U
 		return false, nil
 	}
 
-	err = r.Action.Perform(ctx, action.UserAction{
+	act := action.UserAction{
 		RuleName:    r.UID,
 		TriggerType: action.OnDemand,
 		OldState:    nil,
 		NewState:    &user,
-	})
+	}
+
+	err = r.Action.Perform(ctx, act)
 	if err != nil {
 		return false, fmt.Errorf("Error performing action for rule %s and useer %s: %s", r.UID, user.UID, err)
 	}

@@ -49,7 +49,7 @@ func (s *userSegmentRuleService) Get(ctx context.Context, ruleUID string) (rule.
 	return r, ruleExists, nil
 }
 
-func (s *userSegmentRuleService) Delete(ctx context.Context, ruleUID string) error {
+func (s *userSegmentRuleService) Remove(ctx context.Context, ruleUID string) error {
 	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		return s.segmentStore.Remove(ctx, ruleUID)
 	})
