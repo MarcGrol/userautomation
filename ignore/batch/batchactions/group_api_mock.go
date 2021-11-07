@@ -11,54 +11,54 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockGroupApi is a mock of GroupAPI interface.
-type MockGroupApi struct {
+// MockGroupAPI is a mock of GroupAPI interface.
+type MockGroupAPI struct {
 	ctrl     *gomock.Controller
-	recorder *MockGroupApiMockRecorder
+	recorder *MockGroupAPIMockRecorder
 }
 
-// MockGroupApiMockRecorder is the mock recorder for MockGroupApi.
-type MockGroupApiMockRecorder struct {
-	mock *MockGroupApi
+// MockGroupAPIMockRecorder is the mock recorder for MockGroupAPI.
+type MockGroupAPIMockRecorder struct {
+	mock *MockGroupAPI
 }
 
-// NewMockGroupApi creates a new mock instance.
-func NewMockGroupApi(ctrl *gomock.Controller) *MockGroupApi {
-	mock := &MockGroupApi{ctrl: ctrl}
-	mock.recorder = &MockGroupApiMockRecorder{mock}
+// NewMockGroupAPI creates a new mock instance.
+func NewMockGroupAPI(ctrl *gomock.Controller) *MockGroupAPI {
+	mock := &MockGroupAPI{ctrl: ctrl}
+	mock.recorder = &MockGroupAPIMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockGroupApi) EXPECT() *MockGroupApiMockRecorder {
+func (m *MockGroupAPI) EXPECT() *MockGroupAPIMockRecorder {
 	return m.recorder
 }
 
 // GroupExists mocks base method.
-func (m *MockGroupApi) GroupExists(c context.Context, groupUid string) (bool, error) {
+func (m *MockGroupAPI) GroupExists(c context.Context, groupUID string) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GroupExists", c, groupUid)
+	ret := m.ctrl.Call(m, "GroupExists", c, groupUID)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GroupExists indicates an expected call of GroupExists.
-func (mr *MockGroupApiMockRecorder) GroupExists(c, groupUid interface{}) *gomock.Call {
+func (mr *MockGroupAPIMockRecorder) GroupExists(c, groupUID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GroupExists", reflect.TypeOf((*MockGroupApi)(nil).GroupExists), c, groupUid)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GroupExists", reflect.TypeOf((*MockGroupAPI)(nil).GroupExists), c, groupUID)
 }
 
 // AddUserToGroup mocks base method.
-func (m *MockGroupApi) AddUserToGroup(c context.Context, groupName, userUid string) error {
+func (m *MockGroupAPI) AddUserToGroup(c context.Context, groupName, userUID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddUserToGroup", c, groupName, userUid)
+	ret := m.ctrl.Call(m, "AddUserToGroup", c, groupName, userUID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddUserToGroup indicates an expected call of AddUserToGroup.
-func (mr *MockGroupApiMockRecorder) AddUserToGroup(c, groupName, userUid interface{}) *gomock.Call {
+func (mr *MockGroupAPIMockRecorder) AddUserToGroup(c, groupName, userUID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUserToGroup", reflect.TypeOf((*MockGroupApi)(nil).AddUserToGroup), c, groupName, userUid)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUserToGroup", reflect.TypeOf((*MockGroupAPI)(nil).AddUserToGroup), c, groupName, userUID)
 }

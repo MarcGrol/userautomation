@@ -16,7 +16,7 @@ func TestAddToGroup(t *testing.T) {
 	defer ctrl.Finish()
 
 	userLookup := userlookup.NewMockUserLookuper(ctrl)
-	groupAPI := batchactions.NewMockGroupApi(ctrl)
+	groupAPI := batchactions.NewMockGroupAPI(ctrl)
 
 	testCases := []struct {
 		name              string

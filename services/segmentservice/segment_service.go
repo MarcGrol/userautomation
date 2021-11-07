@@ -25,7 +25,7 @@ type SegmentService interface {
 	segment.UserSegmentQueryService
 }
 
-func NewSegmentService(datastore datastore.Datastore, userService user.Service, pubsub pubsub.Pubsub) SegmentService {
+func New(datastore datastore.Datastore, userService user.Service, pubsub pubsub.Pubsub) SegmentService {
 	return &segmentService{
 		segmentStore: datastore,
 		userService:  userService,
@@ -85,17 +85,13 @@ func (s *segmentService) OnUserModified(ctx context.Context, _ user.User, u user
 				return err
 			}
 			if found && !isApplicable {
-				err = s.segmentStore.Remove(ctx, segm.UID)
-				if err != nil {
-					return err
-				}
+				delete(segm.Users, u.UID)
 			} else if isApplicable {
 				segm.Users[u.UID] = u
-				err = s.segmentStore.Put(ctx, segm.UID, segm)
-				if err != nil {
-					return err
-				}
-
+			}
+			err = s.segmentStore.Put(ctx, segm.UID, segm)
+			if err != nil {
+				return err
 			}
 		}
 		return nil
@@ -142,11 +138,9 @@ func (s *segmentService) Put(ctx context.Context, segm segment.UserSegment) erro
 			}
 		}
 
-		if len(segm.Users) > 0 {
-			err = s.segmentStore.Put(ctx, segm.UID, segm)
-			if err != nil {
-				return err
-			}
+		err = s.segmentStore.Put(ctx, segm.UID, segm)
+		if err != nil {
+			return err
 		}
 
 		return nil
@@ -160,6 +154,9 @@ func (s *segmentService) Get(ctx context.Context, userSegmentUID string) (segmen
 		item, exists, err := s.segmentStore.Get(ctx, userSegmentUID)
 		if err != nil {
 			return err
+		}
+		if !exists {
+			return fmt.Errorf("Segment with uid %s does not exist", userSegmentUID)
 		}
 		segm = item.(segment.UserSegment)
 		segmentExists = exists

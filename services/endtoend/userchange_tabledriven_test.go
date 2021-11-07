@@ -1,4 +1,4 @@
-package allwiredtogether
+package endtoend
 
 import (
 	"context"

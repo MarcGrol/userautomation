@@ -1,4 +1,4 @@
-package allwiredtogether
+package endtoend
 
 import (
 	"context"
@@ -38,7 +38,7 @@ func New(ctx context.Context) EntireSystem {
 	ruleService := ruleservice.NewUserSegmentRuleService(ruleStore, pubsub)
 
 	segmentStore := datastore.NewDatastore()
-	segmentService := segmentservice.NewSegmentService(segmentStore, userService, pubsub)
+	segmentService := segmentservice.New(segmentStore, userService, pubsub)
 
 	userEventService := usereventservice.NewUserEventService(pubsub, ruleService)
 	userEventService.Subscribe(ctx)

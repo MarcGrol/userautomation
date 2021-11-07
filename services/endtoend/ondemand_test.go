@@ -1,4 +1,4 @@
-package allwiredtogether
+package endtoend
 
 import (
 	"context"
@@ -125,7 +125,6 @@ func TestOnDemand(t *testing.T) {
 		// given
 		createUser(ctx, t, sut.GetUserService(), 50)
 		createOtherUser(ctx, t, sut.GetUserService(), 50)
-
 		createOldAgeRule(ctx, t, sut.GetRuleService(), mockEmailer)
 
 		// when
