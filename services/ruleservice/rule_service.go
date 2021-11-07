@@ -6,14 +6,13 @@ import (
 
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/infra/datastore"
-	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
 
 type userSegmentRuleService struct {
 	segmentStore datastore.Datastore
 }
 
-func NewUserSegmentRuleService(segmentStore datastore.Datastore, pubsub pubsub.Pubsub) rule.SegmentRuleService {
+func NewUserSegmentRuleService(segmentStore datastore.Datastore) rule.SegmentRuleService {
 	return &userSegmentRuleService{
 		segmentStore: segmentStore,
 	}

@@ -35,7 +35,7 @@ func New(ctx context.Context) EntireSystem {
 	userService := userservice.NewUserService(userStore, pubsub)
 
 	ruleStore := datastore.NewDatastore()
-	ruleService := ruleservice.NewUserSegmentRuleService(ruleStore, pubsub)
+	ruleService := ruleservice.NewUserSegmentRuleService(ruleStore)
 
 	segmentStore := datastore.NewDatastore()
 	segmentService := segmentservice.New(segmentStore, userService, pubsub)
