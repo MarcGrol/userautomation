@@ -23,6 +23,7 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, nil)
 
 		// given
+		noUsers()
 
 		// when
 		createYoungSegment(ctx, t, sut, "x")
@@ -112,6 +113,7 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, nil)
 
 		// given
+		noUsers()
 
 		// when
 		sut.OnUserCreated(ctx, getUser(50))
@@ -126,6 +128,7 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, nil)
 
 		// given
+		noUsers()
 		createYoungSegment(ctx, t, sut, "x")
 
 		// when
@@ -141,6 +144,7 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, nil)
 
 		// given
+		noUsers()
 		createYoungSegment(ctx, t, sut, "x")
 		assert.Len(t, getYoungSegment(ctx, t, sut).Users, 0)
 
@@ -258,6 +262,8 @@ func existsUserInYoungSegment(ctx context.Context, t *testing.T, sut SegmentServ
 	_, exists := segm.Users[userId]
 	return exists
 }
+
+func noUsers() {}
 
 func createUser(ctx context.Context, t *testing.T, userService user.Service, age int) user.User {
 	u := user.User{

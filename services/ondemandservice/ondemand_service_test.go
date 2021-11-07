@@ -2,9 +2,9 @@ package ondemandservice
 
 import (
 	"context"
-	"github.com/MarcGrol/userautomation/core/action"
 	"testing"
 
+	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
@@ -15,35 +15,24 @@ import (
 func TestOnDemand(t *testing.T) {
 	ctx := context.TODO()
 
-	t.Run("execute rule, no rule exists", func(t *testing.T) {
-		// setup
-		ruleService, userService, _, ctrl := setup(t)
-		defer ctrl.Finish()
-		sut := New(ruleService, userService)
-
-		// given
-
-		// when
-		err := sut.Trigger(ctx, "non_existing_rule_uid")
-
-		// then
-		assert.Error(t, err)
-	})
-
-	t.Run("execute rule, no rule matched", func(t *testing.T) {
+	t.Run("execute non-existing rule", func(t *testing.T) {
 		// setup
 		ruleService, userService, actionerMock, ctrl := setup(t)
 		defer ctrl.Finish()
 		sut := New(ruleService, userService)
 
 		// given
+		noUsers()
 		createOldAgeRule(ctx, t, ruleService, actionerMock)
 
 		// when
-		err := sut.Trigger(ctx, "YoungRule")
+		defer func() {
+			err := sut.Trigger(ctx, "YoungRule")
+			assert.Error(t, err)
+		}()
 
 		// then
-		assert.Error(t, err)
+		nothingHappens()
 	})
 
 	t.Run("execute rule, young age rule matched with no users", func(t *testing.T) {
@@ -53,13 +42,17 @@ func TestOnDemand(t *testing.T) {
 		sut := New(ruleService, userService)
 
 		// given
+		noUsers()
 		createYoungAgeRule(ctx, t, ruleService, actionerMock)
 
 		// when
-		err := sut.Trigger(ctx, "YoungRule")
+		defer func() {
+			err := sut.Trigger(ctx, "YoungRule")
+			assert.NoError(t, err)
+		}()
 
 		// then
-		assert.NoError(t, err)
+		nothingHappens()
 	})
 
 	t.Run("execute rule, young age rule matched -> trigger young rule execution", func(t *testing.T) {
@@ -91,12 +84,14 @@ func TestOnDemand(t *testing.T) {
 		sut := New(ruleService, userService)
 
 		// given
+		noUsers()
 		createYoungAgeRule(ctx, t, ruleService, actionerMock)
 
 		// when
 		defer sut.Trigger(ctx, "OldRule")
 
 		// then
+		nothingHappens()
 	})
 
 	t.Run("execute rule, old age rule matched -> email", func(t *testing.T) {
@@ -148,6 +143,8 @@ func setup(t *testing.T) (*rule.SegmentRuleServiceStub, *user.UserServiceStub, *
 
 	return ruleService, userService, actionerMock, ctrl
 }
+
+func noUsers() {}
 
 func createUser(ctx context.Context, t *testing.T, userService user.Service, age int) user.User {
 	u := user.User{
@@ -223,3 +220,4 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.S
 		t.Error(err)
 	}
 }
+func nothingHappens() {}

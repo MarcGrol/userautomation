@@ -2,18 +2,16 @@ package usereventservice
 
 import (
 	"context"
-	"github.com/golang/mock/gomock"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/MarcGrol/userautomation/actions/emailaction"
 	"github.com/MarcGrol/userautomation/actions/smsaction"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
-	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/integrations/emailsending"
 	"github.com/MarcGrol/userautomation/integrations/smssending"
-	"github.com/MarcGrol/userautomation/services/ruleservice"
 )
 
 func TestUsingClassicSubTests(t *testing.T) {
@@ -26,36 +24,43 @@ func TestUsingClassicSubTests(t *testing.T) {
 		defer ctrl.Finish()
 
 		// given
+		noUsers()
+		noRules()
 
 		// when
 		defer userCreated(ctx, t, sut, 50)
 
 		// then
+		nothingHappens()
 	})
 
 	t.Run("used-created user, no rule matched", func(t *testing.T) {
 		// setup
-		ruleservice, sut := setup()
+		ruleService, sut := setup()
 		_, mockSmser, ctrl := setupMocks(t)
 		defer ctrl.Finish()
 
 		// given
-		createYoungAgeRule(ctx, t, ruleservice, mockSmser)
+		noUsers()
+		createYoungAgeRule(ctx, t, ruleService, mockSmser)
 
 		// when
 		defer userCreated(ctx, t, sut, 50)
 
 		// then
+		nothingHappens()
+
 	})
 
 	t.Run("user-created user, young age rule matched -> sms", func(t *testing.T) {
 		// setup
-		ruleservice, userEventService := setup()
+		ruleService, userEventService := setup()
 		_, mockSmser, ctrl := setupMocks(t)
 		defer ctrl.Finish()
 
 		// given
-		createYoungAgeRule(ctx, t, ruleservice, mockSmser)
+		noUsers()
+		createYoungAgeRule(ctx, t, ruleService, mockSmser)
 
 		// when
 		defer userCreated(ctx, t, userEventService, 12)
@@ -67,12 +72,13 @@ func TestUsingClassicSubTests(t *testing.T) {
 
 	t.Run("user-created, old age rule matched -> email", func(t *testing.T) {
 		// setup
-		ruleservice, sut := setup()
+		ruleService, sut := setup()
 		mockEmailer, _, ctrl := setupMocks(t)
 		defer ctrl.Finish()
 
 		// given
-		createOldAgeRule(ctx, t, ruleservice, mockEmailer)
+		noUsers()
+		createOldAgeRule(ctx, t, ruleService, mockEmailer)
 
 		// when
 		defer userCreated(ctx, t, sut, 50)
@@ -89,12 +95,15 @@ func TestUsingClassicSubTests(t *testing.T) {
 		_, _, ctrl := setupMocks(t)
 		defer ctrl.Finish()
 
-		// expect
+		// given
+		userCreated(ctx, t, userService, 50)
+		noRules()
 
 		// when
 		defer userModified(ctx, t, userService, 50, 12)
 
 		// then
+		nothingHappens()
 
 	})
 
@@ -112,6 +121,7 @@ func TestUsingClassicSubTests(t *testing.T) {
 		defer userModified(ctx, t, userService, 50, 51)
 
 		// then
+		nothingHappens()
 
 	})
 
@@ -167,6 +177,8 @@ func TestUsingClassicSubTests(t *testing.T) {
 		defer userModified(ctx, t, userService, 12, 14)
 
 		// then
+		nothingHappens()
+
 	})
 
 	t.Run("user-removed, no user exists", func(t *testing.T) {
@@ -176,11 +188,15 @@ func TestUsingClassicSubTests(t *testing.T) {
 		defer ctrl.Finish()
 
 		// given
+		noUsers()
+		noRules()
 
 		// when
 		defer userRemoved(ctx, t, userService)
 
 		// then
+		nothingHappens()
+
 	})
 
 	t.Run("user-removed, no rule exist", func(t *testing.T) {
@@ -191,11 +207,14 @@ func TestUsingClassicSubTests(t *testing.T) {
 
 		// given
 		userCreated(ctx, t, userService, 50)
+		noRules()
 
 		// when
 		defer userRemoved(ctx, t, userService)
 
 		// then
+		nothingHappens()
+
 	})
 
 	t.Run("user-removed, no rule matched", func(t *testing.T) {
@@ -212,6 +231,8 @@ func TestUsingClassicSubTests(t *testing.T) {
 		defer userRemoved(ctx, t, userService)
 
 		// then
+		nothingHappens()
+
 	})
 
 	t.Run("user-removed, young age rule matched", func(t *testing.T) {
@@ -228,14 +249,17 @@ func TestUsingClassicSubTests(t *testing.T) {
 		defer userRemoved(ctx, t, userService)
 
 		// then
+		nothingHappens()
+
 	})
 }
 
 func setup() (rule.SegmentRuleService, UserEventService) {
-	ruleDatastore := datastore.NewDatastoreStub()
-	ruleService := ruleservice.NewUserSegmentRuleService(ruleDatastore)
+	ruleService := rule.NewUserSegmentRuleServiceStub()
 	return ruleService, NewUserEventService(nil, ruleService)
 }
+
+func noUsers() {}
 
 func userCreated(ctx context.Context, t *testing.T, service UserEventService, age int) {
 	err := service.OnUserCreated(ctx, user.User{
@@ -305,6 +329,8 @@ func userRemoved(ctx context.Context, t *testing.T, service UserEventService) {
 	}
 }
 
+func noRules() {}
+
 func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.SegmentRuleService,
 	emailSender emailsending.EmailSender) {
 	err := segmentService.Put(ctx, rule.UserSegmentRule{
@@ -357,23 +383,11 @@ func executeYoungAgeRuleReturnError(ctx context.Context, t *testing.T, ondemandS
 	return nil
 }
 
-func executeYoungAgeRule(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionService) {
-	err := executeYoungAgeRuleReturnError(ctx, t, ondemandService)
-	if err != nil {
-		t.Error(err)
-	}
-}
-
-func executeOldAgeRule(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionService) {
-	err := ondemandService.Trigger(ctx, "OldRule")
-	if err != nil {
-		t.Error(err)
-	}
-}
-
 func setupMocks(t *testing.T) (*emailsending.MockEmailSender, *smssending.MockSmsSender, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 	mockEmailer := emailsending.NewMockEmailSender(ctrl)
 	mockSmser := smssending.NewMockSmsSender(ctrl)
 	return mockEmailer, mockSmser, ctrl
 }
+
+func nothingHappens() {}
