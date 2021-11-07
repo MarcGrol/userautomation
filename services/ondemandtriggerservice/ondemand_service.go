@@ -30,7 +30,7 @@ func (s *OnDemandService) Trigger(ctx context.Context, ruleUID string) error {
 	}
 
 	// TODO fix this
-	//if (r.TriggerKindMask & rule.TriggerOnDemand) == 0 {
+	//if (r.AllowedTriggers & rule.TriggerOnDemand) == 0 {
 	//	return fmt.Errorf("Rule with uid %s cannot be executed on demand", ruleUID)
 	//}
 
@@ -60,10 +60,10 @@ func executeRuleForUser(ctx context.Context, r rule.UserSegmentRule, user user.U
 	}
 
 	act := action.UserAction{
-		RuleUID:     r.UID,
-		TriggerType: action.OnDemand,
-		OldState:    nil,
-		NewState:    &user,
+		RuleUID:  r.UID,
+		Reason:   action.ReasonIsOnDemand,
+		OldState: nil,
+		NewState: &user,
 	}
 
 	err = r.Action.Perform(ctx, act)

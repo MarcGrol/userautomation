@@ -12,28 +12,24 @@ type UserActioner interface {
 	Perform(ctx context.Context, action UserAction) error
 }
 
-type TriggerType int
+type ReasonForAction int
 
 const (
-	UserCreated TriggerType = iota
-	UserModified
-	UserRemoved
-	OnDemand
-	Cron
-	UserAddedToSegment
-	UserRemovedFromSegment
+	ReasonIsUserAddedToSegment ReasonForAction = iota
+	ReasonIsOnDemand
+	ReasonIsCron
 )
 
 type UserAction struct {
-	RuleUID     string
-	TriggerType TriggerType
-	OldState    *user.User
-	NewState    *user.User
+	RuleUID  string
+	Reason   ReasonForAction
+	OldState *user.User
+	NewState *user.User
 }
 
 func (a UserAction) String() string {
 	return fmt.Sprintf("UserActioner for rule '%s' triggered action om User '%s' - status: %+v\n",
-		a.RuleUID, getUserUID(a.OldState, a.NewState), a.TriggerType)
+		a.RuleUID, getUserUID(a.OldState, a.NewState), a.Reason)
 }
 
 func getUserUID(oldState *user.User, newState *user.User) string {

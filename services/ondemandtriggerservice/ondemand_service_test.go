@@ -70,10 +70,10 @@ func TestOnDemand(t *testing.T) {
 
 		// then
 		actionerMock.EXPECT().Perform(gomock.Any(), action.UserAction{
-			RuleUID:     "YoungRule",
-			TriggerType: action.OnDemand,
-			OldState:    nil,
-			NewState:    &u,
+			RuleUID:  "YoungRule",
+			Reason:   action.ReasonIsOnDemand,
+			OldState: nil,
+			NewState: &u,
 		}).Return(nil)
 	})
 
@@ -109,10 +109,10 @@ func TestOnDemand(t *testing.T) {
 
 		// then
 		actionerMock.EXPECT().Perform(gomock.Any(), action.UserAction{
-			RuleUID:     "OldRule",
-			TriggerType: action.OnDemand,
-			OldState:    nil,
-			NewState:    &u,
+			RuleUID:  "OldRule",
+			Reason:   action.ReasonIsOnDemand,
+			OldState: nil,
+			NewState: &u,
 		}).Return(nil)
 	})
 
@@ -214,7 +214,7 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.S
 			},
 		},
 		Action:          actioner,
-		TriggerKindMask: rule.TriggerUserChange,
+		AllowedTriggers: rule.TriggerUserChange,
 	})
 	if err != nil {
 		t.Error(err)

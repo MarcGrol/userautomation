@@ -71,9 +71,9 @@ func (s *segmentEventHandler) performUserAction(ctx context.Context, r rule.User
 	}
 	if applicable {
 		err = r.Action.Perform(ctx, action.UserAction{
-			RuleUID:     r.UID,
-			TriggerType: action.UserAddedToSegment,
-			NewState:    &u,
+			RuleUID:  r.UID,
+			Reason:   action.ReasonIsUserAddedToSegment,
+			NewState: &u,
 		})
 		if err != nil {
 			return err

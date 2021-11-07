@@ -26,9 +26,6 @@ func NewEmailAction(subjectTemplate string, bodyTemplate string, emailClient ema
 
 func (ea *EmailAction) Perform(ctx context.Context, a action.UserAction) error {
 	log.Printf("email-action: %s", a.String())
-	if a.TriggerType == action.UserRemoved {
-		return nil
-	}
 
 	userEmail, ok := a.NewState.Attributes["emailaddress"].(string)
 	if !ok {

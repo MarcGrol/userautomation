@@ -7,10 +7,10 @@ import (
 	"github.com/MarcGrol/userautomation/core/segment"
 )
 
-type TriggerKind int
+type TriggerAllowed int
 
 const (
-	TriggerOnDemand TriggerKind = 1 << iota
+	TriggerOnDemand TriggerAllowed = 1 << iota
 	TriggerCron
 	TriggerUserChange
 )
@@ -20,7 +20,7 @@ type UserSegmentRule struct {
 	Description     string
 	UserSegment     segment.UserSegment
 	Action          action.UserActioner
-	TriggerKindMask TriggerKind
+	AllowedTriggers TriggerAllowed
 }
 
 type SegmentRuleService interface {

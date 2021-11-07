@@ -24,9 +24,6 @@ func New(bodyTemplate string, smsClient smssending.SmsSender) action.UserActione
 
 func (ea *SmsAction) Perform(ctx context.Context, a action.UserAction) error {
 	log.Printf("email-action: %s", a.String())
-	if a.TriggerType == action.UserRemoved {
-		return nil
-	}
 
 	userPhoneNumber, ok := a.NewState.Attributes["phonenumber"].(string)
 	if !ok {
