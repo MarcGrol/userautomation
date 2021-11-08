@@ -1,4 +1,4 @@
-package segmentchangedetector
+package segmentchangepropagator
 
 import (
 	"context"

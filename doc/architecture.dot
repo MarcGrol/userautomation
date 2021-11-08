@@ -3,36 +3,36 @@
       rankdir="TD"
       
       insided -> "rule-\ntrigger-\nservice"
-      insided -> "rule-\nmanagement-\nservice"
-      insided -> "user-\nmanagement-\nservice"
-      insided -> "segment-\nmanagement-\nservice"
+      insided -> "rule-\nmanagement"
+      insided -> "user-\nmanagement"
+      insided -> "segment-\nmanagement"
       insided -> "segment-\nquery-\nservice"
 
       subgraph cluster_Web {
           "rule-\ntrigger-\nservice"
-          "rule-\nmanagement-\nservice"
-          "user-\nmanagement-\nservice"
-          "segment-\nmanagement-\nservice"
+          "rule-\nmanagement"
+          "user-\nmanagement"
+          "segment-\nmanagement"
           "segment-\nquery-\nservice"
       }
 
-       "rule-\ntrigger-\nservice" -> "ondemand-\nrule-executor" [style=dashed, label=trigger]
-      "segment-\nmanagement-\nservice" -> "segment-\ncalculation-\nservice" [style=dashed, label=trigger]
-      "segment-\nquery-\nservice" -> "segment-\ncalculation-\nservice" [label=query]
+       "rule-\ntrigger-\nservice" -> "ondemand-\nactioner" [style=dashed, label=trigger]
+      "segment-\nmanagement" -> "segment-change-\npropagation" [style=dashed, label=trigger]
+      "segment-\nquery-\nservice" -> "segment-change-\npropagation" [label=query]
 
-      "rule-\nmanagement-\nservice" -> "ondemand-\nrule-executor" [style=dashed, label=feed]
+      "rule-\nmanagement" -> "ondemand-\nactioner" [style=dashed, label=feed]
 
-      "user-\nmanagement-\nservice" -> "segment-\ncalculation-\nservice" [style=dashed, label=trigger]
-      "segment-\ncalculation-\nservice" -> "ondemand-\nrule-executor" [style=dashed, label=feed]
+      "user-\nmanagement" -> "segment-change-\npropagation" [style=dashed, label=trigger]
+      "segment-change-\npropagation" -> "ondemand-\nactioner" [style=dashed, label=feed]
 
-      "segment-\ncalculation-\nservice" -> "segment-change-\nrule-executor"  [style=dashed, label=trigger]
-      "rule-\nmanagement-\nservice" -> "segment-change-\nrule-executor" [style=dashed, label=feed]
-      "segment-change-\nrule-executor" -> "action-\nexecutor-\nservice" [style=dashed, label=trigger]
+      "segment-change-\npropagation" -> "segment-change-\nactioner"  [style=dashed, label=trigger]
+      "rule-\nmanagement" -> "segment-change-\nactioner" [style=dashed, label=feed]
+      "segment-change-\nactioner" -> "action-\nexecutor" [style=dashed, label=trigger]
 
-      "ondemand-\nrule-executor" -> "action-\nexecutor-\nservice" [style=dashed, label=trigger]
+      "ondemand-\nactioner" -> "action-\nexecutor" [style=dashed, label=trigger]
 
-      "action-\nexecutor-\nservice" -> "sms-sender" [label=call]
-      "action-\nexecutor-\nservice" -> "email-sender" [label=call]
-      "action-\nexecutor-\nservice" -> "group-updater" [label=call]
-      "action-\nexecutor-\nservice" -> "crm-updater" [label=call]
+      "action-\nexecutor" -> "sms-sender" [label=call]
+      "action-\nexecutor" -> "email-sender" [label=call]
+      "action-\nexecutor" -> "group-updater" [label=call]
+      "action-\nexecutor" -> "crm-updater" [label=call]
     }
