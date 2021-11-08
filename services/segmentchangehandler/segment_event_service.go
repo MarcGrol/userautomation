@@ -2,9 +2,9 @@ package segmenteventservice
 
 import (
 	"context"
+	
 	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/user"
-
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
