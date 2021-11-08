@@ -1,0 +1,38 @@
+    digraph G {
+    
+      rankdir="TD"
+      
+      insided -> "rule-\ntrigger-\nservice"
+      insided -> "rule-\nmanagement-\nservice"
+      insided -> "user-\nmanagement-\nservice"
+      insided -> "segment-\nmanagement-\nservice"
+      insided -> "segment-\nquery-\nservice"
+
+      subgraph cluster_Web {
+          "rule-\ntrigger-\nservice"
+          "rule-\nmanagement-\nservice"
+          "user-\nmanagement-\nservice"
+          "segment-\nmanagement-\nservice"
+          "segment-\nquery-\nservice"
+      }
+
+      "rule-\ntrigger-\nservice" -> "rule-\ntrigger\nEvent-service" [style=dashed, label=trigger]
+      "segment-\nmanagement-\nservice" -> "segment-\ncalculation-\nservice" [style=dashed, label=trigger]
+      "segment-\nquery-\nservice" -> "segment-\ncalculation-\nservice" [label=call]
+
+      "rule-\nmanagement-\nservice" -> "rule-\ntrigger\nEvent-service" [style=dashed, label=feed]
+
+      "user-\nmanagement-\nservice" -> "segment-\ncalculation-\nservice" [style=dashed, label=feed]
+      "user-\nmanagement-\nservice" -> "rule-\ntrigger\nEvent-service" [style=dashed, label=feed]
+
+      "segment-\ncalculation-\nservice" -> "segment-change-\npropagation"  [style=dashed, label=trigger]
+      "rule-\nmanagement-\nservice" -> "segment-change-\npropagation" [style=dashed, label=feed]
+      "segment-change-\npropagation" -> "action-\nexecutor-\nservice" [style=dashed, label=trigger]
+
+      "rule-\ntrigger\nEvent-service" -> "action-\nexecutor-\nservice" [style=dashed, label=trigger]
+
+      "action-\nexecutor-\nservice" -> "sms-sender" [label=call]
+      "action-\nexecutor-\nservice" -> "email-sender" [label=call]
+      "action-\nexecutor-\nservice" -> "group-updater" [label=call]
+      "action-\nexecutor-\nservice" -> "crm-updater" [label=call]
+    }
