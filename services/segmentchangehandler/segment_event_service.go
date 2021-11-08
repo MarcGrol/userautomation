@@ -1,12 +1,12 @@
-package segmenteventservice
+package segmentchangehandler
 
 import (
 	"context"
-	
+
 	"github.com/MarcGrol/userautomation/core/action"
-	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
+	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
 
@@ -20,7 +20,7 @@ type SegmentEventService interface {
 	pubsub.SubscribingService
 	// Early warning system. This service will break when "users"-module introduces new events.
 	// In this case this service should also introduce these new events.
-	segment.EventHandler
+	segment.UserEventHandler
 }
 
 func NewSegmentEventService(pubsub pubsub.Pubsub, ruleService rule.SegmentRuleService) SegmentEventService {
@@ -33,11 +33,11 @@ func NewSegmentEventService(pubsub pubsub.Pubsub, ruleService rule.SegmentRuleSe
 func (s *segmentEventHandler) IamSubscribing() {}
 
 func (s *segmentEventHandler) Subscribe(ctx context.Context) error {
-	return s.pubsub.Subscribe(ctx, segment.TopicName, s.OnEvent)
+	return s.pubsub.Subscribe(ctx, segment.UserTopicName, s.OnEvent)
 }
 
 func (s *segmentEventHandler) OnEvent(ctx context.Context, topic string, event interface{}) error {
-	return segment.DispatchEvent(ctx, s, topic, event)
+	return segment.DispatchUserEvent(ctx, s, topic, event)
 }
 
 func (s *segmentEventHandler) OnUserAddedToSegment(ctx context.Context, event segment.UserAddedToSegmentEvent) error {

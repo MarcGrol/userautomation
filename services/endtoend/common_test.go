@@ -2,11 +2,11 @@ package endtoend
 
 import (
 	"context"
+	"testing"
+
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
-	"testing"
-
 	"github.com/MarcGrol/userautomation/actions/emailaction"
 	"github.com/MarcGrol/userautomation/actions/smsaction"
 	"github.com/MarcGrol/userautomation/integrations/emailsending"

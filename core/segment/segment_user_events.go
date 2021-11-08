@@ -7,12 +7,12 @@ import (
 )
 
 const (
-	TopicName = "segment"
+	UserTopicName = "usersegment"
 )
 
 // When new events are being introduced, this interface (and the dispatcher below) must be extended.
 // Subscribers should implement this interface. This way, all subscribers can be easily detected and fixed (=extended)
-type EventHandler interface {
+type UserEventHandler interface {
 	OnUserAddedToSegment(ctx context.Context, event UserAddedToSegmentEvent) error
 	OnUserRemovedFromSegment(ctx context.Context, event UserRemovedFromSegmentEvent) error
 }
@@ -27,9 +27,9 @@ type UserRemovedFromSegmentEvent struct {
 	User       user.User
 }
 
-func DispatchEvent(ctx context.Context, handler EventHandler, topic string, event interface{}) error {
-	if topic != TopicName {
-		return fmt.Errorf("Topic '%+v' is not right for segment events. Must be: '%s'", topic, TopicName)
+func DispatchUserEvent(ctx context.Context, handler UserEventHandler, topic string, event interface{}) error {
+	if topic != UserTopicName {
+		return fmt.Errorf("Topic '%+v' is not right for segment events. Must be: '%s'", topic, UserTopicName)
 	}
 	switch e := event.(type) {
 	case UserAddedToSegmentEvent:
@@ -37,6 +37,6 @@ func DispatchEvent(ctx context.Context, handler EventHandler, topic string, even
 	case UserRemovedFromSegmentEvent:
 		return handler.OnUserRemovedFromSegment(ctx, e)
 	default:
-		return fmt.Errorf("Event %+v is not supported for topic %s", e, TopicName)
+		return fmt.Errorf("Event %+v is not supported for topic %s", e, UserTopicName)
 	}
 }

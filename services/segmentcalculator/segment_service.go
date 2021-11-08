@@ -1,4 +1,4 @@
-package segmentservice
+package segmentcalculator
 
 import (
 	"context"
