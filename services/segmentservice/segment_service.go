@@ -55,7 +55,13 @@ func (s *segmentService) OnUserCreated(ctx context.Context, event user.CreatedEv
 
 		for _, item := range segments {
 			segm := item.(segment.UserSegment)
-			isApplicable, err := segm.IsApplicableForUser(ctx, u)
+
+			userFilterFunc, found := segment.GetUserFilterByName(segm.UserFilterName)
+			if !found {
+				return fmt.Errorf("Segment %s has user-filter-name %s", segm.UID, segm.UserFilterName)
+			}
+
+			isApplicable, err := userFilterFunc(ctx, u)
 			if err != nil {
 				return err
 			}
@@ -84,7 +90,13 @@ func (s *segmentService) OnUserModified(ctx context.Context, event user.Modified
 		for _, item := range segments {
 			segm := item.(segment.UserSegment)
 			_, found := segm.Users[u.UID]
-			isApplicable, err := segm.IsApplicableForUser(ctx, u)
+
+			userFilterFunc, found := segment.GetUserFilterByName(segm.UserFilterName)
+			if !found {
+				return fmt.Errorf("Segment %s has user-filter-name %s", segm.UID, segm.UserFilterName)
+			}
+
+			isApplicable, err := userFilterFunc(ctx, u)
 			if err != nil {
 				return err
 			}
@@ -161,7 +173,11 @@ func (s *segmentService) Put(ctx context.Context, segm segment.UserSegment) erro
 }
 
 func (s *segmentService) addOtherMatchingUsersForModifiedSegment(ctx context.Context, segm *segment.UserSegment) error {
-	users, err := s.userService.Query(ctx, segm.IsApplicableForUser)
+	userFilterFunc, found := segment.GetUserFilterByName(segm.UserFilterName)
+	if !found {
+		return fmt.Errorf("Segment %s has user-filter-name %s", segm.UID, segm.UserFilterName)
+	}
+	users, err := s.userService.Query(ctx, userFilterFunc)
 	if err != nil {
 		return err
 	}
@@ -177,8 +193,13 @@ func (s *segmentService) addOtherMatchingUsersForModifiedSegment(ctx context.Con
 }
 
 func (s *segmentService) addRemoveExistingUsersForModifiedSegment(ctx context.Context, segm *segment.UserSegment) error {
+	userFilterFunc, found := segment.GetUserFilterByName(segm.UserFilterName)
+	if !found {
+		return fmt.Errorf("Segment %s has user-filter-name %s", segm.UID, segm.UserFilterName)
+	}
+
 	for _, u := range segm.Users {
-		applicable, err := segm.IsApplicableForUser(ctx, u)
+		applicable, err := userFilterFunc(ctx, u)
 		if err != nil {
 			return err
 		}
@@ -194,7 +215,12 @@ func (s *segmentService) addRemoveExistingUsersForModifiedSegment(ctx context.Co
 }
 
 func (s *segmentService) addMatchingUsersToNewlyCreatedSegment(ctx context.Context, segm *segment.UserSegment) error {
-	users, err := s.userService.Query(ctx, segm.IsApplicableForUser)
+	userFilterFunc, found := segment.GetUserFilterByName(segm.UserFilterName)
+	if !found {
+		return fmt.Errorf("Segment %s has user-filter-name %s", segm.UID, segm.UserFilterName)
+	}
+
+	users, err := s.userService.Query(ctx, userFilterFunc)
 	if err != nil {
 		return err
 	}

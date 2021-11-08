@@ -30,7 +30,7 @@ type SegmentRuleService interface {
 	List(ctx context.Context) ([]UserSegmentRule, error)
 }
 
-//go:generate mockgen -source=rule.go -destination=rule_execution_mock.go -package=rule SegmentRuleExecutionService
-type SegmentRuleExecutionService interface {
+//go:generate mockgen -source=rule.go -destination=rule_execution_mock.go -package=rule SegmentRuleExecutionTrigger
+type SegmentRuleExecutionTrigger interface {
 	Trigger(ctx context.Context, ruleUID string) error
 }

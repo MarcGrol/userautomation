@@ -4,11 +4,11 @@ import (
 	"context"
 	"testing"
 
+	"github.com/MarcGrol/userautomation/actions/emailaction"
+	"github.com/MarcGrol/userautomation/actions/smsaction"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
-	"github.com/MarcGrol/userautomation/actions/emailaction"
-	"github.com/MarcGrol/userautomation/actions/smsaction"
 	"github.com/MarcGrol/userautomation/integrations/emailsending"
 	"github.com/MarcGrol/userautomation/integrations/smssending"
 	"github.com/golang/mock/gomock"
@@ -76,15 +76,9 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.Seg
 	err := segmentService.Put(ctx, rule.UserSegmentRule{
 		UID: "OldRule",
 		UserSegment: segment.UserSegment{
-			UID:         "old users segment",
-			Description: "old users segment",
-			IsApplicableForUser: func(ctx context.Context, user user.User) (bool, error) {
-				age, ok := user.Attributes["age"].(int)
-				if !ok {
-					return false, nil
-				}
-				return age > 40, nil
-			},
+			UID:            "old users segment",
+			Description:    "old users segment",
+			UserFilterName: segment.FilterOldAge,
 		},
 		Action: emailaction.NewEmailAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", emailSender),
 	})
@@ -97,15 +91,9 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.S
 	err := segmentService.Put(ctx, rule.UserSegmentRule{
 		UID: "YoungRule",
 		UserSegment: segment.UserSegment{
-			UID:         "young users segment",
-			Description: "young users segment",
-			IsApplicableForUser: func(ctx context.Context, user user.User) (bool, error) {
-				age, ok := user.Attributes["age"].(int)
-				if !ok {
-					return false, nil
-				}
-				return age < 18, nil
-			},
+			UID:            "young users segment",
+			Description:    "young users segment",
+			UserFilterName: segment.FilterYoungAge,
 		},
 		Action:          smsaction.New("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
 		AllowedTriggers: rule.TriggerUserChange,
@@ -115,7 +103,7 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.S
 	}
 }
 
-func executeYoungAgeRuleReturnError(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionService) error {
+func executeYoungAgeRuleReturnError(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionTrigger) error {
 	err := ondemandService.Trigger(ctx, "YoungRule")
 	if err != nil {
 		return err
@@ -123,14 +111,14 @@ func executeYoungAgeRuleReturnError(ctx context.Context, t *testing.T, ondemandS
 	return nil
 }
 
-func executeYoungAgeRule(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionService) {
+func executeYoungAgeRule(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionTrigger) {
 	err := executeYoungAgeRuleReturnError(ctx, t, ondemandService)
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-func executeOldAgeRule(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionService) {
+func executeOldAgeRule(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionTrigger) {
 	err := ondemandService.Trigger(ctx, "OldRule")
 	if err != nil {
 		t.Error(err)

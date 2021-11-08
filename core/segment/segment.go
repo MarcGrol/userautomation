@@ -7,10 +7,11 @@ import (
 )
 
 type UserSegment struct {
-	UID                 string
-	Description         string
-	IsApplicableForUser user.FilterFunc // Could use a WHERE clause alternatively
-	Users               map[string]user.User
+	UID         string
+	Description string
+	//IsApplicableForUser user.FilterFunc // Could use a WHERE clause alternatively
+	UserFilterName string
+	Users          map[string]user.User
 }
 
 type UserSegmentService interface {

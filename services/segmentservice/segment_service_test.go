@@ -227,15 +227,9 @@ func setupMocks(t *testing.T) (*datastore.DatastoreStub, *user.UserServiceStub, 
 
 func createYoungSegment(ctx context.Context, t *testing.T, sut SegmentService, description string) {
 	segment := segment.UserSegment{
-		UID:         "YoungSegment",
-		Description: description,
-		IsApplicableForUser: func(ctx context.Context, user user.User) (bool, error) {
-			age, ok := user.Attributes["age"].(int)
-			if !ok {
-				return false, nil
-			}
-			return age < 18, nil
-		},
+		UID:            "YoungSegment",
+		Description:    description,
+		UserFilterName: segment.FilterYoungAge,
 	}
 	err := sut.Put(ctx, segment)
 	if err != nil {

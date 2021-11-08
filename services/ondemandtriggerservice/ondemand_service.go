@@ -3,20 +3,19 @@ package ondemandtriggerservice
 import (
 	"context"
 	"fmt"
-	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/rule"
-	"github.com/MarcGrol/userautomation/core/user"
+	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
 
 type OnDemandService struct {
 	ruleService rule.SegmentRuleService
-	userService user.Service
+	pubsub      pubsub.Pubsub
 }
 
-func New(ruleService rule.SegmentRuleService, userService user.Service) rule.SegmentRuleExecutionService {
+func New(ruleService rule.SegmentRuleService, pubsub pubsub.Pubsub) rule.SegmentRuleExecutionTrigger {
 	return &OnDemandService{
 		ruleService: ruleService,
-		userService: userService,
+		pubsub:      pubsub,
 	}
 }
 
@@ -29,47 +28,10 @@ func (s *OnDemandService) Trigger(ctx context.Context, ruleUID string) error {
 		return fmt.Errorf("Rule with uid %s does not exist: %s", ruleUID, err)
 	}
 
-	// TODO fix this
-	//if (r.AllowedTriggers & rule.TriggerOnDemand) == 0 {
-	//	return fmt.Errorf("Rule with uid %s cannot be executed on demand", ruleUID)
-	//}
-
-	users, err := s.userService.Query(ctx, r.UserSegment.IsApplicableForUser)
+	err = s.pubsub.Publish(ctx, rule.TriggerTopicName, rule.RuleExecutionRequestedEvent{Rule: r})
 	if err != nil {
-		return fmt.Errorf("Error getting all users while executing rule %s: %s", r.UID, err)
-	}
-
-	for _, user := range users {
-		_, err = executeRuleForUser(ctx, r, user)
-		if err != nil {
-			return fmt.Errorf("Error executing rule %s: %s", r.UID, err)
-		}
+		return fmt.Errorf("Error publishing RuleExecutionRequestedEvent for rule %+v: %s", r, err)
 	}
 
 	return nil
-}
-
-func executeRuleForUser(ctx context.Context, r rule.UserSegmentRule, user user.User) (bool, error) {
-	applicable, err := r.UserSegment.IsApplicableForUser(ctx, user)
-	if err != nil {
-		return false, fmt.Errorf("Error determining if rule %s is applicable for u %s: %s", r.UID, user.UID, err)
-	}
-
-	if !applicable {
-		return false, nil
-	}
-
-	act := action.UserAction{
-		RuleUID:  r.UID,
-		Reason:   action.ReasonIsOnDemand,
-		OldState: nil,
-		NewState: &user,
-	}
-
-	err = r.Action.Perform(ctx, act)
-	if err != nil {
-		return false, fmt.Errorf("Error performing action for rule %s and useer %s: %s", r.UID, user.UID, err)
-	}
-
-	return true, nil
 }

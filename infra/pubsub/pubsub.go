@@ -2,13 +2,11 @@ package pubsub
 
 import (
 	"context"
-	"sync"
 )
 
 // TODO integrate with 3rd party product like Google pubsub
 
 type simplisticPubsub struct {
-	sync.Mutex
 	topics map[string][]OnEventFunc
 }
 
@@ -19,9 +17,6 @@ func NewPubSub() Pubsub {
 }
 
 func (ps *simplisticPubsub) Subscribe(ctx context.Context, topic string, onEvent OnEventFunc) error {
-	ps.Lock()
-	defer ps.Unlock()
-
 	handlers, exists := ps.topics[topic]
 	if !exists {
 		handlers = []OnEventFunc{}
@@ -33,9 +28,6 @@ func (ps *simplisticPubsub) Subscribe(ctx context.Context, topic string, onEvent
 }
 
 func (ps *simplisticPubsub) Publish(ctx context.Context, topic string, event interface{}) error {
-	ps.Lock()
-	defer ps.Unlock()
-
 	handlers, found := ps.topics[topic]
 	if !found {
 		return nil
