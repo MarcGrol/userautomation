@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 )
 
 type UserServiceStub struct {
@@ -36,7 +37,15 @@ func (s *UserServiceStub) List(ctx context.Context) ([]User, error) {
 	return items, nil
 }
 
-func (s *UserServiceStub) Query(ctx context.Context, filter FilterFunc) ([]User, error) {
+func (s *UserServiceStub) QueryByName(ctx context.Context, filterName string) ([]User, error) {
+	filterFunc, found := GetUserFilterByName(ctx, filterName)
+	if !found {
+		return []User{}, fmt.Errorf("Filter func with name %s does not exist", filterName)
+	}
+	return s.QueryByFunc(ctx, filterFunc)
+}
+
+func (s *UserServiceStub) QueryByFunc(ctx context.Context, filter FilterFunc) ([]User, error) {
 	users := []User{}
 	for _, u := range s.Users {
 		match, _ := filter(ctx, u)

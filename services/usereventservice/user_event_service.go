@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/rule"
-	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
 
 	"github.com/MarcGrol/userautomation/infra/pubsub"
@@ -71,16 +70,12 @@ func (s *userEventHandler) OnUserModified(ctx context.Context, event user.Modifi
 	}
 
 	for _, rule := range ruleSlice {
-		userFilterFunc, found := segment.GetUserFilterByName(rule.UserSegment.UserFilterName)
-		if !found {
-			return fmt.Errorf("Rule %s has user-filter-name %s", rule.UID, rule.UserSegment.UserFilterName)
-		}
-		ruleApplicableBefore, err := userFilterFunc(ctx, oldState)
+		ruleApplicableBefore, err := rule.UserSegment.IsApplicableForUser(ctx, oldState)
 		if err != nil {
 			return fmt.Errorf("Error determining if rule %s is applicable for user %s: %s", rule.UID, newState.UID, err)
 		}
 
-		ruleApplicableAfter, err := userFilterFunc(ctx, newState)
+		ruleApplicableAfter, err := rule.UserSegment.IsApplicableForUser(ctx, newState)
 		if err != nil {
 			return fmt.Errorf("Error determining if rule %s is applicable for user %s: %s", rule.UID, newState.UID, err)
 		}
@@ -116,13 +111,7 @@ func (s *userEventHandler) onActionPerformed(ctx context.Context, rule rule.User
 }
 
 func executeRuleForUser(ctx context.Context, r rule.UserSegmentRule, user user.User, triggerType action.ReasonForAction) (bool, error) {
-
-	userFilterFunc, found := segment.GetUserFilterByName(r.UserSegment.UserFilterName)
-	if !found {
-		return false, fmt.Errorf("Rule %s has user-filter-name %s", r.UID, r.UserSegment.UserFilterName)
-	}
-
-	applicable, err := userFilterFunc(ctx, user)
+	applicable, err := r.UserSegment.IsApplicableForUser(ctx, user)
 	if err != nil {
 		return false, fmt.Errorf("Error determining if rule %s is applicable for u %s: %s", r.UID, user.UID, err)
 	}

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/rule"
-	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
@@ -56,11 +55,7 @@ func (s *onDemandRuleExecutor) OnRuleExecutionRequestedEvent(ctx context.Context
 		return fmt.Errorf("Rule with uid %s does not exist: %s", event.Rule.UID, err)
 	}
 
-	filterFunc, found := segment.GetUserFilterByName(r.UserSegment.UserFilterName)
-	if !found {
-		return fmt.Errorf("Rule %s has invalid segment-filter %s", event.Rule.UID, event.Rule.UserSegment.UserFilterName)
-	}
-	users, err := s.userService.Query(ctx, filterFunc)
+	users, err := s.userService.QueryByName(ctx, r.UserSegment.UserFilterName)
 	if err != nil {
 		return fmt.Errorf("Error querying users: %s", err)
 	}

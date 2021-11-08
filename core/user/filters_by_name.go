@@ -1,8 +1,7 @@
-package segment
+package user
 
 import (
 	"context"
-	"github.com/MarcGrol/userautomation/core/user"
 )
 
 const (
@@ -11,15 +10,15 @@ const (
 )
 
 var (
-	userFilters = map[string]user.FilterFunc{
-		FilterYoungAge: func(ctx context.Context, user user.User) (bool, error) {
+	userFilters = map[string]FilterFunc{
+		FilterYoungAge: func(ctx context.Context, user User) (bool, error) {
 			age, ok := user.Attributes["age"].(int)
 			if !ok {
 				return false, nil
 			}
 			return age < 18, nil
 		},
-		FilterOldAge: func(ctx context.Context, user user.User) (bool, error) {
+		FilterOldAge: func(ctx context.Context, user User) (bool, error) {
 			age, ok := user.Attributes["age"].(int)
 			if !ok {
 				return false, nil
@@ -29,7 +28,7 @@ var (
 	}
 )
 
-func GetUserFilterByName(name string) (user.FilterFunc, bool) {
+func GetUserFilterByName(ctx context.Context, name string) (FilterFunc, bool) {
 	ff, found := userFilters[name]
 	return ff, found
 }

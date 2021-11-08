@@ -188,7 +188,7 @@ var oldAgeRule = rule.UserSegmentRule{
 	UserSegment: segment.UserSegment{
 		UID:            "old users segment",
 		Description:    "old users segment",
-		UserFilterName: segment.FilterOldAge,
+		UserFilterName: user.FilterOldAge,
 	},
 	Action: nil,
 }
@@ -205,7 +205,7 @@ var youngAgeRule = rule.UserSegmentRule{
 	UserSegment: segment.UserSegment{
 		UID:            "young users segment",
 		Description:    "young users segment",
-		UserFilterName: segment.FilterYoungAge,
+		UserFilterName: user.FilterYoungAge,
 	},
 	Action:          nil,
 	AllowedTriggers: rule.TriggerUserChange,

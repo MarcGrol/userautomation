@@ -229,7 +229,7 @@ func createYoungSegment(ctx context.Context, t *testing.T, sut SegmentService, d
 	segment := segment.UserSegment{
 		UID:            "YoungSegment",
 		Description:    description,
-		UserFilterName: segment.FilterYoungAge,
+		UserFilterName: user.FilterYoungAge,
 	}
 	err := sut.Put(ctx, segment)
 	if err != nil {

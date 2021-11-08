@@ -2,8 +2,6 @@ package segmentchangehandler
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
@@ -64,11 +62,7 @@ func (s *segmentEventHandler) performUserActionForAllMatchingRules(ctx context.C
 }
 
 func (s *segmentEventHandler) performUserAction(ctx context.Context, r rule.UserSegmentRule, u user.User) error {
-	filterFunc, found := segment.GetUserFilterByName(r.UserSegment.UserFilterName)
-	if !found {
-		return fmt.Errorf("Rule %s has invalid segment-filter %s", r.UID, r.UserSegment.UserFilterName)
-	}
-	applicable, err := filterFunc(ctx, u)
+	applicable, err := r.UserSegment.IsApplicableForUser(ctx, u)
 	if err != nil {
 		return err
 	}

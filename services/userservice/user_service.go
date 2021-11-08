@@ -124,7 +124,15 @@ func (s *userService) Get(ctx context.Context, userUID string) (user.User, bool,
 	return u, userExists, nil
 }
 
-func (s *userService) Query(ctx context.Context, filterFunc user.FilterFunc) ([]user.User, error) {
+func (s *userService) QueryByName(ctx context.Context, filterName string) ([]user.User, error) {
+	filterFunc, found := user.GetUserFilterByName(ctx, filterName)
+	if !found {
+		return []user.User{}, fmt.Errorf("Filter with name %s does not exist", filterName)
+	}
+	return s.QueryByFunc(ctx, filterFunc)
+}
+
+func (s *userService) QueryByFunc(ctx context.Context, filterFunc user.FilterFunc) ([]user.User, error) {
 	users := []user.User{}
 	var err error
 

@@ -2,6 +2,7 @@ package ondemandtriggerservice
 
 import (
 	"context"
+	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"testing"
 
@@ -90,7 +91,7 @@ var oldAgeRule = rule.UserSegmentRule{
 	UserSegment: segment.UserSegment{
 		UID:            "old users segment",
 		Description:    "old users segment",
-		UserFilterName: segment.FilterOldAge,
+		UserFilterName: user.FilterOldAge,
 	},
 	Action: nil,
 }
@@ -100,7 +101,7 @@ var youngAgeRule = rule.UserSegmentRule{
 	UserSegment: segment.UserSegment{
 		UID:            "young users segment",
 		Description:    "young users segment",
-		UserFilterName: segment.FilterYoungAge,
+		UserFilterName: user.FilterYoungAge,
 	},
 	Action: nil,
 }

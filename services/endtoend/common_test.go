@@ -78,7 +78,7 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.Seg
 		UserSegment: segment.UserSegment{
 			UID:            "old users segment",
 			Description:    "old users segment",
-			UserFilterName: segment.FilterOldAge,
+			UserFilterName: user.FilterOldAge,
 		},
 		Action: emailaction.NewEmailAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", emailSender),
 	})
@@ -93,7 +93,7 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.S
 		UserSegment: segment.UserSegment{
 			UID:            "young users segment",
 			Description:    "young users segment",
-			UserFilterName: segment.FilterYoungAge,
+			UserFilterName: user.FilterYoungAge,
 		},
 		Action:          smsaction.New("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
 		AllowedTriggers: rule.TriggerUserChange,
