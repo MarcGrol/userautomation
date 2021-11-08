@@ -16,20 +16,20 @@
           "segment-\nquery-\nservice"
       }
 
-      "rule-\ntrigger-\nservice" -> "rule-\ntrigger\nEvent-service" [style=dashed, label=trigger]
+       "rule-\ntrigger-\nservice" -> "ondemand-\nrule-executor" [style=dashed, label=trigger]
       "segment-\nmanagement-\nservice" -> "segment-\ncalculation-\nservice" [style=dashed, label=trigger]
-      "segment-\nquery-\nservice" -> "segment-\ncalculation-\nservice" [label=call]
+      "segment-\nquery-\nservice" -> "segment-\ncalculation-\nservice" [label=query]
 
-      "rule-\nmanagement-\nservice" -> "rule-\ntrigger\nEvent-service" [style=dashed, label=feed]
+      "rule-\nmanagement-\nservice" -> "ondemand-\nrule-executor" [style=dashed, label=feed]
 
-      "user-\nmanagement-\nservice" -> "segment-\ncalculation-\nservice" [style=dashed, label=feed]
-      "user-\nmanagement-\nservice" -> "rule-\ntrigger\nEvent-service" [style=dashed, label=feed]
+      "user-\nmanagement-\nservice" -> "segment-\ncalculation-\nservice" [style=dashed, label=trigger]
+      "segment-\ncalculation-\nservice" -> "ondemand-\nrule-executor" [style=dashed, label=feed]
 
-      "segment-\ncalculation-\nservice" -> "segment-change-\npropagation"  [style=dashed, label=trigger]
-      "rule-\nmanagement-\nservice" -> "segment-change-\npropagation" [style=dashed, label=feed]
-      "segment-change-\npropagation" -> "action-\nexecutor-\nservice" [style=dashed, label=trigger]
+      "segment-\ncalculation-\nservice" -> "segment-change-\nrule-executor"  [style=dashed, label=trigger]
+      "rule-\nmanagement-\nservice" -> "segment-change-\nrule-executor" [style=dashed, label=feed]
+      "segment-change-\nrule-executor" -> "action-\nexecutor-\nservice" [style=dashed, label=trigger]
 
-      "rule-\ntrigger\nEvent-service" -> "action-\nexecutor-\nservice" [style=dashed, label=trigger]
+      "ondemand-\nrule-executor" -> "action-\nexecutor-\nservice" [style=dashed, label=trigger]
 
       "action-\nexecutor-\nservice" -> "sms-sender" [label=call]
       "action-\nexecutor-\nservice" -> "email-sender" [label=call]
