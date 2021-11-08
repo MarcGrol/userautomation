@@ -1,4 +1,4 @@
-package rulemanagementservice
+package rulemanagement
 
 import (
 	"context"
@@ -12,7 +12,7 @@ type userSegmentRuleService struct {
 	segmentStore datastore.Datastore
 }
 
-func NewUserSegmentRuleService(segmentStore datastore.Datastore) rule.SegmentRuleService {
+func New(segmentStore datastore.Datastore) rule.SegmentRuleService {
 	return &userSegmentRuleService{
 		segmentStore: segmentStore,
 	}

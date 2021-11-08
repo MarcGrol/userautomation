@@ -1,3 +1,3 @@
-package usereventservice
+package usercchangehandler
 
 // TODO create pubsub bindings for this service

@@ -1,4 +1,4 @@
-package usereventservice
+package usercchangehandler
 
 import (
 	"context"
@@ -15,7 +15,7 @@ type userEventHandler struct {
 	ruleService rule.SegmentRuleService
 }
 
-type UserEventService interface {
+type UserEventHandler interface {
 	// Flags that this service is an event consumer
 	pubsub.SubscribingService
 	// Early warning system. This service will break when "users"-module introduces new events.
@@ -23,7 +23,7 @@ type UserEventService interface {
 	user.EventHandler
 }
 
-func NewUserEventService(pubsub pubsub.Pubsub, ruleService rule.SegmentRuleService) UserEventService {
+func New(pubsub pubsub.Pubsub, ruleService rule.SegmentRuleService) UserEventHandler {
 	return &userEventHandler{
 		pubsub:      pubsub,
 		ruleService: ruleService,

@@ -61,74 +61,80 @@ func (s *segmentCalculator) OnEvent(ctx context.Context, topic string, event int
 }
 
 func (s *segmentCalculator) OnSegmentCreated(ctx context.Context, event segment.CreatedEvent) error {
-	segm := event.SegmentState
-	users, err := s.userService.QueryByName(ctx, segm.UserFilterName)
-	if err != nil {
-		return err
-	}
-	segm.Users = map[string]user.User{}
-
-	for _, u := range users {
-		segm.Users[u.UID] = u
-		s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserAddedToSegmentEvent{SegmentUID: segm.UID, User: u})
-	}
-
-	err = s.segmentWithUsersStore.Put(ctx, segm.UID, segm)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (s *segmentCalculator) OnSegmentModified(ctx context.Context, event segment.ModifiedEvent) error {
-	segm := event.NewSegmentState
-
-	// Add or remove existing users of segment
-	for _, u := range segm.Users {
-		applicable, err := segm.IsApplicableForUser(ctx, u)
+	return s.segmentWithUsersStore.RunInTransaction(ctx, func(ctx context.Context) error {
+		segm := event.SegmentState
+		users, err := s.userService.QueryByName(ctx, segm.UserFilterName)
 		if err != nil {
 			return err
 		}
-		if applicable {
-			segm.Users[u.UID] = u
-			s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserAddedToSegmentEvent{SegmentUID: segm.UID, User: u})
-		} else {
-			delete(segm.Users, u.UID)
-			s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserRemovedFromSegmentEvent{SegmentUID: segm.UID, User: u})
-		}
-	}
+		segm.Users = map[string]user.User{}
 
-	// Add matching users that are still not part
-	users, err := s.userService.QueryByName(ctx, event.NewSegmentState.UserFilterName)
-	if err != nil {
-		return err
-	}
-	log.Printf("Found %d matchings users in total set", len(users))
-	for _, u := range users {
-		_, exists := segm.Users[u.UID]
-		if !exists {
-			log.Printf("Found user %+v -> %+v", u, segm)
+		for _, u := range users {
 			segm.Users[u.UID] = u
 			s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserAddedToSegmentEvent{SegmentUID: segm.UID, User: u})
 		}
-	}
 
-	err = s.segmentWithUsersStore.Put(ctx, segm.UID, segm)
-	if err != nil {
-		return err
-	}
+		err = s.segmentWithUsersStore.Put(ctx, segm.UID, segm)
+		if err != nil {
+			return err
+		}
 
-	return nil
+		return nil
+	})
+}
+
+func (s *segmentCalculator) OnSegmentModified(ctx context.Context, event segment.ModifiedEvent) error {
+	return s.segmentWithUsersStore.RunInTransaction(ctx, func(ctx context.Context) error {
+		segm := event.NewSegmentState
+
+		// Add or remove existing users of segment
+		for _, u := range segm.Users {
+			applicable, err := segm.IsApplicableForUser(ctx, u)
+			if err != nil {
+				return err
+			}
+			if applicable {
+				segm.Users[u.UID] = u
+				s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserAddedToSegmentEvent{SegmentUID: segm.UID, User: u})
+			} else {
+				delete(segm.Users, u.UID)
+				s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserRemovedFromSegmentEvent{SegmentUID: segm.UID, User: u})
+			}
+		}
+
+		// Add matching users that are still not part
+		users, err := s.userService.QueryByName(ctx, event.NewSegmentState.UserFilterName)
+		if err != nil {
+			return err
+		}
+		log.Printf("Found %d matchings users in total set", len(users))
+		for _, u := range users {
+			_, exists := segm.Users[u.UID]
+			if !exists {
+				log.Printf("Found user %+v -> %+v", u, segm)
+				segm.Users[u.UID] = u
+				s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserAddedToSegmentEvent{SegmentUID: segm.UID, User: u})
+			}
+		}
+
+		err = s.segmentWithUsersStore.Put(ctx, segm.UID, segm)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
 
 func (s *segmentCalculator) OnSegmentRemoved(ctx context.Context, event segment.RemovedEvent) error {
-	err := s.segmentWithUsersStore.Remove(ctx, event.SegmentState.UID)
-	if err != nil {
-		return err
-	}
+	return s.segmentWithUsersStore.RunInTransaction(ctx, func(ctx context.Context) error {
+		err := s.segmentWithUsersStore.Remove(ctx, event.SegmentState.UID)
+		if err != nil {
+			return err
+		}
 
-	return nil
+		return nil
+	})
 }
 
 func (s *segmentCalculator) OnUserCreated(ctx context.Context, event user.CreatedEvent) error {

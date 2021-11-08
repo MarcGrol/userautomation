@@ -1,4 +1,4 @@
-package userservice
+package rulemanagement
 
 import "testing"
 
@@ -15,5 +15,9 @@ func TestRemove(t *testing.T) {
 }
 
 func TestGetAll(t *testing.T) {
+	// TODO
+}
+
+func TestExecute(t *testing.T) {
 	// TODO
 }

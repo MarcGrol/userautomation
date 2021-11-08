@@ -5,10 +5,10 @@ import (
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/services/ondemandtriggerservice"
-	"github.com/MarcGrol/userautomation/services/rulemanagementservice"
+	"github.com/MarcGrol/userautomation/services/rulemanagement"
 	"github.com/MarcGrol/userautomation/services/segmentmanagement"
-	"github.com/MarcGrol/userautomation/services/usereventservice"
-	"github.com/MarcGrol/userautomation/services/userservice"
+	"github.com/MarcGrol/userautomation/services/usercchangehandler"
+	"github.com/MarcGrol/userautomation/services/usermanagement"
 
 	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
@@ -32,15 +32,15 @@ func New(ctx context.Context) EntireSystem {
 	pubsub := pubsub.NewPubSub()
 
 	userStore := datastore.NewDatastore()
-	userService := userservice.NewUserService(userStore, pubsub)
+	userService := usermanagement.New(userStore, pubsub)
 
 	ruleStore := datastore.NewDatastore()
-	ruleService := rulemanagementservice.NewUserSegmentRuleService(ruleStore)
+	ruleService := rulemanagement.New(ruleStore)
 
 	segmentStore := datastore.NewDatastore()
 	segmentService := segmentmanagement.New(segmentStore, pubsub)
 
-	userEventService := usereventservice.NewUserEventService(pubsub, ruleService)
+	userEventService := usercchangehandler.New(pubsub, ruleService)
 	userEventService.Subscribe(ctx)
 
 	ondemandService := ondemandtriggerservice.New(ruleService, pubsub)
