@@ -1,4 +1,4 @@
-package segmentcalculator
+package segmentchangedetector
 
 import (
 	"context"
