@@ -140,10 +140,10 @@ func TestOnDemand(t *testing.T) {
 	})
 }
 
-func setup(t *testing.T) (*rule.SegmentRuleServiceStub, *user.UserServiceStub, *pubsub.MockPubsub, *gomock.Controller) {
+func setup(t *testing.T) (*rule.SegmentRuleManagementStub, *user.UserManagementStub, *pubsub.MockPubsub, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
-	ruleService := rule.NewUserSegmentRuleServiceStub()
-	userService := user.NewUserServiceStub()
+	ruleService := rule.NewUserSegmentRuleManagementStub()
+	userService := user.NewUserManagementStub()
 	pubsubMock := pubsub.NewMockPubsub(ctrl)
 
 	return ruleService, userService, pubsubMock, ctrl
@@ -151,7 +151,7 @@ func setup(t *testing.T) (*rule.SegmentRuleServiceStub, *user.UserServiceStub, *
 
 func noUsers() {}
 
-func createUser(ctx context.Context, t *testing.T, userService user.Service, age int) user.User {
+func createUser(ctx context.Context, t *testing.T, userService user.Management, age int) user.User {
 	u := user.User{
 		UID: "1",
 		Attributes: map[string]interface{}{
@@ -168,7 +168,7 @@ func createUser(ctx context.Context, t *testing.T, userService user.Service, age
 	return u
 }
 
-func createOtherUser(ctx context.Context, t *testing.T, userService user.Service, age int) {
+func createOtherUser(ctx context.Context, t *testing.T, userService user.Management, age int) {
 	err := userService.Put(ctx, user.User{
 		UID: "2",
 		Attributes: map[string]interface{}{

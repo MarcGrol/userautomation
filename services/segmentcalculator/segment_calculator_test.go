@@ -1,7 +1,8 @@
-package segmentservice
+package segmentcalculator
 
 import (
 	"context"
+	"log"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -16,7 +17,7 @@ import (
 func TestSegment(t *testing.T) {
 	ctx := context.TODO()
 
-	t.Run("create segment, no users", func(t *testing.T) {
+	t.Run("on segment created, no users", func(t *testing.T) {
 		// setup
 
 		segmentStore, userService, ps, ctrl := setupMocks(t)
@@ -27,16 +28,15 @@ func TestSegment(t *testing.T) {
 		noUsers()
 
 		// when
-		createYoungSegment(ctx, t, sut, "x")
+		onSegmentCreated(ctx, t, sut)
 
 		// then
-		assert.Equal(t, "x", getYoungSegment(ctx, t, sut).Description)
-		assert.Empty(t, getYoungSegment(ctx, t, sut).Users)
+		assert.Equal(t, "young", getSegment(ctx, t, sut).Description)
+		assert.Empty(t, getSegment(ctx, t, sut).Users)
 	})
 
-	t.Run("create segment, with non matching users", func(t *testing.T) {
+	t.Run("on segment created, with non matching users", func(t *testing.T) {
 		// setup
-
 		segmentStore, userService, ps, ctrl := setupMocks(t)
 		defer ctrl.Finish()
 		sut := New(segmentStore, userService, ps)
@@ -45,16 +45,15 @@ func TestSegment(t *testing.T) {
 		createUser(ctx, t, userService, 50)
 
 		// when
-		createYoungSegment(ctx, t, sut, "x")
+		onSegmentCreated(ctx, t, sut)
 
 		// then
-		assert.Equal(t, "x", getYoungSegment(ctx, t, sut).Description)
-		assert.Empty(t, getYoungSegment(ctx, t, sut).Users)
+		assert.Equal(t, "young", getSegment(ctx, t, sut).Description)
+		assert.Empty(t, getSegment(ctx, t, sut).Users)
 	})
 
-	t.Run("create segment, with matching user", func(t *testing.T) {
+	t.Run("on segment created, with matching user", func(t *testing.T) {
 		// setup
-
 		segmentStore, userService, ps, ctrl := setupMocks(t)
 		defer ctrl.Finish()
 		sut := New(segmentStore, userService, ps)
@@ -63,14 +62,34 @@ func TestSegment(t *testing.T) {
 		createUser(ctx, t, userService, 12)
 
 		// when
-		createYoungSegment(ctx, t, sut, "x")
+		onSegmentCreated(ctx, t, sut)
 
 		// then
-		assert.Equal(t, "x", getYoungSegment(ctx, t, sut).Description)
-		assert.Len(t, getYoungSegment(ctx, t, sut).Users, 1)
+		assert.Equal(t, "young", getSegment(ctx, t, sut).Description)
+		assert.Len(t, getSegment(ctx, t, sut).Users, 1)
 	})
 
-	t.Run("modify segment with two young users", func(t *testing.T) {
+	t.Run("on segment modified, segment with two old users", func(t *testing.T) {
+		// setup
+		segmentStore, userService, ps, ctrl := setupMocks(t)
+		defer ctrl.Finish()
+		sut := New(segmentStore, userService, ps)
+
+		// given
+		createUser(ctx, t, userService, 50)
+		createOtherUser(ctx, t, userService, 47)
+		createEmptySegment(ctx, t, sut)
+
+		// when
+		onSegmentModified(ctx, t, sut)
+
+		// then
+		log.Printf("segment%+v", getSegment(ctx, t, sut))
+		assert.Equal(t, "old", getSegment(ctx, t, sut).Description)
+		assert.Len(t, getSegment(ctx, t, sut).Users, 2)
+	})
+
+	t.Run("on-segment-removed", func(t *testing.T) {
 		// setup
 		segmentStore, userService, ps, ctrl := setupMocks(t)
 		defer ctrl.Finish()
@@ -79,32 +98,13 @@ func TestSegment(t *testing.T) {
 		// given
 		createUser(ctx, t, userService, 12)
 		createOtherUser(ctx, t, userService, 12)
-		createYoungSegment(ctx, t, sut, "x")
+		createEmptySegment(ctx, t, sut)
 
 		// when
-		createYoungSegment(ctx, t, sut, "y")
+		err := onSegmentRemoved(ctx, t, sut)
 
 		// then
-		assert.Equal(t, "y", getYoungSegment(ctx, t, sut).Description)
-		assert.Len(t, getYoungSegment(ctx, t, sut).Users, 2)
-	})
-
-	t.Run("remove segment", func(t *testing.T) {
-		// setup
-		segmentStore, userService, ps, ctrl := setupMocks(t)
-		defer ctrl.Finish()
-		sut := New(segmentStore, userService, ps)
-
-		// given
-		createUser(ctx, t, userService, 12)
-		createOtherUser(ctx, t, userService, 12)
-		createYoungSegment(ctx, t, sut, "x")
-
-		// when
-		err := removeYoungSegment(ctx, t, sut)
-
-		// then
-		assert.Error(t, err)
+		assert.NoError(t, err)
 	})
 
 	t.Run("user-created, no segment exists", func(t *testing.T) {
@@ -130,7 +130,7 @@ func TestSegment(t *testing.T) {
 
 		// given
 		noUsers()
-		createYoungSegment(ctx, t, sut, "x")
+		onSegmentCreated(ctx, t, sut)
 
 		// when
 		sut.OnUserCreated(ctx, user.CreatedEvent{UserState: getUser(50)})
@@ -146,15 +146,14 @@ func TestSegment(t *testing.T) {
 
 		// given
 		noUsers()
-		createYoungSegment(ctx, t, sut, "x")
-		assert.Len(t, getYoungSegment(ctx, t, sut).Users, 0)
+		createEmptySegment(ctx, t, sut)
 
 		// when
 		sut.OnUserCreated(ctx, user.CreatedEvent{UserState: getUser(12)})
 
 		// then
-		assert.True(t, existsUserInYoungSegment(ctx, t, sut, "1"))
-		assert.Len(t, getYoungSegment(ctx, t, sut).Users, 1)
+		assert.True(t, existsUserInSegment(ctx, t, sut, "1"))
+		assert.Len(t, getSegment(ctx, t, sut).Users, 1)
 	})
 
 	t.Run("user-modified, matching segment: user added to segment", func(t *testing.T) {
@@ -164,17 +163,22 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, ps)
 
 		// given
+
 		createUser(ctx, t, userService, 50)
-		createYoungSegment(ctx, t, sut, "x")
-		sut.OnUserCreated(ctx, user.CreatedEvent{getUser(50)})
-		assert.Len(t, getYoungSegment(ctx, t, sut).Users, 0)
+		createEmptySegment(ctx, t, sut)
+		segm1, _, _ := sut.segmentWithUsersStore.Get(ctx, "YoungSegment")
+		log.Printf("segm:%+v", segm1)
+
+		segm, _, _ := sut.segmentWithUsersStore.Get(ctx, "YoungSegment")
+		log.Printf("segm:%+v", segm)
+		assert.Len(t, getSegment(ctx, t, sut).Users, 0)
 
 		// when
 		sut.OnUserModified(ctx, user.ModifiedEvent{OldUserState: getUser(50), NewUserState: getUser(12)})
 
 		// then
-		assert.True(t, existsUserInYoungSegment(ctx, t, sut, "1"))
-		assert.Len(t, getYoungSegment(ctx, t, sut).Users, 1)
+		assert.True(t, existsUserInSegment(ctx, t, sut, "1"))
+		assert.Len(t, getSegment(ctx, t, sut).Users, 1)
 	})
 
 	t.Run("user-modified, no matching segment: user removed from segment", func(t *testing.T) {
@@ -184,16 +188,15 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, ps)
 
 		// given
-		createUser(ctx, t, userService, 12)
-		createYoungSegment(ctx, t, sut, "x")
-		sut.OnUserCreated(ctx, user.CreatedEvent{getUser(12)})
-		assert.Len(t, getYoungSegment(ctx, t, sut).Users, 1)
+		u := createUser(ctx, t, userService, 12)
+		createSegmentWithUsers(ctx, t, sut, u)
+		assert.Len(t, getSegment(ctx, t, sut).Users, 1)
 
 		// when
 		sut.OnUserModified(ctx, user.ModifiedEvent{OldUserState: getUser(12), NewUserState: getUser(50)})
 
 		// then
-		assert.Len(t, getYoungSegment(ctx, t, sut).Users, 0)
+		assert.Len(t, getSegment(ctx, t, sut).Users, 0)
 	})
 
 	t.Run("user-removed, matching segment: user removed from segment", func(t *testing.T) {
@@ -203,65 +206,107 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, ps)
 
 		// given
-		createUser(ctx, t, userService, 13)
-		createYoungSegment(ctx, t, sut, "x")
-		sut.OnUserCreated(ctx, user.CreatedEvent{UserState: getUser(12)})
-		assert.Len(t, getYoungSegment(ctx, t, sut).Users, 1)
+		u := createUser(ctx, t, userService, 13)
+		createSegmentWithUsers(ctx, t, sut, u)
+		assert.Len(t, getSegment(ctx, t, sut).Users, 1)
 
 		// when
 		sut.OnUserRemoved(ctx, user.RemovedEvent{UserState: getUser(12)})
 
 		// then
-		assert.Len(t, getYoungSegment(ctx, t, sut).Users, 0)
+		assert.Len(t, getSegment(ctx, t, sut).Users, 0)
 	})
 
 }
 
-func setupMocks(t *testing.T) (*datastore.DatastoreStub, *user.UserServiceStub, *pubsub.PubsubStub, *gomock.Controller) {
+func setupMocks(t *testing.T) (*datastore.DatastoreStub, *user.UserManagementStub, *pubsub.PubsubStub, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 	segmentStore := datastore.NewDatastoreStub()
-	userService := user.NewUserServiceStub()
+	userService := user.NewUserManagementStub()
 	ps := pubsub.NewPubsubStub()
 	return segmentStore, userService, ps, ctrl
 }
 
-func createYoungSegment(ctx context.Context, t *testing.T, sut SegmentService, description string) {
-	segment := segment.UserSegment{
+var initialSegment = func() segment.UserSegment {
+	return segment.UserSegment{
 		UID:            "YoungSegment",
-		Description:    description,
+		Description:    "young",
 		UserFilterName: user.FilterYoungAge,
+		Users:          map[string]user.User{},
 	}
-	err := sut.Put(ctx, segment)
+}
+
+func createEmptySegment(ctx context.Context, t *testing.T, sut *segmentCalculator) {
+	segm := initialSegment()
+	err := sut.segmentWithUsersStore.Put(ctx, segm.UID, segm)
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-func removeYoungSegment(ctx context.Context, t *testing.T, sut SegmentService) error {
-	err := sut.Remove(ctx, "YoungSegment")
-	if err != nil {
-		return err
+func createSegmentWithUsers(ctx context.Context, t *testing.T, sut *segmentCalculator, users ...user.User) {
+	segm := initialSegment()
+
+	for _, u := range users {
+		segm.Users[u.UID] = u
 	}
-	return nil
+	err := sut.segmentWithUsersStore.Put(ctx, segm.UID, segm)
+	if err != nil {
+		t.Error(err)
+	}
 }
 
-func getYoungSegment(ctx context.Context, t *testing.T, sut SegmentService) segment.UserSegment {
-	segm, exists, err := sut.Get(ctx, "YoungSegment")
+func onSegmentCreated(ctx context.Context, t *testing.T, sut segment.EventHandler) {
+	event := segment.CreatedEvent{
+		SegmentState: initialSegment(),
+	}
+	err := sut.OnSegmentCreated(ctx, event)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+var modifiedSegment = func() segment.UserSegment {
+	return segment.UserSegment{
+		UID:            "YoungSegment",
+		Description:    "old",
+		UserFilterName: user.FilterOldAge,
+		Users:          map[string]user.User{},
+	}
+}
+
+func onSegmentModified(ctx context.Context, t *testing.T, sut segment.EventHandler) error {
+	event := segment.ModifiedEvent{
+		OldSegmentState: initialSegment(),
+		NewSegmentState: modifiedSegment(),
+	}
+	return sut.OnSegmentModified(ctx, event)
+}
+
+func onSegmentRemoved(ctx context.Context, t *testing.T, sut segment.EventHandler) error {
+	event := segment.RemovedEvent{
+		SegmentState: initialSegment(),
+	}
+	return sut.OnSegmentRemoved(ctx, event)
+}
+
+func getSegment(ctx context.Context, t *testing.T, sut *segmentCalculator) segment.UserSegment {
+	segm, exists, err := sut.segmentWithUsersStore.Get(ctx, "YoungSegment")
 	if err != nil || !exists {
 		t.Error(err)
 	}
-	return segm
+	return segm.(segment.UserSegment)
 }
 
-func existsUserInYoungSegment(ctx context.Context, t *testing.T, sut SegmentService, userId string) bool {
-	segm := getYoungSegment(ctx, t, sut)
+func existsUserInSegment(ctx context.Context, t *testing.T, sut *segmentCalculator, userId string) bool {
+	segm := getSegment(ctx, t, sut)
 	_, exists := segm.Users[userId]
 	return exists
 }
 
 func noUsers() {}
 
-func createUser(ctx context.Context, t *testing.T, userService user.Service, age int) user.User {
+func createUser(ctx context.Context, t *testing.T, userService user.Management, age int) user.User {
 	u := user.User{
 		UID: "1",
 		Attributes: map[string]interface{}{
@@ -278,7 +323,7 @@ func createUser(ctx context.Context, t *testing.T, userService user.Service, age
 	return u
 }
 
-func createOtherUser(ctx context.Context, t *testing.T, userService user.Service, age int) {
+func createOtherUser(ctx context.Context, t *testing.T, userService user.Management, age int) {
 	err := userService.Put(ctx, user.User{
 		UID: "2",
 		Attributes: map[string]interface{}{

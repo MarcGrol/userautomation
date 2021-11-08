@@ -5,8 +5,8 @@ import (
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/services/ondemandtriggerservice"
-	"github.com/MarcGrol/userautomation/services/ruleservice"
-	"github.com/MarcGrol/userautomation/services/segmentservice"
+	"github.com/MarcGrol/userautomation/services/rulemanagementservice"
+	"github.com/MarcGrol/userautomation/services/segmentmanagement"
 	"github.com/MarcGrol/userautomation/services/usereventservice"
 	"github.com/MarcGrol/userautomation/services/userservice"
 
@@ -15,16 +15,16 @@ import (
 )
 
 type EntireSystem interface {
-	GetUserService() user.Service
+	GetUserService() user.Management
 	GetRuleService() rule.SegmentRuleService
-	GetSegmentService() segmentservice.SegmentService
+	GetSegmentService() segmentmanagement.SegmentManagement
 	GetOnDemandExecutionService() rule.SegmentRuleExecutionTrigger
 }
 
 type entireSystemWiredTogether struct {
-	userService     user.Service
+	userService     user.Management
 	ruleService     rule.SegmentRuleService
-	segmentService  segmentservice.SegmentService
+	segmentService  segmentmanagement.SegmentManagement
 	ondemandService rule.SegmentRuleExecutionTrigger
 }
 
@@ -35,10 +35,10 @@ func New(ctx context.Context) EntireSystem {
 	userService := userservice.NewUserService(userStore, pubsub)
 
 	ruleStore := datastore.NewDatastore()
-	ruleService := ruleservice.NewUserSegmentRuleService(ruleStore)
+	ruleService := rulemanagementservice.NewUserSegmentRuleService(ruleStore)
 
 	segmentStore := datastore.NewDatastore()
-	segmentService := segmentservice.New(segmentStore, userService, pubsub)
+	segmentService := segmentmanagement.New(segmentStore, pubsub)
 
 	userEventService := usereventservice.NewUserEventService(pubsub, ruleService)
 	userEventService.Subscribe(ctx)
@@ -53,7 +53,7 @@ func New(ctx context.Context) EntireSystem {
 	}
 }
 
-func (s *entireSystemWiredTogether) GetUserService() user.Service {
+func (s *entireSystemWiredTogether) GetUserService() user.Management {
 	return s.userService
 }
 
@@ -61,7 +61,7 @@ func (s *entireSystemWiredTogether) GetRuleService() rule.SegmentRuleService {
 	return s.ruleService
 }
 
-func (s *entireSystemWiredTogether) GetSegmentService() segmentservice.SegmentService {
+func (s *entireSystemWiredTogether) GetSegmentService() segmentmanagement.SegmentManagement {
 	return s.segmentService
 }
 

@@ -28,13 +28,13 @@ func (us UserSegment) IsApplicableForUser(ctx context.Context, u user.User) (boo
 	return matched, nil
 }
 
-type UserSegmentService interface {
+type UserSegmentManagement interface {
 	Put(ctx context.Context, userSegment UserSegment) error
 	Get(ctx context.Context, userSegmentUID string) (UserSegment, bool, error)
 	List(ctx context.Context) ([]UserSegment, error)
 	Remove(ctx context.Context, userUID string) error
 }
 
-type UserSegmentQueryService interface {
+type Querier interface {
 	GetUsersForSegment(ctx context.Context, userSegmentUID string) ([]user.User, error)
 }

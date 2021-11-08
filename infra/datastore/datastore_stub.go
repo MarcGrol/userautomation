@@ -32,6 +32,7 @@ func (s *DatastoreStub) Get(ctx context.Context, uid string) (interface{}, bool,
 	item, exists := s.Items[uid]
 	return item, exists, nil
 }
+
 func (s *DatastoreStub) GetAll(ctx context.Context) ([]interface{}, error) {
 	items := []interface{}{}
 	for _, i := range s.Items {

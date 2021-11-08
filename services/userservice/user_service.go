@@ -16,7 +16,7 @@ type userService struct {
 	pubsub    pubsub.Pubsub
 }
 
-func NewUserService(datastore datastore.Datastore, pubsub pubsub.Pubsub) user.Service {
+func NewUserService(datastore datastore.Datastore, pubsub pubsub.Pubsub) user.Management {
 	return &userService{
 		datastore: datastore,
 		pubsub:    pubsub,
@@ -43,14 +43,14 @@ func (s *userService) Put(ctx context.Context, u user.User) error {
 		}
 
 		if !exists {
-			err := s.pubsub.Publish(ctx, user.TopicName, user.CreatedEvent{
+			err := s.pubsub.Publish(ctx, user.ManagementTopicName, user.CreatedEvent{
 				UserState: u,
 			})
 			if err != nil {
 				return fmt.Errorf("Error publishing CreatedEvent for user %s: %s", u.UID, err)
 			}
 		} else if !reflect.DeepEqual(originalUser, u) {
-			err := s.pubsub.Publish(ctx, user.TopicName, user.ModifiedEvent{
+			err := s.pubsub.Publish(ctx, user.ManagementTopicName, user.ModifiedEvent{
 				OldUserState: originalUser.(user.User),
 				NewUserState: u,
 			})
@@ -86,7 +86,7 @@ func (s *userService) Remove(ctx context.Context, userUID string) error {
 				return fmt.Errorf("Error removing user with uid %s: %s", userUID, err)
 			}
 
-			err = s.pubsub.Publish(ctx, user.TopicName, user.RemovedEvent{
+			err = s.pubsub.Publish(ctx, user.ManagementTopicName, user.RemovedEvent{
 				UserState: u.(user.User),
 			})
 			if err != nil {

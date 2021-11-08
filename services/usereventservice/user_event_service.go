@@ -33,7 +33,7 @@ func NewUserEventService(pubsub pubsub.Pubsub, ruleService rule.SegmentRuleServi
 func (s *userEventHandler) IamSubscribing() {}
 
 func (s *userEventHandler) Subscribe(ctx context.Context) error {
-	return s.pubsub.Subscribe(ctx, user.TopicName, s.OnEvent)
+	return s.pubsub.Subscribe(ctx, user.ManagementTopicName, s.OnEvent)
 }
 
 func (s *userEventHandler) OnEvent(ctx context.Context, topic string, event interface{}) error {

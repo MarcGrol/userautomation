@@ -14,12 +14,12 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func setupSut(ctx context.Context) (rule.SegmentRuleService, user.Service) {
+func setupSut(ctx context.Context) (rule.SegmentRuleService, user.Management) {
 	sut := New(ctx)
 	return sut.GetRuleService(), sut.GetUserService()
 }
 
-func createUser(ctx context.Context, t *testing.T, userService user.Service, age int) {
+func createUser(ctx context.Context, t *testing.T, userService user.Management, age int) {
 	err := userService.Put(ctx, user.User{
 		UID: "1",
 		Attributes: map[string]interface{}{
@@ -34,7 +34,7 @@ func createUser(ctx context.Context, t *testing.T, userService user.Service, age
 	}
 }
 
-func createOtherUser(ctx context.Context, t *testing.T, userService user.Service, age int) {
+func createOtherUser(ctx context.Context, t *testing.T, userService user.Management, age int) {
 	err := userService.Put(ctx, user.User{
 		UID: "2",
 		Attributes: map[string]interface{}{
@@ -49,7 +49,7 @@ func createOtherUser(ctx context.Context, t *testing.T, userService user.Service
 	}
 }
 
-func modifyUser(ctx context.Context, t *testing.T, userService user.Service, age int) {
+func modifyUser(ctx context.Context, t *testing.T, userService user.Management, age int) {
 	err := userService.Put(ctx, user.User{
 		UID: "1",
 		Attributes: map[string]interface{}{
@@ -64,7 +64,7 @@ func modifyUser(ctx context.Context, t *testing.T, userService user.Service, age
 	}
 }
 
-func removeUser(ctx context.Context, t *testing.T, userService user.Service) {
+func removeUser(ctx context.Context, t *testing.T, userService user.Management) {
 	err := userService.Remove(ctx, "1")
 	if err != nil {
 		t.Error(err)

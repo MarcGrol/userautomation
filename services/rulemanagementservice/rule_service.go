@@ -1,4 +1,4 @@
-package ruleservice
+package rulemanagementservice
 
 import (
 	"context"

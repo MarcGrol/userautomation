@@ -203,7 +203,7 @@ func TestUserChange(t *testing.T) {
 type givenContext struct {
 	ctx         context.Context
 	ruleService rule.SegmentRuleService
-	userService user.Service
+	userService user.Management
 	emailer     emailsending2.EmailSender
 	smser       smssending2.SmsSender
 }
@@ -211,7 +211,7 @@ type givenContext struct {
 type whenContext struct {
 	ctx         context.Context
 	ruleService rule.SegmentRuleService
-	userService user.Service
+	userService user.Management
 }
 
 type thenContext struct {

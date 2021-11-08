@@ -71,9 +71,9 @@ func TestOnDemand(t *testing.T) {
 	})
 }
 
-func setup(t *testing.T) (*rule.SegmentRuleServiceStub, *pubsub.MockPubsub, *gomock.Controller) {
+func setup(t *testing.T) (*rule.SegmentRuleManagementStub, *pubsub.MockPubsub, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
-	ruleService := rule.NewUserSegmentRuleServiceStub()
+	ruleService := rule.NewUserSegmentRuleManagementStub()
 	pubsubMock := pubsub.NewMockPubsub(ctrl)
 
 	return ruleService, pubsubMock, ctrl

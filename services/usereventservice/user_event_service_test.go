@@ -255,7 +255,7 @@ func TestUsingClassicSubTests(t *testing.T) {
 }
 
 func setup() (rule.SegmentRuleService, UserEventService) {
-	ruleService := rule.NewUserSegmentRuleServiceStub()
+	ruleService := rule.NewUserSegmentRuleManagementStub()
 	return ruleService, NewUserEventService(nil, ruleService)
 }
 
@@ -278,7 +278,7 @@ func userCreated(ctx context.Context, t *testing.T, service UserEventService, ag
 	}
 }
 
-func createOtherUser(ctx context.Context, t *testing.T, userService user.Service, age int) {
+func createOtherUser(ctx context.Context, t *testing.T, userService user.Management, age int) {
 	err := userService.Put(ctx, user.User{
 		UID: "2",
 		Attributes: map[string]interface{}{

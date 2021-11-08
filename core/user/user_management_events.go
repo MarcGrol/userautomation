@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	TopicName = "usermanagement"
+	ManagementTopicName = "usermanagement"
 )
 
 // When new events are being introduced, this interface (and the dispatcher below) must be extended.
@@ -31,8 +31,8 @@ type RemovedEvent struct {
 }
 
 func DispatchEvent(ctx context.Context, handler EventHandler, topic string, event interface{}) error {
-	if topic != TopicName {
-		return fmt.Errorf("Topic '%+v' is not right for user events. Must be: '%s'", topic, TopicName)
+	if topic != ManagementTopicName {
+		return fmt.Errorf("Topic '%+v' is not right for user events. Must be: '%s'", topic, ManagementTopicName)
 	}
 	switch e := event.(type) {
 	case CreatedEvent:
@@ -42,6 +42,6 @@ func DispatchEvent(ctx context.Context, handler EventHandler, topic string, even
 	case RemovedEvent:
 		return handler.OnUserRemoved(ctx, e)
 	default:
-		return fmt.Errorf("Event %+v is not supported for topic %s", e, TopicName)
+		return fmt.Errorf("Event %+v is not supported for topic %s", e, ManagementTopicName)
 	}
 }

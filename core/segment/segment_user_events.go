@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	UserTopicName = "usersegment"
+	UserTopicName = "segmentuser"
 )
 
 // When new events are being introduced, this interface (and the dispatcher below) must be extended.

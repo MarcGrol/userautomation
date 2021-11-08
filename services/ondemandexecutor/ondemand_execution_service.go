@@ -17,10 +17,10 @@ type onDemandRuleExecutor struct {
 	rule.TriggerEventHandler
 	pubsub      pubsub.Pubsub
 	ruleService rule.SegmentRuleService
-	userService user.Service
+	userService user.Management
 }
 
-func New(pubsub pubsub.Pubsub, ruleService rule.SegmentRuleService, userService user.Service) rule.TriggerEventHandler {
+func New(pubsub pubsub.Pubsub, ruleService rule.SegmentRuleService, userService user.Management) rule.TriggerEventHandler {
 	return &onDemandRuleExecutor{
 		pubsub:      pubsub,
 		ruleService: ruleService,
