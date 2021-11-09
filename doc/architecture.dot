@@ -20,7 +20,7 @@
      subgraph cluster_Core {
           label = "Core"
           "ondemand-\nactioner"
-          "segment-change-\npropagation"
+          "segment-user-\nmanagement"
           "segment-change-\nactioner"
           "action-\nexecutor"
           "sms-sender"
@@ -38,15 +38,15 @@
        // }
 
        "rule-\ntrigger-\nservice" -> "ondemand-\nactioner" [style=dashed, label="rule\nexec\nrequested"]
-      "segment-\nmanagement" -> "segment-change-\npropagation" [style=dashed, label="segmemt\nchanged\nevent"]
-      "segment-\nquery-\nservice" -> "segment-change-\npropagation" [label=query]
+      "segment-\nmanagement" -> "segment-user-\nmanagement" [style=dashed, label="segmemt\nchanged\nevent"]
+      "segment-\nquery-\nservice" -> "segment-user-\nmanagement" [label=query]
 
       "rule-\nmanagement" -> "ondemand-\nactioner" [style=dashed, label="rule\nchanged\nevent"]
 
-      "user-\nmanagement" -> "segment-change-\npropagation" [style=dashed, label="user\nchanged\nevent"]
-      "segment-change-\npropagation" -> "ondemand-\nactioner" [style=dashed, label="user-segment-event"]
+      "user-\nmanagement" -> "segment-user-\nmanagement" [style=dashed, label="user\nchanged\nevent"]
+      "segment-user-\nmanagement" -> "ondemand-\nactioner" [style=dashed, label="user-segment-event"]
 
-      "segment-change-\npropagation" -> "segment-change-\nactioner"  [style=dashed, label="user-segment-event"]
+      "segment-user-\nmanagement" -> "segment-change-\nactioner"  [style=dashed, label="user-segment-event"]
       "rule-\nmanagement" -> "segment-change-\nactioner" [style=dashed, label="rule\nchanged\nevent"]
       "segment-change-\nactioner" -> "action-\nexecutor" [style=dashed, label="action\ntask"]
 

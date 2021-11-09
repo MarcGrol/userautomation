@@ -1,4 +1,4 @@
-package segmentchangepropagator
+package segmentusermanagement
 
 import (
 	"context"
@@ -9,13 +9,13 @@ import (
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
 
-type segmentCalculator struct {
+type segmentUserManager struct {
 	segmentWithUsersStore datastore.Datastore
 	userService           user.Management
 	pubsub                pubsub.Pubsub
 }
 
-type SegmentCalculator interface {
+type SegmentUserManager interface {
 	// Flags that this service is an event consumer
 	pubsub.SubscribingService
 	// Early warning system. This service will break when "users"-module introduces new events.
@@ -25,21 +25,21 @@ type SegmentCalculator interface {
 	segment.Querier
 }
 
-func New(datastore datastore.Datastore, userService user.Management, pubsub pubsub.Pubsub) *segmentCalculator {
-	return &segmentCalculator{
+func New(datastore datastore.Datastore, userService user.Management, pubsub pubsub.Pubsub) *segmentUserManager {
+	return &segmentUserManager{
 		segmentWithUsersStore: datastore,
 		userService:           userService,
 		pubsub:                pubsub,
 	}
 }
 
-func (s *segmentCalculator) checkInterface(sc *segmentCalculator) SegmentCalculator {
+func (s *segmentUserManager) checkInterface(sc *segmentUserManager) SegmentUserManager {
 	return sc
 }
 
-func (s *segmentCalculator) IamSubscribing() {}
+func (s *segmentUserManager) IamSubscribing() {}
 
-func (s *segmentCalculator) Subscribe(ctx context.Context) error {
+func (s *segmentUserManager) Subscribe(ctx context.Context) error {
 	err := s.pubsub.Subscribe(ctx, user.ManagementTopicName, s.OnEvent)
 	if err != nil {
 		return err
@@ -51,7 +51,7 @@ func (s *segmentCalculator) Subscribe(ctx context.Context) error {
 	return nil
 }
 
-func (s *segmentCalculator) OnEvent(ctx context.Context, topic string, event interface{}) error {
+func (s *segmentUserManager) OnEvent(ctx context.Context, topic string, event interface{}) error {
 	err := user.DispatchEvent(ctx, s, topic, event)
 	if err != nil {
 		return segment.DispatchManagementEvent(ctx, s, topic, event)
@@ -59,7 +59,7 @@ func (s *segmentCalculator) OnEvent(ctx context.Context, topic string, event int
 	return nil
 }
 
-func (s *segmentCalculator) OnSegmentCreated(ctx context.Context, event segment.CreatedEvent) error {
+func (s *segmentUserManager) OnSegmentCreated(ctx context.Context, event segment.CreatedEvent) error {
 	return s.segmentWithUsersStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		segm := event.SegmentState
 
@@ -91,7 +91,7 @@ func (s *segmentCalculator) OnSegmentCreated(ctx context.Context, event segment.
 	})
 }
 
-func (s *segmentCalculator) OnSegmentModified(ctx context.Context, event segment.ModifiedEvent) error {
+func (s *segmentUserManager) OnSegmentModified(ctx context.Context, event segment.ModifiedEvent) error {
 	return s.segmentWithUsersStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		segm := event.NewSegmentState
 
@@ -146,7 +146,7 @@ func (s *segmentCalculator) OnSegmentModified(ctx context.Context, event segment
 	})
 }
 
-func (s *segmentCalculator) OnSegmentRemoved(ctx context.Context, event segment.RemovedEvent) error {
+func (s *segmentUserManager) OnSegmentRemoved(ctx context.Context, event segment.RemovedEvent) error {
 	return s.segmentWithUsersStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		segm := event.SegmentState
 
@@ -176,7 +176,7 @@ func (s *segmentCalculator) OnSegmentRemoved(ctx context.Context, event segment.
 	})
 }
 
-func (s *segmentCalculator) OnUserCreated(ctx context.Context, event user.CreatedEvent) error {
+func (s *segmentUserManager) OnUserCreated(ctx context.Context, event user.CreatedEvent) error {
 	u := event.UserState
 
 	return s.segmentWithUsersStore.RunInTransaction(ctx, func(ctx context.Context) error {
@@ -212,7 +212,7 @@ func (s *segmentCalculator) OnUserCreated(ctx context.Context, event user.Create
 	})
 }
 
-func (s *segmentCalculator) OnUserModified(ctx context.Context, event user.ModifiedEvent) error {
+func (s *segmentUserManager) OnUserModified(ctx context.Context, event user.ModifiedEvent) error {
 	u := event.NewUserState
 
 	return s.segmentWithUsersStore.RunInTransaction(ctx, func(ctx context.Context) error {
@@ -259,7 +259,7 @@ func (s *segmentCalculator) OnUserModified(ctx context.Context, event user.Modif
 	})
 }
 
-func (s *segmentCalculator) OnUserRemoved(ctx context.Context, event user.RemovedEvent) error {
+func (s *segmentUserManager) OnUserRemoved(ctx context.Context, event user.RemovedEvent) error {
 	u := event.UserState
 
 	return s.segmentWithUsersStore.RunInTransaction(ctx, func(ctx context.Context) error {
@@ -290,7 +290,7 @@ func (s *segmentCalculator) OnUserRemoved(ctx context.Context, event user.Remove
 	})
 }
 
-func (s *segmentCalculator) GetUsersForSegment(ctx context.Context, segmentUID string) ([]user.User, error) {
+func (s *segmentUserManager) GetUsersForSegment(ctx context.Context, segmentUID string) ([]user.User, error) {
 	item, exists, err := s.segmentWithUsersStore.Get(ctx, segmentUID)
 	if err != nil {
 		return nil, err

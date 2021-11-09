@@ -1,4 +1,4 @@
-package segmentchangepropagator
+package segmentusermanagement
 
 import (
 	"context"
@@ -230,7 +230,7 @@ func initialSegment() segment.SegmentWithUsers {
 	}
 }
 
-func createEmptySegment(ctx context.Context, t *testing.T, sut *segmentCalculator) {
+func createEmptySegment(ctx context.Context, t *testing.T, sut *segmentUserManager) {
 	swu := initialSegment()
 	err := sut.segmentWithUsersStore.Put(ctx, swu.Segment.UID, swu)
 	if err != nil {
@@ -238,7 +238,7 @@ func createEmptySegment(ctx context.Context, t *testing.T, sut *segmentCalculato
 	}
 }
 
-func createSegmentWithUsers(ctx context.Context, t *testing.T, sut *segmentCalculator, users ...user.User) {
+func createSegmentWithUsers(ctx context.Context, t *testing.T, sut *segmentUserManager, users ...user.User) {
 	swu := initialSegment()
 
 	for _, u := range users {
@@ -284,7 +284,7 @@ func onSegmentRemoved(ctx context.Context, t *testing.T, sut segment.EventHandle
 	})
 }
 
-func getSegment(ctx context.Context, t *testing.T, sut *segmentCalculator) segment.SegmentWithUsers {
+func getSegment(ctx context.Context, t *testing.T, sut *segmentUserManager) segment.SegmentWithUsers {
 	item, exists, err := sut.segmentWithUsersStore.Get(ctx, "YoungSegment")
 	if err != nil || !exists {
 		t.Error(err)
@@ -292,7 +292,7 @@ func getSegment(ctx context.Context, t *testing.T, sut *segmentCalculator) segme
 	return item.(segment.SegmentWithUsers)
 }
 
-func existsUserInSegment(ctx context.Context, t *testing.T, sut *segmentCalculator, userId string) bool {
+func existsUserInSegment(ctx context.Context, t *testing.T, sut *segmentUserManager, userId string) bool {
 	swu := getSegment(ctx, t, sut)
 	_, exists := swu.Users[userId]
 	return exists
