@@ -25,11 +25,11 @@
       "user-\nmanagement" -> "segment-change-\npropagation" [style=dashed, label=trigger]
       "segment-change-\npropagation" -> "ondemand-\nactioner" [style=dashed, label=feed]
 
-      "segment-change-\npropagation" -> "segment-change-\nactioner"  [style=dashed, label=trigger]
+      "segment-change-\npropagation" -> "segment-change-\nactioner"  [style=dashed, label=task]
       "rule-\nmanagement" -> "segment-change-\nactioner" [style=dashed, label=feed]
       "segment-change-\nactioner" -> "action-\nexecutor" [style=dashed, label=trigger]
 
-      "ondemand-\nactioner" -> "action-\nexecutor" [style=dashed, label=trigger]
+      "ondemand-\nactioner" -> "action-\nexecutor" [style=dashed, label=task]
 
       "action-\nexecutor" -> "sms-sender" [label=call]
       "action-\nexecutor" -> "email-sender" [label=call]

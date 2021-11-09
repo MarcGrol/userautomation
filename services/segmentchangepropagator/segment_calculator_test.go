@@ -2,7 +2,6 @@ package segmentchangepropagator
 
 import (
 	"context"
-	"log"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -84,7 +83,6 @@ func TestSegment(t *testing.T) {
 		onSegmentModified(ctx, t, sut)
 
 		// then
-		log.Printf("segment%+v", getSegment(ctx, t, sut))
 		assert.Equal(t, "old", getSegment(ctx, t, sut).Description)
 		assert.Len(t, getSegment(ctx, t, sut).Users, 2)
 	})
@@ -163,14 +161,8 @@ func TestSegment(t *testing.T) {
 		sut := New(segmentStore, userService, ps)
 
 		// given
-
 		createUser(ctx, t, userService, 50)
 		createEmptySegment(ctx, t, sut)
-		segm1, _, _ := sut.segmentWithUsersStore.Get(ctx, "YoungSegment")
-		log.Printf("segm:%+v", segm1)
-
-		segm, _, _ := sut.segmentWithUsersStore.Get(ctx, "YoungSegment")
-		log.Printf("segm:%+v", segm)
 		assert.Len(t, getSegment(ctx, t, sut).Users, 0)
 
 		// when
