@@ -23,7 +23,7 @@ type onDemandRuleEvaluator struct {
 	userService user.Management
 }
 
-func New(pubsub pubsub.Pubsub,  ruleService rule.RuleService, userService user.Management) OnDemandRuleEvaluator {
+func New(pubsub pubsub.Pubsub, ruleService rule.RuleService, userService user.Management) OnDemandRuleEvaluator {
 	return &onDemandRuleEvaluator{
 		pubsub:      pubsub,
 		ruleService: ruleService,

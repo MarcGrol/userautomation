@@ -12,7 +12,7 @@ type RuleSpec struct {
 	Description string
 	SegmentSpec segment.SegmentSpec
 	//Task          usertask.UserTaskExecutor
-	ActionSpec      action.ActionSpec
+	ActionSpec action.ActionSpec
 }
 
 type RuleService interface {

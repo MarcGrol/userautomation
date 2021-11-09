@@ -21,9 +21,9 @@ const (
 )
 
 type UserTask struct {
-	RuleSpec  rule.RuleSpec
-	Reason ReasonForAction
-	User   user.User
+	RuleSpec rule.RuleSpec
+	Reason   ReasonForAction
+	User     user.User
 }
 
 func (t UserTask) String() string {

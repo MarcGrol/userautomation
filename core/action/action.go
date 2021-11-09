@@ -5,7 +5,7 @@ import (
 )
 
 type ActionSpec struct {
-	Name                string
+	Name                    string
 	Description             string
 	MandatoryUserAttributes []string
 	ProvidedAttributes      map[string]string

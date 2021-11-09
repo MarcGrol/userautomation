@@ -51,7 +51,7 @@ func (s *segmentChangeEvaluator) OnUserAddedToSegment(ctx context.Context, event
 		if r.SegmentSpec.UID == event.SegmentUID {
 			err := s.pubsub.Publish(ctx, usertask.TopicName, usertask.UserTask{
 				RuleSpec: r,
-				Reason:   0,
+				Reason:   usertask.ReasonIsUserAddedToSegment,
 				User:     event.User,
 			})
 			if err != nil {
