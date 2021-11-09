@@ -2,13 +2,13 @@ package ondemandtriggerservice
 
 import (
 	"context"
-	"github.com/MarcGrol/userautomation/core/user"
-	"github.com/MarcGrol/userautomation/infra/pubsub"
-	"github.com/MarcGrol/userautomation/services/actionmanager"
 	"testing"
 
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
+	"github.com/MarcGrol/userautomation/core/user"
+	"github.com/MarcGrol/userautomation/infra/pubsub"
+	"github.com/MarcGrol/userautomation/services/actionmanager"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )

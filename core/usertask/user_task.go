@@ -18,7 +18,6 @@ type ReasonForAction int
 const (
 	ReasonIsUserAddedToSegment ReasonForAction = iota
 	ReasonIsOnDemand
-	ReasonIsCron
 )
 
 type UserTask struct {

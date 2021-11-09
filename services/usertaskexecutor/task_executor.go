@@ -3,8 +3,11 @@ package usertaskexecutor
 import (
 	"context"
 	"fmt"
+	"github.com/MarcGrol/userautomation/actions/emailaction"
 	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
+	"github.com/MarcGrol/userautomation/integrations/emailsending"
+	"github.com/MarcGrol/userautomation/services/actionmanager"
 )
 
 type UserTaskExecutor interface {
@@ -37,5 +40,20 @@ func (s *userTaskExecutor) OnEvent(ctx context.Context, topic string, event inte
 }
 
 func (s *userTaskExecutor) OnUserTaskExecutionRequestedEvent(ctx context.Context, event usertask.UserTaskExecutionRequestedEvent) error {
-	return fmt.Errorf("Not implemented")
+	actionSpec := event.Task.RuleSpec.ActionSpec
+	switch actionSpec.Name{
+	case actionmanager.MailToOldName:
+		return emailaction.NewEmailAction(
+			actionSpec.ProvidedAttributes["email_subject"],
+			actionSpec.ProvidedAttributes["email_body"],
+			emailsending.NewEmailSender()).Perform(ctx,event.Task)
+	case actionmanager.SmsToYoungName:
+		return emailaction.NewEmailAction(
+			actionSpec.ProvidedAttributes["email_subject"],
+			actionSpec.ProvidedAttributes["email_body"],
+			emailsending.NewEmailSender()).Perform(ctx,event.Task)
+	default:
+		return fmt.Errorf("Action %s not recoognized", actionSpec.Name)
+	}
 }
+
