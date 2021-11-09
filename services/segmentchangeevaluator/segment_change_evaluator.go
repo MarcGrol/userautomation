@@ -7,6 +7,7 @@ import (
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
+	"log"
 )
 
 type SegmentChangeEvaluator interface {
@@ -49,6 +50,12 @@ func (s *segmentChangeEvaluator) OnUserAddedToSegment(ctx context.Context, event
 
 	for _, r := range rules {
 		if r.SegmentSpec.UID == event.SegmentUID {
+
+			if !event.User.HasAttributes(r.ActionSpec.MandatoryUserAttributes) {
+				log.Printf("User %s is missing madatory attributes for action %s", event.User.UID, r.ActionSpec.Name)
+				continue
+			}
+
 			err := s.pubsub.Publish(ctx, usertask.TopicName, usertask.UserTask{
 				RuleSpec: r,
 				Reason:   usertask.ReasonIsUserAddedToSegment,

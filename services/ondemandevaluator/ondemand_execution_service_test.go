@@ -154,10 +154,10 @@ func createUser(ctx context.Context, t *testing.T, userService user.Management, 
 	u := user.User{
 		UID: "1",
 		Attributes: map[string]interface{}{
-			"firstname":    "Marc",
-			"emailaddress": "marc@home.nl",
-			"phonenumber":  "+31611111111",
-			"age":          age,
+			"first_name":    "Marc",
+			"email_address": "marc@home.nl",
+			"phone_number":  "+31611111111",
+			"age":           age,
 		},
 	}
 	err := userService.Put(ctx, u)
@@ -171,10 +171,10 @@ func createOtherUser(ctx context.Context, t *testing.T, userService user.Managem
 	err := userService.Put(ctx, user.User{
 		UID: "2",
 		Attributes: map[string]interface{}{
-			"firstname":    "Eva",
-			"emailaddress": "eva@home.nl",
-			"phonenumber":  "+31622222222",
-			"age":          age,
+			"first_name":    "Eva",
+			"email_address": "eva@home.nl",
+			"phone_number":  "+31622222222",
+			"age":           age,
 		},
 	})
 	if err != nil {

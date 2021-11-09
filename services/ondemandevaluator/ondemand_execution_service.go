@@ -56,6 +56,9 @@ func (s *onDemandRuleEvaluator) OnRuleExecutionRequestedEvent(ctx context.Contex
 	}
 
 	for _, u := range users {
+		if !u.HasAttributes(event.Rule.ActionSpec.MandatoryUserAttributes) {
+			return fmt.Errorf("User %s is missing madatory attributes for action %s", u.UID, event.Rule.ActionSpec.Name)
+		}
 		err = s.publishActionForUser(ctx, r, u)
 		if err != nil {
 			return err

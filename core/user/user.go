@@ -2,11 +2,23 @@ package user
 
 import (
 	"context"
+	"log"
 )
 
 type User struct {
 	UID        string
 	Attributes map[string]interface{}
+}
+
+func (u User) HasAttributes(attributes []string) bool {
+	for _, attr := range attributes {
+		_, exists := u.Attributes[attr]
+		if !exists {
+			log.Printf("Missig mandatory attribute %s", attr)
+			return false
+		}
+	}
+	return true
 }
 
 type FilterFunc func(ctx context.Context, u User) (bool, error)

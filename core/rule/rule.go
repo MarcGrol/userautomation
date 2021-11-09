@@ -3,7 +3,6 @@ package rule
 import (
 	"context"
 	"github.com/MarcGrol/userautomation/core/action"
-
 	"github.com/MarcGrol/userautomation/core/segment"
 )
 
