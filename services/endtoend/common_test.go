@@ -2,8 +2,8 @@ package endtoend
 
 import (
 	"context"
-	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
+	"github.com/MarcGrol/userautomation/services/actionmanager"
 	"testing"
 
 	"github.com/MarcGrol/userautomation/core/rule"
@@ -80,8 +80,7 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.Rul
 			Description:    "old users segment",
 			UserFilterName: user.FilterOldAge,
 		},
-		ActionSpec: action.ActionSpec{Name: "email"},
-		//emailaction.NewEmailAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", emailSender),
+		ActionSpec: actionmanager.MailToOld,
 	})
 	if err != nil {
 		t.Error(err)
@@ -96,9 +95,7 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.R
 			Description:    "young users segment",
 			UserFilterName: user.FilterYoungAge,
 		},
-		ActionSpec: action.ActionSpec{Name: "sms"},
-		//         smsaction.New("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
-		AllowedTriggers: rule.TriggerUserChange,
+		ActionSpec: actionmanager.SmsToYoung,
 	})
 	if err != nil {
 		t.Error(err)

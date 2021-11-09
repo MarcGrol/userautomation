@@ -6,7 +6,6 @@ import (
 )
 
 type actionManager struct {
-	actions []action.ActionSpec
 }
 
 type ActionManager interface {
@@ -14,38 +13,49 @@ type ActionManager interface {
 }
 
 func New() ActionManager {
-	return &actionManager{
-		actions: []action.ActionSpec{
-			{
-				Name:                    "SmsToYoung",
-				Description:             "Sms to young people",
-				MandatoryUserAttributes: []string{"phone_number", "first_name", "age"},
-				ProvidedAttributes: map[string]string{
-					"body_template":"my sms body template",
-				},
-			},
-			{
-				Name:                    "MailToOld",
-				Description:             "Mail to old people",
-				MandatoryUserAttributes: []string{"email_address", "first_name", "age"},
-				ProvidedAttributes: map[string]string{
-					"subject_template":"my email subject",
-					"body_template":"my email body",
-				},},
+	return &actionManager{}
+}
+
+const (
+	SmsToYoungName = "SmsToYoung"
+	MailToOldName  = "MailToOld"
+)
+
+var (
+	SmsToYoung = action.ActionSpec{
+		Name:                    SmsToYoungName,
+		Description:             "Sms to young people",
+		MandatoryUserAttributes: []string{"phone_number", "first_name", "age"},
+		ProvidedAttributes: map[string]string{
+			"body_template": "my sms body template",
 		},
 	}
-}
-
-func(m *actionManager) GetActionSpecOnName(ctx context.Context, name string) (action.ActionSpec, bool, error) {
-	for _, a := range m.actions {
-		if a.Name == name {
-			return a, true, nil
-		}
+	MailToOld = action.ActionSpec{
+		Name:                    MailToOldName,
+		Description:             "Mail to old people",
+		MandatoryUserAttributes: []string{"email_address", "first_name", "age"},
+		ProvidedAttributes: map[string]string{
+			"subject_template": "my email subject",
+			"body_template":    "my email body",
+		},
 	}
+)
 
-	return action.ActionSpec{}, false, nil
+var actionMap = map[string]action.ActionSpec{
+	SmsToYoungName: SmsToYoung,
+	MailToOldName:  MailToOld,
 }
 
-func(m *actionManager) ListActionSpecs(ctx context.Context) ([]action.ActionSpec, error) {
-	return m.actions, nil
+func (m *actionManager) GetActionSpecOnName(ctx context.Context, name string) (action.ActionSpec, bool, error) {
+	a, exists := actionMap[name]
+
+	return a, exists, nil
+}
+
+func (m *actionManager) ListActionSpecs(ctx context.Context) ([]action.ActionSpec, error) {
+	actions := []action.ActionSpec{}
+	for _, a := range actionMap {
+		actions = append(actions, a)
+	}
+	return actions, nil
 }

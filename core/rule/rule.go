@@ -7,21 +7,12 @@ import (
 	"github.com/MarcGrol/userautomation/core/segment"
 )
 
-type TriggerAllowed int
-
-const (
-	TriggerOnDemand TriggerAllowed = 1 << iota
-	TriggerCron
-	TriggerUserChange
-)
-
 type RuleSpec struct {
 	UID         string
 	Description string
 	SegmentSpec segment.SegmentSpec
 	//Task          usertask.UserTaskExecutor
 	ActionSpec      action.ActionSpec
-	AllowedTriggers TriggerAllowed
 }
 
 type RuleService interface {
