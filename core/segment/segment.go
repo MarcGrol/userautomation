@@ -8,12 +8,9 @@ import (
 )
 
 type UserSegment struct {
-	UID         string
-	Description string
-	//IsApplicableForUser user.FilterFunc // Could use a WHERE clause alternatively
+	UID            string
+	Description    string
 	UserFilterName string
-
-	Users map[string]user.User
 }
 
 func (us UserSegment) IsApplicableForUser(ctx context.Context, u user.User) (bool, error) {

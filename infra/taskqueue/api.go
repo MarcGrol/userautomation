@@ -3,7 +3,8 @@ package taskqueue
 import "context"
 
 type Task struct {
-	URL string
+	Method  string
+	URL     string
 	Payload string
 }
 

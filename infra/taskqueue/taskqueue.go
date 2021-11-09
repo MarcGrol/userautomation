@@ -10,8 +10,7 @@ type simplisticTaskQueue struct {
 }
 
 func NewTaskQueue() TaskQueue {
-	return &simplisticTaskQueue{
-	}
+	return &simplisticTaskQueue{}
 }
 func (tq *simplisticTaskQueue) Enqueue(ctx context.Context, task Task) error {
 

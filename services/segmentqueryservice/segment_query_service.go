@@ -34,9 +34,9 @@ func (s *segmentQuery) GetUsersForSegment(ctx context.Context, userSegmentUID st
 			return fmt.Errorf("Segment with uid %s does not exist", userSegmentUID)
 		}
 
-		segm := item.(segment.UserSegment)
+		swu := item.(segment.SegmentWithUsers)
 		users := []user.User{}
-		for _, u := range segm.Users {
+		for _, u := range swu.Users {
 			users = append(users, u)
 		}
 		return nil

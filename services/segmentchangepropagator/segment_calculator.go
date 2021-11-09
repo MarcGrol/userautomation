@@ -63,24 +63,26 @@ func (s *segmentCalculator) OnSegmentCreated(ctx context.Context, event segment.
 	return s.segmentWithUsersStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		segm := event.SegmentState
 
-		{
-			// add all matching users to segment
-			users, err := s.userService.QueryByName(ctx, segm.UserFilterName)
-			if err != nil {
-				return err
-			}
-			segm.Users = map[string]user.User{}
-
-			for _, u := range users {
-				segm.Users[u.UID] = u
-				err = s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserAddedToSegmentEvent{SegmentUID: segm.UID, User: u})
-				if err != nil {
-					// what?
-				}
-			}
-
+		// add all matching users to segment
+		users, err := s.userService.QueryByName(ctx, segm.UserFilterName)
+		if err != nil {
+			return err
 		}
-		err := s.segmentWithUsersStore.Put(ctx, segm.UID, segm)
+
+		userMap := map[string]user.User{}
+
+		for _, u := range users {
+			userMap[u.UID] = u
+			err = s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserAddedToSegmentEvent{SegmentUID: segm.UID, User: u})
+			if err != nil {
+				// what?
+			}
+		}
+
+		err = s.segmentWithUsersStore.Put(ctx, segm.UID, segment.SegmentWithUsers{
+			Segment: segm,
+			Users:   userMap,
+		})
 		if err != nil {
 			return err
 		}
@@ -93,15 +95,25 @@ func (s *segmentCalculator) OnSegmentModified(ctx context.Context, event segment
 	return s.segmentWithUsersStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		segm := event.NewSegmentState
 
+		item, exist, err := s.segmentWithUsersStore.Get(ctx, segm.UID)
+		if err != nil {
+			return err
+		}
+		if !exist {
+			return fmt.Errorf("SegmentWithUsers with uid %s does not exist", segm.UID)
+		}
+		swu := item.(segment.SegmentWithUsers)
+		swu.Segment = segm
+
 		{
 			// Remove existing users that nom longer match segment
-			for _, u := range segm.Users {
+			for _, u := range swu.Users {
 				applicable, err := segm.IsApplicableForUser(ctx, u)
 				if err != nil {
 					return err
 				}
 				if !applicable {
-					delete(segm.Users, u.UID)
+					delete(swu.Users, u.UID)
 					err = s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserRemovedFromSegmentEvent{SegmentUID: segm.UID, User: u})
 					if err != nil {
 						// what?
@@ -117,15 +129,15 @@ func (s *segmentCalculator) OnSegmentModified(ctx context.Context, event segment
 				return err
 			}
 			for _, u := range users {
-				_, exists := segm.Users[u.UID]
+				_, exists := swu.Users[u.UID]
 				if !exists {
-					segm.Users[u.UID] = u
+					swu.Users[u.UID] = u
 					s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserAddedToSegmentEvent{SegmentUID: segm.UID, User: u})
 				}
 			}
 		}
 
-		err := s.segmentWithUsersStore.Put(ctx, segm.UID, segm)
+		err = s.segmentWithUsersStore.Put(ctx, segm.UID, swu)
 		if err != nil {
 			return err
 		}
@@ -138,17 +150,24 @@ func (s *segmentCalculator) OnSegmentRemoved(ctx context.Context, event segment.
 	return s.segmentWithUsersStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		segm := event.SegmentState
 
-		{
-			// Remove existing users that nom longer match segment
-			for _, u := range segm.Users {
-				err := s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserRemovedFromSegmentEvent{SegmentUID: segm.UID, User: u})
-				if err != nil {
-					// what?
-				}
+		item, exist, err := s.segmentWithUsersStore.Get(ctx, segm.UID)
+		if err != nil {
+			return err
+		}
+		if !exist {
+			return fmt.Errorf("SegmentWithUsers with uid %s does not exist", segm.UID)
+		}
+		swu := item.(segment.SegmentWithUsers)
+
+		// Remove existing users that nom longer match segment
+		for _, u := range swu.Users {
+			err := s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserRemovedFromSegmentEvent{SegmentUID: segm.UID, User: u})
+			if err != nil {
+				// what?
 			}
 		}
 
-		err := s.segmentWithUsersStore.Remove(ctx, event.SegmentState.UID)
+		err = s.segmentWithUsersStore.Remove(ctx, event.SegmentState.UID)
 		if err != nil {
 			return err
 		}
@@ -161,27 +180,27 @@ func (s *segmentCalculator) OnUserCreated(ctx context.Context, event user.Create
 	u := event.UserState
 
 	return s.segmentWithUsersStore.RunInTransaction(ctx, func(ctx context.Context) error {
-		// check if user must be added to segments
-		segments, err := s.segmentWithUsersStore.GetAll(ctx)
+		// check if user must be added to items
+		items, err := s.segmentWithUsersStore.GetAll(ctx)
 		if err != nil {
 			return err
 		}
 
-		for _, item := range segments {
-			segm := item.(segment.UserSegment)
+		for _, item := range items {
+			swu := item.(segment.SegmentWithUsers)
 
-			isApplicable, err := segm.IsApplicableForUser(ctx, u)
+			isApplicable, err := swu.Segment.IsApplicableForUser(ctx, u)
 			if err != nil {
 				return err
 			}
 			if isApplicable {
-				segm.Users[u.UID] = u
-				err := s.segmentWithUsersStore.Put(ctx, segm.UID, segm)
+				swu.Users[u.UID] = u
+				err := s.segmentWithUsersStore.Put(ctx, swu.Segment.UID, swu)
 				if err != nil {
 					return err
 				}
 				err = s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserAddedToSegmentEvent{
-					SegmentUID: segm.UID,
+					SegmentUID: swu.Segment.UID,
 					User:       u,
 				})
 				if err != nil {
@@ -198,40 +217,40 @@ func (s *segmentCalculator) OnUserModified(ctx context.Context, event user.Modif
 
 	return s.segmentWithUsersStore.RunInTransaction(ctx, func(ctx context.Context) error {
 
-		segments, err := s.segmentWithUsersStore.GetAll(ctx)
+		items, err := s.segmentWithUsersStore.GetAll(ctx)
 		if err != nil {
 			return err
 		}
 
-		for _, item := range segments {
-			segm := item.(segment.UserSegment)
-			_, found := segm.Users[u.UID]
+		for _, item := range items {
+			swu := item.(segment.SegmentWithUsers)
+			_, found := swu.Users[u.UID]
 
-			isApplicable, err := segm.IsApplicableForUser(ctx, u)
+			isApplicable, err := swu.Segment.IsApplicableForUser(ctx, u)
 			if err != nil {
 				return err
 			}
 			if found && !isApplicable {
-				delete(segm.Users, u.UID)
+				delete(swu.Users, u.UID)
 
 				err := s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserRemovedFromSegmentEvent{
-					SegmentUID: segm.UID,
+					SegmentUID: swu.Segment.UID,
 					User:       u,
 				})
 				if err != nil {
 					return err
 				}
 			} else if isApplicable {
-				segm.Users[u.UID] = u
+				swu.Users[u.UID] = u
 				err := s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserAddedToSegmentEvent{
-					SegmentUID: segm.UID,
+					SegmentUID: swu.Segment.UID,
 					User:       u,
 				})
 				if err != nil {
 					return err
 				}
 			}
-			err = s.segmentWithUsersStore.Put(ctx, segm.UID, segm)
+			err = s.segmentWithUsersStore.Put(ctx, swu.Segment.UID, swu)
 			if err != nil {
 				return err
 			}
@@ -244,21 +263,22 @@ func (s *segmentCalculator) OnUserRemoved(ctx context.Context, event user.Remove
 	u := event.UserState
 
 	return s.segmentWithUsersStore.RunInTransaction(ctx, func(ctx context.Context) error {
-		// check if user must be added to segments
-		segments, err := s.segmentWithUsersStore.GetAll(ctx)
+		// check if user must be added to items
+		items, err := s.segmentWithUsersStore.GetAll(ctx)
 		if err != nil {
 			return err
 		}
 
-		for _, item := range segments {
-			segm := item.(segment.UserSegment)
-			delete(segm.Users, u.UID)
-			err = s.segmentWithUsersStore.Put(ctx, segm.UID, segm)
+		for _, item := range items {
+			swu := item.(segment.SegmentWithUsers)
+
+			delete(swu.Users, u.UID)
+			err = s.segmentWithUsersStore.Put(ctx, swu.Segment.UID, swu)
 			if err != nil {
 				return err
 			}
 			err := s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserRemovedFromSegmentEvent{
-				SegmentUID: segm.UID,
+				SegmentUID: swu.Segment.UID,
 				User:       u,
 			})
 			if err != nil {
@@ -278,10 +298,10 @@ func (s *segmentCalculator) GetUsersForSegment(ctx context.Context, segmentUID s
 	if !exists {
 		return nil, fmt.Errorf("Segment with uid %s does not exist", segmentUID)
 	}
-	segm := item.(segment.UserSegment)
+	swu := item.(segment.SegmentWithUsers)
 
 	users := []user.User{}
-	for _, u := range segm.Users {
+	for _, u := range swu.Users {
 		users = append(users, u)
 	}
 	return users, nil
