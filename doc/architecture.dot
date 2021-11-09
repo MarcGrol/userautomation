@@ -1,65 +1,65 @@
-    digraph G {
-    
-      rankdir="TD"
-      
-      insided -> "rule-\ntrigger-\nservice" [label="rest-api"]
-      insided -> "rule-\nmanagement" [label="rest-api"]
-      insided -> "user-\nmanagement" [label="rest-api"]
-      insided -> "segment-\nmanagement" [label="rest-api"]
-      insided -> "segment-\nquery-\nservice" [label="rest-api"]
+digraph G {
 
-      subgraph cluster_Web {
-          label = "Web"
-          "rule-\ntrigger-\nservice"
-          "rule-\nmanagement"
-          "user-\nmanagement"
-          "segment-\nmanagement"
-          "segment-\nquery-\nservice"
-      }
+  rankdir="TD"
 
-     subgraph cluster_Core {
-          label = "Core"
-          "ondemand-\nactioner"
-          "segment-user-\nmanagement"
-          "segment-change-\nactioner"
-          "action-\nexecutor"
-          "sms-sender"
-          "email-sender"
-          "group-updater"
-          "crm-updater"
-      }
+  subgraph cluster_Web {
+      label = "Web"
+      "rule-\ntrigger-\nservice"
+      "rule-\naction-\nmanagement"
+      "user-\nmanagement"
+      "segment-\nmanagement"
+      "segment-\nquery-\nservice"
+}
 
-      // subgraph cluster_External {
-           //label = "External systems"
-            "aws/sendgrid"
-            "aws/twilio"
-            "insided-system"
-            "salesforce"
-       // }
+ subgraph cluster_Core {
+      label = "Core"
+      "ondemand-\nrule-\nevaluator"
+      "segment-user-\nmanagement"
+      "segment-change-\nrule-\nevaluator"
+      "action-\nexecutor"
+      "sms-sender"
+      "email-sender"
+      "group-updater"
+      "crm-updater"
+  }
 
-       "rule-\ntrigger-\nservice" -> "ondemand-\nactioner" [style=dashed, label="rule\nexec\nrequested"]
-      "segment-\nmanagement" -> "segment-user-\nmanagement" [style=dashed, label="segmemt\nchanged\nevent"]
-      "segment-\nquery-\nservice" -> "segment-user-\nmanagement" [label=query]
+  // subgraph cluster_External {
+       //label = "External systems"
+        "aws/sendgrid"
+        "aws/twilio"
+        "insided-system"
+        "salesforce"
+   // }
 
-      "rule-\nmanagement" -> "ondemand-\nactioner" [style=dashed, label="rule\nchanged\nevent"]
+  insided -> "rule-\ntrigger-\nservice" [label="rest-api"]
+  insided -> "rule-\naction-\nmanagement" [label="rest-api"]
+  insided -> "user-\nmanagement" [label="rest-api"]
+  insided -> "segment-\nmanagement" [label="rest-api"]
+  insided -> "segment-\nquery-\nservice" [label="rest-api"]
 
-      "user-\nmanagement" -> "segment-user-\nmanagement" [style=dashed, label="user\nchanged\nevent"]
-      "segment-user-\nmanagement" -> "ondemand-\nactioner" [style=dashed, label="user-segment-event"]
+   "rule-\ntrigger-\nservice" -> "ondemand-\nrule-\nevaluator" [style=dashed, label="rule\nexec\nrequested"]
+  "segment-\nmanagement" -> "segment-user-\nmanagement" [style=dashed, label="segmemt\nchanged\nevent"]
+  "segment-\nquery-\nservice" -> "segment-user-\nmanagement" [label=query]
 
-      "segment-user-\nmanagement" -> "segment-change-\nactioner"  [style=dashed, label="user-segment-event"]
-      "rule-\nmanagement" -> "segment-change-\nactioner" [style=dashed, label="rule\nchanged\nevent"]
-      "segment-change-\nactioner" -> "action-\nexecutor" [style=dashed, label="action\ntask"]
+  "ondemand-\nrule-\nevaluator" [style=dashed, label="rule\nchanged\nevent"]
 
-      "ondemand-\nactioner" -> "action-\nexecutor" [style=dashed, label="action\ntask"]
+  "user-\nmanagement" -> "segment-user-\nmanagement" [style=dashed, label="user\nchanged\nevent"]
+  "segment-user-\nmanagement" -> "ondemand-\nrule-\nevaluator" [style=dashed, label="user-segment-event"]
 
-      "action-\nexecutor" -> "sms-sender" [label=call]
-      "action-\nexecutor" -> "email-sender" [label=call]
-      "action-\nexecutor" -> "group-updater" [label=call]
-      "action-\nexecutor" -> "crm-updater" [label=call]
+  "segment-user-\nmanagement" -> "segment-change-\nrule-\nevaluator"  [style=dashed, label="user-segment-event"]
+  "rule-\naction-\nmanagement" -> "segment-change-\nrule-\nevaluator" [style=dashed, label="rule\nchanged\nevent"]
+  "segment-change-\nrule-\nevaluator" -> "action-\nexecutor" [style=dashed, label="user\ntask"]
 
-      "email-sender" -> "aws/sendgrid" [label="rest-api"]
-      "sms-sender" -> "aws/twilio" [label="rest-api"]
-      "group-updater" -> "insided-system" [label="rest-api"]
-      "crm-updater" -> "salesforce" [label="rest-api"]
+  "ondemand-\nrule-\nevaluator" -> "action-\nexecutor" [style=dashed, label="user\ntask"]
 
-    }
+  "action-\nexecutor" -> "sms-sender" [label=call]
+  "action-\nexecutor" -> "email-sender" [label=call]
+  "action-\nexecutor" -> "group-updater" [label=call]
+  "action-\nexecutor" -> "crm-updater" [label=call]
+
+  "email-sender" -> "aws/sendgrid" [label="rest-api"]
+  "sms-sender" -> "aws/twilio" [label="rest-api"]
+  "group-updater" -> "insided-system" [label="rest-api"]
+  "crm-updater" -> "salesforce" [label="rest-api"]
+
+}
