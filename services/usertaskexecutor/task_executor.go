@@ -1,6 +1,5 @@
 package usertaskexecutor
 
-
 import (
 	"context"
 	"fmt"
@@ -15,17 +14,16 @@ type UserTaskExecutor interface {
 }
 
 type userTaskExecutor struct {
-	taskqueue   taskqueue.TaskQueue
+	taskqueue taskqueue.TaskQueue
 }
 
 func New(taskqueue taskqueue.TaskQueue) UserTaskExecutor {
 	return &userTaskExecutor{
-		taskqueue:   taskqueue,
+		taskqueue: taskqueue,
 	}
 }
-func (s *userTaskExecutor)IamReceivingTasks() {}
+func (s *userTaskExecutor) IamReceivingTasks() {}
 
-func (s *userTaskExecutor)OnTaskReceived(c context.Context, queueName string, payload string) error{
+func (s *userTaskExecutor) OnTaskReceived(c context.Context, queueName string, payload string) error {
 	return fmt.Errorf("Not implemented")
 }
-

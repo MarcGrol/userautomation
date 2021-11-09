@@ -2,6 +2,7 @@ package ondemandevaluator
 
 import (
 	"context"
+	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"testing"
 
@@ -188,7 +189,7 @@ var oldAgeRule = rule.RuleSpec{
 		Description:    "old users segment",
 		UserFilterName: user.FilterOldAge,
 	},
-	ActionName: "email",
+	ActionSpec: action.ActionSpec{Name: "email"},
 }
 
 func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.RuleService) {
@@ -205,7 +206,7 @@ var youngAgeRule = rule.RuleSpec{
 		Description:    "young users segment",
 		UserFilterName: user.FilterYoungAge,
 	},
-	ActionName:          "sms",
+	ActionSpec:      action.ActionSpec{Name: "sms"},
 	AllowedTriggers: rule.TriggerUserChange,
 }
 

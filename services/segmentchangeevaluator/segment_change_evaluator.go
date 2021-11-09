@@ -63,8 +63,7 @@ func (s *segmentChangeEvaluator) OnUserAddedToSegment(ctx context.Context, event
 				return err
 			}
 			t := taskqueue.Task{
-				QueueName: "POST",
-				URL:       "/api/action",
+				QueueName: r.ActionSpec.Name,
 				Payload:   string(payload),
 			}
 			return s.taskqueue.Enqueue(ctx, t)

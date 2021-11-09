@@ -4,7 +4,7 @@ import "context"
 
 type Task struct {
 	QueueName string
-	Payload string
+	Payload   string
 }
 
 //go:generate mockgen -source=api.go -destination=taskqueue_mock.go -package=taskqueue TaskQueue

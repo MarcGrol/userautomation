@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/actions/templating"
+	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/integrations/emailsending"
 )
 

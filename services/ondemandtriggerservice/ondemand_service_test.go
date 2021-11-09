@@ -2,6 +2,7 @@ package ondemandtriggerservice
 
 import (
 	"context"
+	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"testing"
@@ -93,7 +94,7 @@ var oldAgeRule = rule.RuleSpec{
 		Description:    "old users segment",
 		UserFilterName: user.FilterOldAge,
 	},
-	ActionName: "email",
+	ActionSpec: action.ActionSpec{Name: "email"},
 }
 
 var youngAgeRule = rule.RuleSpec{
@@ -103,7 +104,7 @@ var youngAgeRule = rule.RuleSpec{
 		Description:    "young users segment",
 		UserFilterName: user.FilterYoungAge,
 	},
-	ActionName: "sms",
+	ActionSpec: action.ActionSpec{Name: "sms"},
 }
 
 func nothingHappens() {}
