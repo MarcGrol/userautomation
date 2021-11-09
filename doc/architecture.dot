@@ -29,28 +29,28 @@
           "crm-updater"
       }
 
-       subgraph cluster_External {
-           label = "External systems"
+      // subgraph cluster_External {
+           //label = "External systems"
             "aws/sendgrid"
             "aws/twilio"
             "insided-system"
             "salesforce"
-        }
+       // }
 
-       "rule-\ntrigger-\nservice" -> "ondemand-\nactioner" [style=dashed, label=trigger]
-      "segment-\nmanagement" -> "segment-change-\npropagation" [style=dashed, label=trigger]
+       "rule-\ntrigger-\nservice" -> "ondemand-\nactioner" [style=dashed, label="rule\nexec\nrequested"]
+      "segment-\nmanagement" -> "segment-change-\npropagation" [style=dashed, label="segmemt\nchanged\nevent"]
       "segment-\nquery-\nservice" -> "segment-change-\npropagation" [label=query]
 
-      "rule-\nmanagement" -> "ondemand-\nactioner" [style=dashed, label=feed]
+      "rule-\nmanagement" -> "ondemand-\nactioner" [style=dashed, label="rule\nchanged\nevent"]
 
-      "user-\nmanagement" -> "segment-change-\npropagation" [style=dashed, label=trigger]
-      "segment-change-\npropagation" -> "ondemand-\nactioner" [style=dashed, label=feed]
+      "user-\nmanagement" -> "segment-change-\npropagation" [style=dashed, label="user\nchanged\nevent"]
+      "segment-change-\npropagation" -> "ondemand-\nactioner" [style=dashed, label="user-segment-event"]
 
-      "segment-change-\npropagation" -> "segment-change-\nactioner"  [style=dashed, label=trigger]
-      "rule-\nmanagement" -> "segment-change-\nactioner" [style=dashed, label=feed]
-      "segment-change-\nactioner" -> "action-\nexecutor" [style=dashed, label=task]
+      "segment-change-\npropagation" -> "segment-change-\nactioner"  [style=dashed, label="user-segment-event"]
+      "rule-\nmanagement" -> "segment-change-\nactioner" [style=dashed, label="rule\nchanged\nevent"]
+      "segment-change-\nactioner" -> "action-\nexecutor" [style=dashed, label="action\ntask"]
 
-      "ondemand-\nactioner" -> "action-\nexecutor" [style=dashed, label=task]
+      "ondemand-\nactioner" -> "action-\nexecutor" [style=dashed, label="action\ntask"]
 
       "action-\nexecutor" -> "sms-sender" [label=call]
       "action-\nexecutor" -> "email-sender" [label=call]
