@@ -7,7 +7,6 @@ import (
 	"github.com/MarcGrol/userautomation/services/ondemandtriggerservice"
 	"github.com/MarcGrol/userautomation/services/rulemanagement"
 	"github.com/MarcGrol/userautomation/services/segmentmanagement"
-	"github.com/MarcGrol/userautomation/services/usercchangevaluator"
 	"github.com/MarcGrol/userautomation/services/usermanagement"
 
 	"github.com/MarcGrol/userautomation/infra/datastore"
@@ -39,9 +38,6 @@ func New(ctx context.Context) EntireSystem {
 
 	segmentStore := datastore.NewDatastore()
 	segmentService := segmentmanagement.New(segmentStore, pubsub)
-
-	userEventService := usercchangevaluator.New(pubsub, ruleService)
-	userEventService.Subscribe(ctx)
 
 	ondemandService := ondemandtriggerservice.New(ruleService, pubsub)
 

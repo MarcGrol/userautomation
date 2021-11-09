@@ -11,31 +11,31 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockSegmentRuleService is a mock of RuleService interface.
-type MockSegmentRuleService struct {
+// MockRuleService is a mock of RuleService interface.
+type MockRuleService struct {
 	ctrl     *gomock.Controller
-	recorder *MockSegmentRuleServiceMockRecorder
+	recorder *MockRuleServiceMockRecorder
 }
 
-// MockSegmentRuleServiceMockRecorder is the mock recorder for MockSegmentRuleService.
-type MockSegmentRuleServiceMockRecorder struct {
-	mock *MockSegmentRuleService
+// MockRuleServiceMockRecorder is the mock recorder for MockRuleService.
+type MockRuleServiceMockRecorder struct {
+	mock *MockRuleService
 }
 
-// NewMockSegmentRuleService creates a new mock instance.
-func NewMockSegmentRuleService(ctrl *gomock.Controller) *MockSegmentRuleService {
-	mock := &MockSegmentRuleService{ctrl: ctrl}
-	mock.recorder = &MockSegmentRuleServiceMockRecorder{mock}
+// NewMockRuleService creates a new mock instance.
+func NewMockRuleService(ctrl *gomock.Controller) *MockRuleService {
+	mock := &MockRuleService{ctrl: ctrl}
+	mock.recorder = &MockRuleServiceMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockSegmentRuleService) EXPECT() *MockSegmentRuleServiceMockRecorder {
+func (m *MockRuleService) EXPECT() *MockRuleServiceMockRecorder {
 	return m.recorder
 }
 
 // Put mocks base method.
-func (m *MockSegmentRuleService) Put(ctx context.Context, segmentRule RuleSpec) error {
+func (m *MockRuleService) Put(ctx context.Context, segmentRule RuleSpec) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Put", ctx, segmentRule)
 	ret0, _ := ret[0].(error)
@@ -43,13 +43,13 @@ func (m *MockSegmentRuleService) Put(ctx context.Context, segmentRule RuleSpec) 
 }
 
 // Put indicates an expected call of Put.
-func (mr *MockSegmentRuleServiceMockRecorder) Put(ctx, segmentRule interface{}) *gomock.Call {
+func (mr *MockRuleServiceMockRecorder) Put(ctx, segmentRule interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Put", reflect.TypeOf((*MockSegmentRuleService)(nil).Put), ctx, segmentRule)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Put", reflect.TypeOf((*MockRuleService)(nil).Put), ctx, segmentRule)
 }
 
 // Get mocks base method.
-func (m *MockSegmentRuleService) Get(ctx context.Context, ruleUID string) (RuleSpec, bool, error) {
+func (m *MockRuleService) Get(ctx context.Context, ruleUID string) (RuleSpec, bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", ctx, ruleUID)
 	ret0, _ := ret[0].(RuleSpec)
@@ -59,13 +59,13 @@ func (m *MockSegmentRuleService) Get(ctx context.Context, ruleUID string) (RuleS
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockSegmentRuleServiceMockRecorder) Get(ctx, ruleUID interface{}) *gomock.Call {
+func (mr *MockRuleServiceMockRecorder) Get(ctx, ruleUID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockSegmentRuleService)(nil).Get), ctx, ruleUID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockRuleService)(nil).Get), ctx, ruleUID)
 }
 
 // Remove mocks base method.
-func (m *MockSegmentRuleService) Remove(ctx context.Context, ruleUID string) error {
+func (m *MockRuleService) Remove(ctx context.Context, ruleUID string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Remove", ctx, ruleUID)
 	ret0, _ := ret[0].(error)
@@ -73,13 +73,13 @@ func (m *MockSegmentRuleService) Remove(ctx context.Context, ruleUID string) err
 }
 
 // Remove indicates an expected call of Remove.
-func (mr *MockSegmentRuleServiceMockRecorder) Remove(ctx, ruleUID interface{}) *gomock.Call {
+func (mr *MockRuleServiceMockRecorder) Remove(ctx, ruleUID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Remove", reflect.TypeOf((*MockSegmentRuleService)(nil).Remove), ctx, ruleUID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Remove", reflect.TypeOf((*MockRuleService)(nil).Remove), ctx, ruleUID)
 }
 
 // List mocks base method.
-func (m *MockSegmentRuleService) List(ctx context.Context) ([]RuleSpec, error) {
+func (m *MockRuleService) List(ctx context.Context) ([]RuleSpec, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "List", ctx)
 	ret0, _ := ret[0].([]RuleSpec)
@@ -88,36 +88,36 @@ func (m *MockSegmentRuleService) List(ctx context.Context) ([]RuleSpec, error) {
 }
 
 // List indicates an expected call of List.
-func (mr *MockSegmentRuleServiceMockRecorder) List(ctx interface{}) *gomock.Call {
+func (mr *MockRuleServiceMockRecorder) List(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockSegmentRuleService)(nil).List), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockRuleService)(nil).List), ctx)
 }
 
-// MockSegmentRuleExecutionTrigger is a mock of TriggerRuleExecution interface.
-type MockSegmentRuleExecutionTrigger struct {
+// MockTriggerRuleExecution is a mock of TriggerRuleExecution interface.
+type MockTriggerRuleExecution struct {
 	ctrl     *gomock.Controller
-	recorder *MockSegmentRuleExecutionTriggerMockRecorder
+	recorder *MockTriggerRuleExecutionMockRecorder
 }
 
-// MockSegmentRuleExecutionTriggerMockRecorder is the mock recorder for MockSegmentRuleExecutionTrigger.
-type MockSegmentRuleExecutionTriggerMockRecorder struct {
-	mock *MockSegmentRuleExecutionTrigger
+// MockTriggerRuleExecutionMockRecorder is the mock recorder for MockTriggerRuleExecution.
+type MockTriggerRuleExecutionMockRecorder struct {
+	mock *MockTriggerRuleExecution
 }
 
-// NewMockSegmentRuleExecutionTrigger creates a new mock instance.
-func NewMockSegmentRuleExecutionTrigger(ctrl *gomock.Controller) *MockSegmentRuleExecutionTrigger {
-	mock := &MockSegmentRuleExecutionTrigger{ctrl: ctrl}
-	mock.recorder = &MockSegmentRuleExecutionTriggerMockRecorder{mock}
+// NewMockTriggerRuleExecution creates a new mock instance.
+func NewMockTriggerRuleExecution(ctrl *gomock.Controller) *MockTriggerRuleExecution {
+	mock := &MockTriggerRuleExecution{ctrl: ctrl}
+	mock.recorder = &MockTriggerRuleExecutionMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockSegmentRuleExecutionTrigger) EXPECT() *MockSegmentRuleExecutionTriggerMockRecorder {
+func (m *MockTriggerRuleExecution) EXPECT() *MockTriggerRuleExecutionMockRecorder {
 	return m.recorder
 }
 
 // Trigger mocks base method.
-func (m *MockSegmentRuleExecutionTrigger) Trigger(ctx context.Context, ruleUID string) error {
+func (m *MockTriggerRuleExecution) Trigger(ctx context.Context, ruleUID string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Trigger", ctx, ruleUID)
 	ret0, _ := ret[0].(error)
@@ -125,7 +125,7 @@ func (m *MockSegmentRuleExecutionTrigger) Trigger(ctx context.Context, ruleUID s
 }
 
 // Trigger indicates an expected call of Trigger.
-func (mr *MockSegmentRuleExecutionTriggerMockRecorder) Trigger(ctx, ruleUID interface{}) *gomock.Call {
+func (mr *MockTriggerRuleExecutionMockRecorder) Trigger(ctx, ruleUID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Trigger", reflect.TypeOf((*MockSegmentRuleExecutionTrigger)(nil).Trigger), ctx, ruleUID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Trigger", reflect.TypeOf((*MockTriggerRuleExecution)(nil).Trigger), ctx, ruleUID)
 }

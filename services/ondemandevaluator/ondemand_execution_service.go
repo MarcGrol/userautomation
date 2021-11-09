@@ -3,9 +3,9 @@ package ondemandevaluator
 import (
 	"context"
 	"fmt"
-	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/user"
+	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
 
@@ -66,12 +66,11 @@ func (s *onDemandRuleEvaluator) OnRuleExecutionRequestedEvent(ctx context.Contex
 }
 
 func (s *onDemandRuleEvaluator) publishActionForUser(ctx context.Context, r rule.RuleSpec, user user.User) error {
-	err := s.pubsub.Publish(ctx, action.TopicName, action.ActionExecutionRequestedEvent{
-		Action: action.UserAction{
+	err := s.pubsub.Publish(ctx, usertask.TopicName, usertask.UserTaskExecutionRequestedEvent{
+		Task: usertask.UserTask{
 			RuleUID:  r.UID,
-			Reason:   action.ReasonIsOnDemand,
-			OldState: nil,
-			NewState: &user,
+			Reason:   usertask.ReasonIsOnDemand,
+			NewState: user,
 		},
 	})
 	if err != nil {

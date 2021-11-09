@@ -3,7 +3,6 @@ package rule
 import (
 	"context"
 
-	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/segment"
 )
 
@@ -19,7 +18,8 @@ type RuleSpec struct {
 	UID             string
 	Description     string
 	SegmentSpec     segment.SegmentSpec
-	Action          action.UserActioner
+	//Task          usertask.UserTaskExecutor
+	ActionName string
 	AllowedTriggers TriggerAllowed
 }
 

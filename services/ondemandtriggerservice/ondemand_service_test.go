@@ -93,7 +93,7 @@ var oldAgeRule = rule.RuleSpec{
 		Description:    "old users segment",
 		UserFilterName: user.FilterOldAge,
 	},
-	Action: nil,
+	ActionName: "email",
 }
 
 var youngAgeRule = rule.RuleSpec{
@@ -103,7 +103,7 @@ var youngAgeRule = rule.RuleSpec{
 		Description:    "young users segment",
 		UserFilterName: user.FilterYoungAge,
 	},
-	Action: nil,
+	ActionName: "sms",
 }
 
 func nothingHappens() {}

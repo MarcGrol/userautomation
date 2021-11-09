@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/MarcGrol/userautomation/actions/templating"
-	"github.com/MarcGrol/userautomation/core/action"
+	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/integrations/smssending"
 )
 
@@ -15,14 +15,14 @@ type SmsAction struct {
 	smsClient    smssending.SmsSender
 }
 
-func New(bodyTemplate string, smsClient smssending.SmsSender) action.UserActioner {
+func New(bodyTemplate string, smsClient smssending.SmsSender) usertask.UserTaskExecutor {
 	return &SmsAction{
 		bodyTemplate: bodyTemplate,
 		smsClient:    smsClient,
 	}
 }
 
-func (ea *SmsAction) Perform(ctx context.Context, a action.UserAction) error {
+func (ea *SmsAction) Perform(ctx context.Context, a usertask.UserTask) error {
 	log.Printf("email-action: %s", a.String())
 
 	userPhoneNumber, ok := a.NewState.Attributes["phonenumber"].(string)

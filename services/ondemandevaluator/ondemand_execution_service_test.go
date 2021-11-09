@@ -5,10 +5,10 @@ import (
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"testing"
 
-	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
+	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -70,12 +70,11 @@ func TestOnDemand(t *testing.T) {
 		defer sut.OnRuleExecutionRequestedEvent(ctx, rule.RuleExecutionRequestedEvent{Rule: youngAgeRule})
 
 		// then
-		pubsub.EXPECT().Publish(gomock.Any(), action.TopicName, action.ActionExecutionRequestedEvent{
-			Action: action.UserAction{
+		pubsub.EXPECT().Publish(gomock.Any(), usertask.TopicName, usertask.UserTaskExecutionRequestedEvent{
+			Task: usertask.UserTask{
 				RuleUID:  "YoungRule",
-				Reason:   action.ReasonIsOnDemand,
-				OldState: nil,
-				NewState: &u,
+				Reason:   usertask.ReasonIsOnDemand,
+				NewState: u,
 			},
 		}).Return(nil)
 	})
@@ -111,12 +110,11 @@ func TestOnDemand(t *testing.T) {
 		defer sut.OnRuleExecutionRequestedEvent(ctx, rule.RuleExecutionRequestedEvent{Rule: oldAgeRule})
 
 		// then
-		pubsub.EXPECT().Publish(gomock.Any(), action.TopicName, action.ActionExecutionRequestedEvent{
-			Action: action.UserAction{
+		pubsub.EXPECT().Publish(gomock.Any(), usertask.TopicName, usertask.UserTaskExecutionRequestedEvent{
+			Task: usertask.UserTask{
 				RuleUID:  "OldRule",
-				Reason:   action.ReasonIsOnDemand,
-				OldState: nil,
-				NewState: &u,
+				Reason:   usertask.ReasonIsOnDemand,
+				NewState: u,
 			},
 		}).Return(nil)
 	})
@@ -136,7 +134,7 @@ func TestOnDemand(t *testing.T) {
 		defer sut.OnRuleExecutionRequestedEvent(ctx, rule.RuleExecutionRequestedEvent{Rule: oldAgeRule})
 
 		// then
-		pubsub.EXPECT().Publish(gomock.Any(), action.TopicName, gomock.Any()).Return(nil).Times(2)
+		pubsub.EXPECT().Publish(gomock.Any(), usertask.TopicName, gomock.Any()).Return(nil).Times(2)
 	})
 }
 
@@ -190,7 +188,7 @@ var oldAgeRule = rule.RuleSpec{
 		Description:    "old users segment",
 		UserFilterName: user.FilterOldAge,
 	},
-	Action: nil,
+	ActionName: "email",
 }
 
 func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.RuleService) {
@@ -207,7 +205,7 @@ var youngAgeRule = rule.RuleSpec{
 		Description:    "young users segment",
 		UserFilterName: user.FilterYoungAge,
 	},
-	Action:          nil,
+	ActionName:          "sms",
 	AllowedTriggers: rule.TriggerUserChange,
 }
 

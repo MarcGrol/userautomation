@@ -2,10 +2,9 @@ package endtoend
 
 import (
 	"context"
+	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"testing"
 
-	"github.com/MarcGrol/userautomation/actions/emailaction"
-	"github.com/MarcGrol/userautomation/actions/smsaction"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
@@ -80,7 +79,8 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.Rul
 			Description:    "old users segment",
 			UserFilterName: user.FilterOldAge,
 		},
-		Action: emailaction.NewEmailAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", emailSender),
+		ActionName: "email",
+			//emailaction.NewEmailAction("old rule fired", "Hoi {{.firstname}}, your age is {{.age}}", emailSender),
 	})
 	if err != nil {
 		t.Error(err)
@@ -95,7 +95,8 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.R
 			Description:    "young users segment",
 			UserFilterName: user.FilterYoungAge,
 		},
-		Action:          smsaction.New("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
+		ActionName:"sms",
+			//         smsaction.New("young rule fired for {{.firstname}}: your age is {{.age}}", smsSender),
 		AllowedTriggers: rule.TriggerUserChange,
 	})
 	if err != nil {
@@ -125,9 +126,10 @@ func executeOldAgeRule(ctx context.Context, t *testing.T, ondemandService rule.T
 	}
 }
 
-func setupMocks(t *testing.T) (*emailsending.MockEmailSender, *smssending.MockSmsSender, *gomock.Controller) {
+func setupMocks(t *testing.T) (*emailsending.MockEmailSender, *smssending.MockSmsSender, *pubsub.MockPubsub, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 	mockEmailer := emailsending.NewMockEmailSender(ctrl)
 	mockSmser := smssending.NewMockSmsSender(ctrl)
-	return mockEmailer, mockSmser, ctrl
+	ps := pubsub.NewMockPubsub(ctrl)
+	return mockEmailer, mockSmser, ps, ctrl
 }

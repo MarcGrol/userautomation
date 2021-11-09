@@ -3,8 +3,7 @@ package taskqueue
 import "context"
 
 type Task struct {
-	Method  string
-	URL     string
+	QueueName string
 	Payload string
 }
 
@@ -16,5 +15,5 @@ type TaskQueue interface {
 // This interface is a marker that indicates that service is an task consumer
 type TaskQueueReceiver interface {
 	IamReceivingTasks()
-	OnTaskReceived(c context.Context, task Task) error
+	OnTaskReceived(c context.Context, queueName string, payload string) error
 }

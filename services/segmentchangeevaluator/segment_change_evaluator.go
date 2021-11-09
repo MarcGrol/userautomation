@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
+	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"github.com/MarcGrol/userautomation/infra/taskqueue"
 )
@@ -53,20 +53,19 @@ func (s *segmentChangeEvaluator) OnUserAddedToSegment(ctx context.Context, event
 
 	for _, r := range rules {
 		if r.SegmentSpec.UID == event.SegmentUID {
-			act := action.UserAction{
+			act := usertask.UserTask{
 				RuleUID:  r.UID,
 				Reason:   0, // TODO
-				OldState: nil,
-				NewState: &event.User,
+				NewState: event.User,
 			}
 			payload, err := json.MarshalIndent(act, "", "\t")
 			if err != nil {
 				return err
 			}
 			t := taskqueue.Task{
-				Method:  "POST",
-				URL:     "/api/action",
-				Payload: string(payload),
+				QueueName: "POST",
+				URL:       "/api/action",
+				Payload:   string(payload),
 			}
 			return s.taskqueue.Enqueue(ctx, t)
 		}
@@ -74,6 +73,7 @@ func (s *segmentChangeEvaluator) OnUserAddedToSegment(ctx context.Context, event
 
 	return nil
 }
+
 func (s *segmentChangeEvaluator) OnUserRemovedFromSegment(ctx context.Context, event segment.UserRemovedFromSegmentEvent) error {
 	return fmt.Errorf("not implemented")
 }
