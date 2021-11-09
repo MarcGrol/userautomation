@@ -25,19 +25,19 @@ func New(bodyTemplate string, smsClient smssending.SmsSender) usertask.UserTaskE
 func (ea *SmsAction) Perform(ctx context.Context, a usertask.UserTask) error {
 	log.Printf("email-action: %s", a.String())
 
-	userPhoneNumber, ok := a.NewState.Attributes["phonenumber"].(string)
+	userPhoneNumber, ok := a.User.Attributes["phonenumber"].(string)
 	if !ok {
-		return fmt.Errorf("User %+v has no phonenumber", a.NewState)
+		return fmt.Errorf("User %+v has no phonenumber", a.User)
 	}
 
-	body, err := templating.ApplyTemplate(a.RuleUID+"-sms-body", ea.bodyTemplate, a.NewState.Attributes)
+	body, err := templating.ApplyTemplate(a.RuleSpec.UID+"-sms-body", ea.bodyTemplate, a.User.Attributes)
 	if err != nil {
-		return fmt.Errorf("Error creating sms body for newState %s:%s", a.NewState.UID, err)
+		return fmt.Errorf("Error creating sms body for newState %s:%s", a.User.UID, err)
 	}
 
 	err = ea.smsClient.Send(ctx, userPhoneNumber, body)
 	if err != nil {
-		return fmt.Errorf("Error sending sms for newState %s:%s", a.NewState.UID, err)
+		return fmt.Errorf("Error sending sms for newState %s:%s", a.User.UID, err)
 	}
 
 	return nil

@@ -2,13 +2,11 @@ package segmentchangeevaluator
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
-	"github.com/MarcGrol/userautomation/infra/taskqueue"
 )
 
 type SegmentChangeEvaluator interface {
@@ -22,15 +20,13 @@ type SegmentChangeEvaluator interface {
 type segmentChangeEvaluator struct {
 	segment.UserEventHandler
 	pubsub      pubsub.Pubsub
-	taskqueue   taskqueue.TaskQueue
 	ruleService rule.RuleService
 }
 
-func New(pubsub pubsub.Pubsub, ruleService rule.RuleService, taskqueue taskqueue.TaskQueue) SegmentChangeEvaluator {
+func New(pubsub pubsub.Pubsub, ruleService rule.RuleService) SegmentChangeEvaluator {
 	return &segmentChangeEvaluator{
 		pubsub:      pubsub,
 		ruleService: ruleService,
-		taskqueue:   taskqueue,
 	}
 }
 
@@ -53,20 +49,14 @@ func (s *segmentChangeEvaluator) OnUserAddedToSegment(ctx context.Context, event
 
 	for _, r := range rules {
 		if r.SegmentSpec.UID == event.SegmentUID {
-			act := usertask.UserTask{
-				RuleUID:  r.UID,
-				Reason:   0, // TODO
-				NewState: event.User,
-			}
-			payload, err := json.MarshalIndent(act, "", "\t")
+			err := s.pubsub.Publish(ctx, usertask.TopicName, usertask.UserTask{
+				RuleSpec: r,
+				Reason:   0,
+				User:     event.User,
+			})
 			if err != nil {
-				return err
+				return fmt.Errorf("Error publishing user-task for rule %s and user %s: %s", r.UID, event.User.UID, err)
 			}
-			t := taskqueue.Task{
-				QueueName: r.ActionSpec.Name,
-				Payload:   string(payload),
-			}
-			return s.taskqueue.Enqueue(ctx, t)
 		}
 	}
 

@@ -54,7 +54,7 @@ package endtoend
 //						RuleUID:  "",
 //						Reason:   0,
 //						OldState: nil,
-//						NewState: nil,
+//						User: nil,
 //					},
 //					})
 //			},
@@ -74,7 +74,7 @@ package endtoend
 //						RuleUID:  "",
 //						Reason:   0,
 //						OldState: nil,
-//						NewState: nil,
+//						User: nil,
 //					},
 //					})
 //			},
@@ -115,7 +115,7 @@ package endtoend
 //						RuleUID:  "",
 //						Reason:   0,
 //						OldState: nil,
-//						NewState: nil,
+//						User: nil,
 //					},
 //					})
 //			},
@@ -135,7 +135,7 @@ package endtoend
 //						RuleUID:  "",
 //						Reason:   0,
 //						OldState: nil,
-//						NewState: nil,
+//						User: nil,
 //					},
 //					})
 //			},

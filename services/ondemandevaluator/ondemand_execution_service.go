@@ -23,7 +23,7 @@ type onDemandRuleEvaluator struct {
 	userService user.Management
 }
 
-func New(pubsub pubsub.Pubsub, ruleService rule.RuleService, userService user.Management) OnDemandRuleEvaluator {
+func New(pubsub pubsub.Pubsub,  ruleService rule.RuleService, userService user.Management) OnDemandRuleEvaluator {
 	return &onDemandRuleEvaluator{
 		pubsub:      pubsub,
 		ruleService: ruleService,
@@ -65,16 +65,16 @@ func (s *onDemandRuleEvaluator) OnRuleExecutionRequestedEvent(ctx context.Contex
 	return nil
 }
 
-func (s *onDemandRuleEvaluator) publishActionForUser(ctx context.Context, r rule.RuleSpec, user user.User) error {
+func (s *onDemandRuleEvaluator) publishActionForUser(ctx context.Context, r rule.RuleSpec, u user.User) error {
 	err := s.pubsub.Publish(ctx, usertask.TopicName, usertask.UserTaskExecutionRequestedEvent{
 		Task: usertask.UserTask{
-			RuleUID:  r.UID,
+			RuleSpec: r,
 			Reason:   usertask.ReasonIsOnDemand,
-			NewState: user,
+			User:     u,
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("Error publishing action for rule %s and user %s: %s", r.UID, user.UID, err)
+		return fmt.Errorf("Error publishing task for rule %s and user %s: %s", r.UID, u.UID, err)
 	}
 
 	return nil

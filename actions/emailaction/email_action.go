@@ -27,23 +27,23 @@ func NewEmailAction(subjectTemplate string, bodyTemplate string, emailClient ema
 func (ea *EmailAction) Perform(ctx context.Context, a usertask.UserTask) error {
 	log.Printf("email-action: %s", a.String())
 
-	userEmail, ok := a.NewState.Attributes["emailaddress"].(string)
+	userEmail, ok := a.User.Attributes["emailaddress"].(string)
 	if !ok {
-		return fmt.Errorf("User %+v has no emailaddress", a.NewState)
+		return fmt.Errorf("User %+v has no emailaddress", a.User)
 	}
-	subject, err := templating.ApplyTemplate(a.RuleUID+"-email-subject", ea.subjectTemplate, a.NewState.Attributes)
+	subject, err := templating.ApplyTemplate(a.RuleSpec.UID+"-email-subject", ea.subjectTemplate, a.User.Attributes)
 	if err != nil {
-		return fmt.Errorf("Error creating email subject for newState %s:%s", a.NewState.UID, err)
+		return fmt.Errorf("Error creating email subject for newState %s:%s", a.User.UID, err)
 	}
 
-	body, err := templating.ApplyTemplate(a.RuleUID+"-email-body", ea.bodyTemplate, a.NewState.Attributes)
+	body, err := templating.ApplyTemplate(a.RuleSpec.UID+"-email-body", ea.bodyTemplate, a.User.Attributes)
 	if err != nil {
-		return fmt.Errorf("Error creating email body for newState %s:%s", a.NewState.UID, err)
+		return fmt.Errorf("Error creating email body for newState %s:%s", a.User.UID, err)
 	}
 
 	err = ea.emailClient.Send(ctx, userEmail, subject, body)
 	if err != nil {
-		return fmt.Errorf("Error sending email for newState %s:%s", a.NewState.UID, err)
+		return fmt.Errorf("Error sending email for newState %s:%s", a.User.UID, err)
 	}
 
 	return nil

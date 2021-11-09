@@ -65,7 +65,7 @@ func TestOnDemand(t *testing.T) {
 
 		// given
 		u := createUser(ctx, t, userService, 12)
-		createYoungAgeRule(ctx, t, ruleService)
+		r := createYoungAgeRule(ctx, t, ruleService)
 
 		// when
 		defer sut.OnRuleExecutionRequestedEvent(ctx, rule.RuleExecutionRequestedEvent{Rule: youngAgeRule})
@@ -73,9 +73,9 @@ func TestOnDemand(t *testing.T) {
 		// then
 		pubsub.EXPECT().Publish(gomock.Any(), usertask.TopicName, usertask.UserTaskExecutionRequestedEvent{
 			Task: usertask.UserTask{
-				RuleUID:  "YoungRule",
-				Reason:   usertask.ReasonIsOnDemand,
-				NewState: u,
+				RuleSpec: r,
+				Reason:  usertask.ReasonIsOnDemand,
+				User:    u,
 			},
 		}).Return(nil)
 	})
@@ -105,7 +105,7 @@ func TestOnDemand(t *testing.T) {
 
 		// given
 		u := createUser(ctx, t, userService, 50)
-		createOldAgeRule(ctx, t, ruleService)
+		r := createOldAgeRule(ctx, t, ruleService)
 
 		// when
 		defer sut.OnRuleExecutionRequestedEvent(ctx, rule.RuleExecutionRequestedEvent{Rule: oldAgeRule})
@@ -113,9 +113,9 @@ func TestOnDemand(t *testing.T) {
 		// then
 		pubsub.EXPECT().Publish(gomock.Any(), usertask.TopicName, usertask.UserTaskExecutionRequestedEvent{
 			Task: usertask.UserTask{
-				RuleUID:  "OldRule",
-				Reason:   usertask.ReasonIsOnDemand,
-				NewState: u,
+				RuleSpec: r,
+				Reason:  usertask.ReasonIsOnDemand,
+				User:    u,
 			},
 		}).Return(nil)
 	})
@@ -192,11 +192,12 @@ var oldAgeRule = rule.RuleSpec{
 	ActionSpec: action.ActionSpec{Name: "email"},
 }
 
-func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.RuleService) {
+func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.RuleService) rule.RuleSpec{
 	err := segmentService.Put(ctx, oldAgeRule)
 	if err != nil {
 		t.Error(err)
 	}
+	return oldAgeRule
 }
 
 var youngAgeRule = rule.RuleSpec{
@@ -210,10 +211,11 @@ var youngAgeRule = rule.RuleSpec{
 	AllowedTriggers: rule.TriggerUserChange,
 }
 
-func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.RuleService) {
+func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.RuleService) rule.RuleSpec{
 	err := segmentService.Put(ctx, youngAgeRule)
 	if err != nil {
 		t.Error(err)
 	}
+	return youngAgeRule
 }
 func nothingHappens() {}

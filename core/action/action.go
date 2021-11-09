@@ -2,13 +2,16 @@ package action
 
 import (
 	"context"
-	"github.com/MarcGrol/userautomation/core/usertask"
 )
 
 type ActionSpec struct {
-	Name string
+	Name                string
+	Description             string
+	MandatoryUserAttributes []string
+	ProvidedAttributes      map[string]string
 }
 
-type ActionOnNamer interface {
-	GetActionOnName(ctx context.Context, name string) (usertask.MockUserTaskExecutor, bool)
+type ActionManager interface {
+	GetActionSpecOnName(ctx context.Context, name string) (ActionSpec, bool, error)
+	ListActionSpecs(ctx context.Context) ([]ActionSpec, error)
 }

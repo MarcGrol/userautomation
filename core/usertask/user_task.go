@@ -3,6 +3,7 @@ package usertask
 import (
 	"context"
 	"fmt"
+	"github.com/MarcGrol/userautomation/core/rule"
 
 	"github.com/MarcGrol/userautomation/core/user"
 )
@@ -21,12 +22,12 @@ const (
 )
 
 type UserTask struct {
-	RuleUID  string
-	Reason   ReasonForAction
-	NewState user.User
+	RuleSpec  rule.RuleSpec
+	Reason ReasonForAction
+	User   user.User
 }
 
 func (t UserTask) String() string {
 	return fmt.Sprintf("UserTaskExecutor for rule '%s' triggered action om User '%s' - status: %+v\n",
-		t.RuleUID, t.NewState, t.Reason)
+		t.RuleSpec.UID, t.User, t.Reason)
 }
