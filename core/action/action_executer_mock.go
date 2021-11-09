@@ -2,7 +2,7 @@
 // Source: user_action.go
 
 // Package action is a generated GoMock package.
-package useraction
+package action
 
 import (
 	context "context"

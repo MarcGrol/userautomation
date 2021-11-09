@@ -1,14 +1,14 @@
-package ondemandactioner
+package ondemandevaluator
 
 import (
 	"context"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"testing"
 
+	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
-	"github.com/MarcGrol/userautomation/core/useraction"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -70,10 +70,10 @@ func TestOnDemand(t *testing.T) {
 		defer sut.OnRuleExecutionRequestedEvent(ctx, rule.RuleExecutionRequestedEvent{Rule: youngAgeRule})
 
 		// then
-		pubsub.EXPECT().Publish(gomock.Any(), useraction.TopicName, useraction.ActionExecutionRequestedEvent{
-			Action: useraction.UserAction{
+		pubsub.EXPECT().Publish(gomock.Any(), action.TopicName, action.ActionExecutionRequestedEvent{
+			Action: action.UserAction{
 				RuleUID:  "YoungRule",
-				Reason:   useraction.ReasonIsOnDemand,
+				Reason:   action.ReasonIsOnDemand,
 				OldState: nil,
 				NewState: &u,
 			},
@@ -111,10 +111,10 @@ func TestOnDemand(t *testing.T) {
 		defer sut.OnRuleExecutionRequestedEvent(ctx, rule.RuleExecutionRequestedEvent{Rule: oldAgeRule})
 
 		// then
-		pubsub.EXPECT().Publish(gomock.Any(), useraction.TopicName, useraction.ActionExecutionRequestedEvent{
-			Action: useraction.UserAction{
+		pubsub.EXPECT().Publish(gomock.Any(), action.TopicName, action.ActionExecutionRequestedEvent{
+			Action: action.UserAction{
 				RuleUID:  "OldRule",
-				Reason:   useraction.ReasonIsOnDemand,
+				Reason:   action.ReasonIsOnDemand,
 				OldState: nil,
 				NewState: &u,
 			},
@@ -136,7 +136,7 @@ func TestOnDemand(t *testing.T) {
 		defer sut.OnRuleExecutionRequestedEvent(ctx, rule.RuleExecutionRequestedEvent{Rule: oldAgeRule})
 
 		// then
-		pubsub.EXPECT().Publish(gomock.Any(), useraction.TopicName, gomock.Any()).Return(nil).Times(2)
+		pubsub.EXPECT().Publish(gomock.Any(), action.TopicName, gomock.Any()).Return(nil).Times(2)
 	})
 }
 

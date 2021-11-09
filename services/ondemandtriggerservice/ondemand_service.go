@@ -7,19 +7,23 @@ import (
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
 
-type OnDemandService struct {
+type OnDemandService interface {
+	rule.TriggerRuleExecution
+}
+
+type onDemandService struct {
 	ruleService rule.RuleService
 	pubsub      pubsub.Pubsub
 }
 
-func New(ruleService rule.RuleService, pubsub pubsub.Pubsub) rule.TriggerRuleExecution {
-	return &OnDemandService{
+func New(ruleService rule.RuleService, pubsub pubsub.Pubsub) OnDemandService {
+	return &onDemandService{
 		ruleService: ruleService,
 		pubsub:      pubsub,
 	}
 }
 
-func (s *OnDemandService) Trigger(ctx context.Context, ruleUID string) error {
+func (s *onDemandService) Trigger(ctx context.Context, ruleUID string) error {
 	r, exists, err := s.ruleService.Get(ctx, ruleUID)
 	if err != nil {
 		return fmt.Errorf("Error getting rule with uid %s: %s", ruleUID, err)

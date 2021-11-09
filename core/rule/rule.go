@@ -3,8 +3,8 @@ package rule
 import (
 	"context"
 
+	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/segment"
-	"github.com/MarcGrol/userautomation/core/useraction"
 )
 
 type TriggerAllowed int
@@ -19,7 +19,7 @@ type RuleSpec struct {
 	UID             string
 	Description     string
 	SegmentSpec     segment.SegmentSpec
-	Action          useraction.UserActioner
+	Action          action.UserActioner
 	AllowedTriggers TriggerAllowed
 }
 

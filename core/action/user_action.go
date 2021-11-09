@@ -1,4 +1,4 @@
-package useraction
+package action
 
 import (
 	"context"

@@ -13,11 +13,7 @@ type segmentQuery struct {
 	segmentStore datastore.Datastore
 }
 
-type SegmentManagement interface {
-	segment.Querier
-}
-
-func New(datastore datastore.Datastore, pubsub pubsub.Pubsub) SegmentManagement {
+func New(datastore datastore.Datastore, pubsub pubsub.Pubsub) segment.Querier {
 	return &segmentQuery{
 		segmentStore: datastore,
 	}

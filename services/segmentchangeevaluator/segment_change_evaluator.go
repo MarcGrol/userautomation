@@ -1,17 +1,17 @@
-package segmentchangeactioner
+package segmentchangeevaluator
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
-	"github.com/MarcGrol/userautomation/core/useraction"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"github.com/MarcGrol/userautomation/infra/taskqueue"
 )
 
-type SegmentChangeHandler interface {
+type SegmentChangeEvaluator interface {
 	// Flags that this service is an event consumer
 	pubsub.SubscribingService
 	// Early warning system. This service will break when "users"-module introduces new events.
@@ -19,32 +19,32 @@ type SegmentChangeHandler interface {
 	segment.UserEventHandler
 }
 
-type segmentChangeActioner struct {
+type segmentChangeEvaluator struct {
 	segment.UserEventHandler
 	pubsub      pubsub.Pubsub
 	taskqueue   taskqueue.TaskQueue
 	ruleService rule.RuleService
 }
 
-func New(pubsub pubsub.Pubsub, ruleService rule.RuleService, taskqueue taskqueue.TaskQueue) SegmentChangeHandler {
-	return &segmentChangeActioner{
+func New(pubsub pubsub.Pubsub, ruleService rule.RuleService, taskqueue taskqueue.TaskQueue) SegmentChangeEvaluator {
+	return &segmentChangeEvaluator{
 		pubsub:      pubsub,
 		ruleService: ruleService,
 		taskqueue:   taskqueue,
 	}
 }
 
-func (s *segmentChangeActioner) IamSubscribing() {}
+func (s *segmentChangeEvaluator) IamSubscribing() {}
 
-func (s *segmentChangeActioner) Subscribe(ctx context.Context) error {
+func (s *segmentChangeEvaluator) Subscribe(ctx context.Context) error {
 	return s.pubsub.Subscribe(ctx, segment.UserTopicName, s.OnEvent)
 }
 
-func (s *segmentChangeActioner) OnEvent(ctx context.Context, topic string, event interface{}) error {
+func (s *segmentChangeEvaluator) OnEvent(ctx context.Context, topic string, event interface{}) error {
 	return segment.DispatchUserEvent(ctx, s, topic, event)
 }
 
-func (s *segmentChangeActioner) OnUserAddedToSegment(ctx context.Context, event segment.UserAddedToSegmentEvent) error {
+func (s *segmentChangeEvaluator) OnUserAddedToSegment(ctx context.Context, event segment.UserAddedToSegmentEvent) error {
 	// find actions related to this segment
 	rules, err := s.ruleService.List(ctx)
 	if err != nil {
@@ -53,7 +53,7 @@ func (s *segmentChangeActioner) OnUserAddedToSegment(ctx context.Context, event 
 
 	for _, r := range rules {
 		if r.SegmentSpec.UID == event.SegmentUID {
-			act := useraction.UserAction{
+			act := action.UserAction{
 				RuleUID:  r.UID,
 				Reason:   0, // TODO
 				OldState: nil,
@@ -74,6 +74,6 @@ func (s *segmentChangeActioner) OnUserAddedToSegment(ctx context.Context, event 
 
 	return nil
 }
-func (s *segmentChangeActioner) OnUserRemovedFromSegment(ctx context.Context, event segment.UserRemovedFromSegmentEvent) error {
+func (s *segmentChangeEvaluator) OnUserRemovedFromSegment(ctx context.Context, event segment.UserRemovedFromSegmentEvent) error {
 	return fmt.Errorf("not implemented")
 }

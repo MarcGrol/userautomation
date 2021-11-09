@@ -9,12 +9,6 @@ import (
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
 
-type segmentUserManager struct {
-	segmentWithUsersStore datastore.Datastore
-	userService           user.Management
-	pubsub                pubsub.Pubsub
-}
-
 type SegmentUserManager interface {
 	// Flags that this service is an event consumer
 	pubsub.SubscribingService
@@ -23,6 +17,12 @@ type SegmentUserManager interface {
 	user.EventHandler
 	segment.EventHandler
 	segment.Querier
+}
+
+type segmentUserManager struct {
+	segmentWithUsersStore datastore.Datastore
+	userService           user.Management
+	pubsub                pubsub.Pubsub
 }
 
 func New(datastore datastore.Datastore, userService user.Management, pubsub pubsub.Pubsub) *segmentUserManager {

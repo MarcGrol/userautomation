@@ -1,4 +1,4 @@
-package usercchangehandler
+package usercchangevaluator
 
 import (
 	"context"
@@ -254,14 +254,14 @@ func TestUsingClassicSubTests(t *testing.T) {
 	})
 }
 
-func setup() (rule.RuleService, UserEventHandler) {
+func setup() (rule.RuleService, UserChangeEvaluator) {
 	ruleService := rule.NewRuleManagementStub()
 	return ruleService, New(nil, ruleService)
 }
 
 func noUsers() {}
 
-func userCreated(ctx context.Context, t *testing.T, service UserEventHandler, age int) {
+func userCreated(ctx context.Context, t *testing.T, service UserChangeEvaluator, age int) {
 	err := service.OnUserCreated(ctx, user.CreatedEvent{
 		UserState: user.User{
 			UID: "1",
@@ -293,7 +293,7 @@ func createOtherUser(ctx context.Context, t *testing.T, userService user.Managem
 	}
 }
 
-func userModified(ctx context.Context, t *testing.T, service UserEventHandler, oldAge, nnewAge int) {
+func userModified(ctx context.Context, t *testing.T, service UserChangeEvaluator, oldAge, nnewAge int) {
 	err := service.OnUserModified(ctx, user.ModifiedEvent{
 		OldUserState: user.User{
 			UID: "1",
@@ -319,7 +319,7 @@ func userModified(ctx context.Context, t *testing.T, service UserEventHandler, o
 	}
 }
 
-func userRemoved(ctx context.Context, t *testing.T, service UserEventHandler) {
+func userRemoved(ctx context.Context, t *testing.T, service UserChangeEvaluator) {
 	err := service.OnUserRemoved(ctx, user.RemovedEvent{
 		UserState: user.User{
 			UID: "1",
