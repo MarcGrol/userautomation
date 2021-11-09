@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/MarcGrol/userautomation/actions/templating"
-	"github.com/MarcGrol/userautomation/core/action"
+	"github.com/MarcGrol/userautomation/core/useraction"
 	"github.com/MarcGrol/userautomation/integrations/emailsending"
 )
 
@@ -16,7 +16,7 @@ type EmailAction struct {
 	emailClient     emailsending.EmailSender
 }
 
-func NewEmailAction(subjectTemplate string, bodyTemplate string, emailClient emailsending.EmailSender) action.UserActioner {
+func NewEmailAction(subjectTemplate string, bodyTemplate string, emailClient emailsending.EmailSender) useraction.UserActioner {
 	return &EmailAction{
 		subjectTemplate: subjectTemplate,
 		bodyTemplate:    bodyTemplate,
@@ -24,7 +24,7 @@ func NewEmailAction(subjectTemplate string, bodyTemplate string, emailClient ema
 	}
 }
 
-func (ea *EmailAction) Perform(ctx context.Context, a action.UserAction) error {
+func (ea *EmailAction) Perform(ctx context.Context, a useraction.UserAction) error {
 	log.Printf("email-action: %s", a.String())
 
 	userEmail, ok := a.NewState.Attributes["emailaddress"].(string)

@@ -5,10 +5,10 @@ import (
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"testing"
 
-	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
+	"github.com/MarcGrol/userautomation/core/useraction"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -70,10 +70,10 @@ func TestOnDemand(t *testing.T) {
 		defer sut.OnRuleExecutionRequestedEvent(ctx, rule.RuleExecutionRequestedEvent{Rule: youngAgeRule})
 
 		// then
-		pubsub.EXPECT().Publish(gomock.Any(), action.TopicName, action.ActionExecutionRequestedEvent{
-			Action: action.UserAction{
+		pubsub.EXPECT().Publish(gomock.Any(), useraction.TopicName, useraction.ActionExecutionRequestedEvent{
+			Action: useraction.UserAction{
 				RuleUID:  "YoungRule",
-				Reason:   action.ReasonIsOnDemand,
+				Reason:   useraction.ReasonIsOnDemand,
 				OldState: nil,
 				NewState: &u,
 			},
@@ -111,10 +111,10 @@ func TestOnDemand(t *testing.T) {
 		defer sut.OnRuleExecutionRequestedEvent(ctx, rule.RuleExecutionRequestedEvent{Rule: oldAgeRule})
 
 		// then
-		pubsub.EXPECT().Publish(gomock.Any(), action.TopicName, action.ActionExecutionRequestedEvent{
-			Action: action.UserAction{
+		pubsub.EXPECT().Publish(gomock.Any(), useraction.TopicName, useraction.ActionExecutionRequestedEvent{
+			Action: useraction.UserAction{
 				RuleUID:  "OldRule",
-				Reason:   action.ReasonIsOnDemand,
+				Reason:   useraction.ReasonIsOnDemand,
 				OldState: nil,
 				NewState: &u,
 			},
@@ -136,13 +136,13 @@ func TestOnDemand(t *testing.T) {
 		defer sut.OnRuleExecutionRequestedEvent(ctx, rule.RuleExecutionRequestedEvent{Rule: oldAgeRule})
 
 		// then
-		pubsub.EXPECT().Publish(gomock.Any(), action.TopicName, gomock.Any()).Return(nil).Times(2)
+		pubsub.EXPECT().Publish(gomock.Any(), useraction.TopicName, gomock.Any()).Return(nil).Times(2)
 	})
 }
 
-func setup(t *testing.T) (*rule.SegmentRuleManagementStub, *user.UserManagementStub, *pubsub.MockPubsub, *gomock.Controller) {
+func setup(t *testing.T) (*rule.RuleManagementStub, *user.UserManagementStub, *pubsub.MockPubsub, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
-	ruleService := rule.NewUserSegmentRuleManagementStub()
+	ruleService := rule.NewRuleManagementStub()
 	userService := user.NewUserManagementStub()
 	pubsubMock := pubsub.NewMockPubsub(ctrl)
 
@@ -183,9 +183,9 @@ func createOtherUser(ctx context.Context, t *testing.T, userService user.Managem
 	}
 }
 
-var oldAgeRule = rule.UserSegmentRule{
+var oldAgeRule = rule.RuleSpec{
 	UID: "OldRule",
-	UserSegment: segment.UserSegment{
+	SegmentSpec: segment.SegmentSpec{
 		UID:            "old users segment",
 		Description:    "old users segment",
 		UserFilterName: user.FilterOldAge,
@@ -193,16 +193,16 @@ var oldAgeRule = rule.UserSegmentRule{
 	Action: nil,
 }
 
-func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.SegmentRuleService) {
+func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.RuleService) {
 	err := segmentService.Put(ctx, oldAgeRule)
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-var youngAgeRule = rule.UserSegmentRule{
+var youngAgeRule = rule.RuleSpec{
 	UID: "YoungRule",
-	UserSegment: segment.UserSegment{
+	SegmentSpec: segment.SegmentSpec{
 		UID:            "young users segment",
 		Description:    "young users segment",
 		UserFilterName: user.FilterYoungAge,
@@ -211,7 +211,7 @@ var youngAgeRule = rule.UserSegmentRule{
 	AllowedTriggers: rule.TriggerUserChange,
 }
 
-func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.SegmentRuleService) {
+func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.RuleService) {
 	err := segmentService.Put(ctx, youngAgeRule)
 	if err != nil {
 		t.Error(err)

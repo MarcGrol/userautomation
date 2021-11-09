@@ -71,24 +71,24 @@ func TestOnDemand(t *testing.T) {
 	})
 }
 
-func setup(t *testing.T) (*rule.SegmentRuleManagementStub, *pubsub.MockPubsub, *gomock.Controller) {
+func setup(t *testing.T) (*rule.RuleManagementStub, *pubsub.MockPubsub, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
-	ruleService := rule.NewUserSegmentRuleManagementStub()
+	ruleService := rule.NewRuleManagementStub()
 	pubsubMock := pubsub.NewMockPubsub(ctrl)
 
 	return ruleService, pubsubMock, ctrl
 }
 
-func createRule(ctx context.Context, t *testing.T, segmentService rule.SegmentRuleService, r rule.UserSegmentRule) {
+func createRule(ctx context.Context, t *testing.T, segmentService rule.RuleService, r rule.RuleSpec) {
 	err := segmentService.Put(ctx, r)
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-var oldAgeRule = rule.UserSegmentRule{
+var oldAgeRule = rule.RuleSpec{
 	UID: "OldRule",
-	UserSegment: segment.UserSegment{
+	SegmentSpec: segment.SegmentSpec{
 		UID:            "old users segment",
 		Description:    "old users segment",
 		UserFilterName: user.FilterOldAge,
@@ -96,9 +96,9 @@ var oldAgeRule = rule.UserSegmentRule{
 	Action: nil,
 }
 
-var youngAgeRule = rule.UserSegmentRule{
+var youngAgeRule = rule.RuleSpec{
 	UID: "YoungRule",
-	UserSegment: segment.UserSegment{
+	SegmentSpec: segment.SegmentSpec{
 		UID:            "young users segment",
 		Description:    "young users segment",
 		UserFilterName: user.FilterYoungAge,

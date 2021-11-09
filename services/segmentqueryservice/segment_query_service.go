@@ -23,15 +23,15 @@ func New(datastore datastore.Datastore, pubsub pubsub.Pubsub) SegmentManagement 
 	}
 }
 
-func (s *segmentQuery) GetUsersForSegment(ctx context.Context, userSegmentUID string) ([]user.User, error) {
+func (s *segmentQuery) GetUsersForSegment(ctx context.Context, segmentUID string) ([]user.User, error) {
 	users := []user.User{}
 	err := s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
-		item, exists, err := s.segmentStore.Get(ctx, userSegmentUID)
+		item, exists, err := s.segmentStore.Get(ctx, segmentUID)
 		if err != nil {
 			return err
 		}
 		if !exists {
-			return fmt.Errorf("Segment with uid %s does not exist", userSegmentUID)
+			return fmt.Errorf("SegmentSpec with uid %s does not exist", segmentUID)
 		}
 
 		swu := item.(segment.SegmentWithUsers)

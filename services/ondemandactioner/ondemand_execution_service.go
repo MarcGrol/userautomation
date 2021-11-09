@@ -3,9 +3,9 @@ package ondemandactioner
 import (
 	"context"
 	"fmt"
-	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/user"
+	"github.com/MarcGrol/userautomation/core/useraction"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
 
@@ -16,11 +16,11 @@ type onDemandRuleExecutor struct {
 	// In this case this service should also introduce these new events.
 	rule.TriggerEventHandler
 	pubsub      pubsub.Pubsub
-	ruleService rule.SegmentRuleService
+	ruleService rule.RuleService
 	userService user.Management
 }
 
-func New(pubsub pubsub.Pubsub, ruleService rule.SegmentRuleService, userService user.Management) rule.TriggerEventHandler {
+func New(pubsub pubsub.Pubsub, ruleService rule.RuleService, userService user.Management) rule.TriggerEventHandler {
 	return &onDemandRuleExecutor{
 		pubsub:      pubsub,
 		ruleService: ruleService,
@@ -55,7 +55,7 @@ func (s *onDemandRuleExecutor) OnRuleExecutionRequestedEvent(ctx context.Context
 		return fmt.Errorf("Rule with uid %s does not exist: %s", event.Rule.UID, err)
 	}
 
-	users, err := s.userService.QueryByName(ctx, r.UserSegment.UserFilterName)
+	users, err := s.userService.QueryByName(ctx, r.SegmentSpec.UserFilterName)
 	if err != nil {
 		return fmt.Errorf("Error querying users: %s", err)
 	}
@@ -70,11 +70,11 @@ func (s *onDemandRuleExecutor) OnRuleExecutionRequestedEvent(ctx context.Context
 	return nil
 }
 
-func (s *onDemandRuleExecutor) publishActionForUser(ctx context.Context, r rule.UserSegmentRule, user user.User) error {
-	err := s.pubsub.Publish(ctx, action.TopicName, action.ActionExecutionRequestedEvent{
-		Action: action.UserAction{
+func (s *onDemandRuleExecutor) publishActionForUser(ctx context.Context, r rule.RuleSpec, user user.User) error {
+	err := s.pubsub.Publish(ctx, useraction.TopicName, useraction.ActionExecutionRequestedEvent{
+		Action: useraction.UserAction{
 			RuleUID:  r.UID,
-			Reason:   action.ReasonIsOnDemand,
+			Reason:   useraction.ReasonIsOnDemand,
 			OldState: nil,
 			NewState: &user,
 		},

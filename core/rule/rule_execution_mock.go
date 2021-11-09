@@ -11,7 +11,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockSegmentRuleService is a mock of SegmentRuleService interface.
+// MockSegmentRuleService is a mock of RuleService interface.
 type MockSegmentRuleService struct {
 	ctrl     *gomock.Controller
 	recorder *MockSegmentRuleServiceMockRecorder
@@ -35,7 +35,7 @@ func (m *MockSegmentRuleService) EXPECT() *MockSegmentRuleServiceMockRecorder {
 }
 
 // Put mocks base method.
-func (m *MockSegmentRuleService) Put(ctx context.Context, segmentRule UserSegmentRule) error {
+func (m *MockSegmentRuleService) Put(ctx context.Context, segmentRule RuleSpec) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Put", ctx, segmentRule)
 	ret0, _ := ret[0].(error)
@@ -49,10 +49,10 @@ func (mr *MockSegmentRuleServiceMockRecorder) Put(ctx, segmentRule interface{}) 
 }
 
 // Get mocks base method.
-func (m *MockSegmentRuleService) Get(ctx context.Context, ruleUID string) (UserSegmentRule, bool, error) {
+func (m *MockSegmentRuleService) Get(ctx context.Context, ruleUID string) (RuleSpec, bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", ctx, ruleUID)
-	ret0, _ := ret[0].(UserSegmentRule)
+	ret0, _ := ret[0].(RuleSpec)
 	ret1, _ := ret[1].(bool)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
@@ -79,10 +79,10 @@ func (mr *MockSegmentRuleServiceMockRecorder) Remove(ctx, ruleUID interface{}) *
 }
 
 // List mocks base method.
-func (m *MockSegmentRuleService) List(ctx context.Context) ([]UserSegmentRule, error) {
+func (m *MockSegmentRuleService) List(ctx context.Context) ([]RuleSpec, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "List", ctx)
-	ret0, _ := ret[0].([]UserSegmentRule)
+	ret0, _ := ret[0].([]RuleSpec)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -93,7 +93,7 @@ func (mr *MockSegmentRuleServiceMockRecorder) List(ctx interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockSegmentRuleService)(nil).List), ctx)
 }
 
-// MockSegmentRuleExecutionTrigger is a mock of SegmentRuleExecutionTrigger interface.
+// MockSegmentRuleExecutionTrigger is a mock of TriggerRuleExecution interface.
 type MockSegmentRuleExecutionTrigger struct {
 	ctrl     *gomock.Controller
 	recorder *MockSegmentRuleExecutionTriggerMockRecorder

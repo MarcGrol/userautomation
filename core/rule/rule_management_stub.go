@@ -4,33 +4,33 @@ import (
 	"context"
 )
 
-type SegmentRuleManagementStub struct {
-	Rules map[string]UserSegmentRule
+type RuleManagementStub struct {
+	Rules map[string]RuleSpec
 }
 
-func NewUserSegmentRuleManagementStub() *SegmentRuleManagementStub {
-	return &SegmentRuleManagementStub{
-		Rules: map[string]UserSegmentRule{},
+func NewRuleManagementStub() *RuleManagementStub {
+	return &RuleManagementStub{
+		Rules: map[string]RuleSpec{},
 	}
 }
 
-func (s *SegmentRuleManagementStub) Put(ctx context.Context, r UserSegmentRule) error {
+func (s *RuleManagementStub) Put(ctx context.Context, r RuleSpec) error {
 	s.Rules[r.UID] = r
 	return nil
 }
 
-func (s *SegmentRuleManagementStub) Remove(ctx context.Context, uid string) error {
+func (s *RuleManagementStub) Remove(ctx context.Context, uid string) error {
 	delete(s.Rules, uid)
 	return nil
 }
 
-func (s *SegmentRuleManagementStub) Get(ctx context.Context, uid string) (UserSegmentRule, bool, error) {
+func (s *RuleManagementStub) Get(ctx context.Context, uid string) (RuleSpec, bool, error) {
 	item, exists := s.Rules[uid]
 	return item, exists, nil
 }
 
-func (s *SegmentRuleManagementStub) List(ctx context.Context) ([]UserSegmentRule, error) {
-	items := []UserSegmentRule{}
+func (s *RuleManagementStub) List(ctx context.Context) ([]RuleSpec, error) {
+	items := []RuleSpec{}
 	for _, i := range s.Rules {
 		items = append(items, i)
 	}

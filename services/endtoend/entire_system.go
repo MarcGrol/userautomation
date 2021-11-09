@@ -16,16 +16,16 @@ import (
 
 type EntireSystem interface {
 	GetUserService() user.Management
-	GetRuleService() rule.SegmentRuleService
+	GetRuleService() rule.RuleService
 	GetSegmentService() segmentmanagement.SegmentManagement
-	GetOnDemandExecutionService() rule.SegmentRuleExecutionTrigger
+	GetOnDemandExecutionService() rule.TriggerRuleExecution
 }
 
 type entireSystemWiredTogether struct {
 	userService     user.Management
-	ruleService     rule.SegmentRuleService
+	ruleService     rule.RuleService
 	segmentService  segmentmanagement.SegmentManagement
-	ondemandService rule.SegmentRuleExecutionTrigger
+	ondemandService rule.TriggerRuleExecution
 }
 
 func New(ctx context.Context) EntireSystem {
@@ -57,7 +57,7 @@ func (s *entireSystemWiredTogether) GetUserService() user.Management {
 	return s.userService
 }
 
-func (s *entireSystemWiredTogether) GetRuleService() rule.SegmentRuleService {
+func (s *entireSystemWiredTogether) GetRuleService() rule.RuleService {
 	return s.ruleService
 }
 
@@ -65,6 +65,6 @@ func (s *entireSystemWiredTogether) GetSegmentService() segmentmanagement.Segmen
 	return s.segmentService
 }
 
-func (s *entireSystemWiredTogether) GetOnDemandExecutionService() rule.SegmentRuleExecutionTrigger {
+func (s *entireSystemWiredTogether) GetOnDemandExecutionService() rule.TriggerRuleExecution {
 	return s.ondemandService
 }

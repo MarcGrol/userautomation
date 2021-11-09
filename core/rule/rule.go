@@ -3,8 +3,8 @@ package rule
 import (
 	"context"
 
-	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/segment"
+	"github.com/MarcGrol/userautomation/core/useraction"
 )
 
 type TriggerAllowed int
@@ -15,22 +15,22 @@ const (
 	TriggerUserChange
 )
 
-type UserSegmentRule struct {
+type RuleSpec struct {
 	UID             string
 	Description     string
-	UserSegment     segment.UserSegment
-	Action          action.UserActioner
+	SegmentSpec     segment.SegmentSpec
+	Action          useraction.UserActioner
 	AllowedTriggers TriggerAllowed
 }
 
-type SegmentRuleService interface {
-	Put(ctx context.Context, segmentRule UserSegmentRule) error
-	Get(ctx context.Context, ruleUID string) (UserSegmentRule, bool, error)
+type RuleService interface {
+	Put(ctx context.Context, segmentRule RuleSpec) error
+	Get(ctx context.Context, ruleUID string) (RuleSpec, bool, error)
 	Remove(ctx context.Context, ruleUID string) error
-	List(ctx context.Context) ([]UserSegmentRule, error)
+	List(ctx context.Context) ([]RuleSpec, error)
 }
 
-//go:generate mockgen -source=rule.go -destination=rule_execution_mock.go -package=rule SegmentRuleExecutionTrigger
-type SegmentRuleExecutionTrigger interface {
+//go:generate mockgen -source=rule.go -destination=rule_execution_mock.go -package=rule TriggerRuleExecution
+type TriggerRuleExecution interface {
 	Trigger(ctx context.Context, ruleUID string) error
 }

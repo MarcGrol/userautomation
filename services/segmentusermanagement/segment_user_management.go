@@ -80,8 +80,8 @@ func (s *segmentUserManager) OnSegmentCreated(ctx context.Context, event segment
 		}
 
 		err = s.segmentWithUsersStore.Put(ctx, segm.UID, segment.SegmentWithUsers{
-			Segment: segm,
-			Users:   userMap,
+			SegmentSpec: segm,
+			Users:       userMap,
 		})
 		if err != nil {
 			return err
@@ -103,7 +103,7 @@ func (s *segmentUserManager) OnSegmentModified(ctx context.Context, event segmen
 			return fmt.Errorf("SegmentWithUsers with uid %s does not exist", segm.UID)
 		}
 		swu := item.(segment.SegmentWithUsers)
-		swu.Segment = segm
+		swu.SegmentSpec = segm
 
 		{
 			// Remove existing users that nom longer match segment
@@ -189,18 +189,18 @@ func (s *segmentUserManager) OnUserCreated(ctx context.Context, event user.Creat
 		for _, item := range items {
 			swu := item.(segment.SegmentWithUsers)
 
-			isApplicable, err := swu.Segment.IsApplicableForUser(ctx, u)
+			isApplicable, err := swu.SegmentSpec.IsApplicableForUser(ctx, u)
 			if err != nil {
 				return err
 			}
 			if isApplicable {
 				swu.Users[u.UID] = u
-				err := s.segmentWithUsersStore.Put(ctx, swu.Segment.UID, swu)
+				err := s.segmentWithUsersStore.Put(ctx, swu.SegmentSpec.UID, swu)
 				if err != nil {
 					return err
 				}
 				err = s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserAddedToSegmentEvent{
-					SegmentUID: swu.Segment.UID,
+					SegmentUID: swu.SegmentSpec.UID,
 					User:       u,
 				})
 				if err != nil {
@@ -226,7 +226,7 @@ func (s *segmentUserManager) OnUserModified(ctx context.Context, event user.Modi
 			swu := item.(segment.SegmentWithUsers)
 			_, found := swu.Users[u.UID]
 
-			isApplicable, err := swu.Segment.IsApplicableForUser(ctx, u)
+			isApplicable, err := swu.SegmentSpec.IsApplicableForUser(ctx, u)
 			if err != nil {
 				return err
 			}
@@ -234,7 +234,7 @@ func (s *segmentUserManager) OnUserModified(ctx context.Context, event user.Modi
 				delete(swu.Users, u.UID)
 
 				err := s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserRemovedFromSegmentEvent{
-					SegmentUID: swu.Segment.UID,
+					SegmentUID: swu.SegmentSpec.UID,
 					User:       u,
 				})
 				if err != nil {
@@ -243,14 +243,14 @@ func (s *segmentUserManager) OnUserModified(ctx context.Context, event user.Modi
 			} else if isApplicable {
 				swu.Users[u.UID] = u
 				err := s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserAddedToSegmentEvent{
-					SegmentUID: swu.Segment.UID,
+					SegmentUID: swu.SegmentSpec.UID,
 					User:       u,
 				})
 				if err != nil {
 					return err
 				}
 			}
-			err = s.segmentWithUsersStore.Put(ctx, swu.Segment.UID, swu)
+			err = s.segmentWithUsersStore.Put(ctx, swu.SegmentSpec.UID, swu)
 			if err != nil {
 				return err
 			}
@@ -273,12 +273,12 @@ func (s *segmentUserManager) OnUserRemoved(ctx context.Context, event user.Remov
 			swu := item.(segment.SegmentWithUsers)
 
 			delete(swu.Users, u.UID)
-			err = s.segmentWithUsersStore.Put(ctx, swu.Segment.UID, swu)
+			err = s.segmentWithUsersStore.Put(ctx, swu.SegmentSpec.UID, swu)
 			if err != nil {
 				return err
 			}
 			err := s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserRemovedFromSegmentEvent{
-				SegmentUID: swu.Segment.UID,
+				SegmentUID: swu.SegmentSpec.UID,
 				User:       u,
 			})
 			if err != nil {
@@ -296,7 +296,7 @@ func (s *segmentUserManager) GetUsersForSegment(ctx context.Context, segmentUID 
 		return nil, err
 	}
 	if !exists {
-		return nil, fmt.Errorf("Segment with uid %s does not exist", segmentUID)
+		return nil, fmt.Errorf("SegmentSpec with uid %s does not exist", segmentUID)
 	}
 	swu := item.(segment.SegmentWithUsers)
 

@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
+	"github.com/MarcGrol/userautomation/core/useraction"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"github.com/MarcGrol/userautomation/infra/taskqueue"
 )
@@ -23,10 +23,10 @@ type segmentChangeActioner struct {
 	segment.UserEventHandler
 	pubsub      pubsub.Pubsub
 	taskqueue   taskqueue.TaskQueue
-	ruleService rule.SegmentRuleService
+	ruleService rule.RuleService
 }
 
-func New(pubsub pubsub.Pubsub, ruleService rule.SegmentRuleService, taskqueue taskqueue.TaskQueue) SegmentChangeHandler {
+func New(pubsub pubsub.Pubsub, ruleService rule.RuleService, taskqueue taskqueue.TaskQueue) SegmentChangeHandler {
 	return &segmentChangeActioner{
 		pubsub:      pubsub,
 		ruleService: ruleService,
@@ -52,8 +52,8 @@ func (s *segmentChangeActioner) OnUserAddedToSegment(ctx context.Context, event 
 	}
 
 	for _, r := range rules {
-		if r.UserSegment.UID == event.SegmentUID {
-			act := action.UserAction{
+		if r.SegmentSpec.UID == event.SegmentUID {
+			act := useraction.UserAction{
 				RuleUID:  r.UID,
 				Reason:   0, // TODO
 				OldState: nil,

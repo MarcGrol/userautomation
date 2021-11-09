@@ -16,7 +16,7 @@ type TriggerEventHandler interface {
 }
 
 type RuleExecutionRequestedEvent struct {
-	Rule UserSegmentRule
+	Rule RuleSpec
 }
 
 func DispatchTriggerEvent(ctx context.Context, handler TriggerEventHandler, topic string, event interface{}) error {

@@ -78,7 +78,7 @@ func setupMocks(t *testing.T) (*datastore.DatastoreStub, *pubsub.PubsubStub, *go
 	return storeSub, ps, ctrl
 }
 
-var initialSegment = segment.UserSegment{
+var initialSegment = segment.SegmentSpec{
 	UID:            "MySegment",
 	Description:    "young",
 	UserFilterName: user.FilterYoungAge,
@@ -91,7 +91,7 @@ func createSegment(ctx context.Context, t *testing.T, sut SegmentManagement) {
 	}
 }
 
-var modifiedSegment = segment.UserSegment{
+var modifiedSegment = segment.SegmentSpec{
 	UID:            "MySegment",
 	Description:    "old",
 	UserFilterName: user.FilterOldAge,
@@ -118,7 +118,7 @@ func existsSegment(ctx context.Context, t *testing.T, sut SegmentManagement) boo
 	return exists
 }
 
-func getSegment(ctx context.Context, t *testing.T, sut SegmentManagement) segment.UserSegment {
+func getSegment(ctx context.Context, t *testing.T, sut SegmentManagement) segment.SegmentSpec {
 	segm, exists, err := sut.Get(ctx, initialSegment.UID)
 	if err != nil || !exists {
 		t.Error(err)
@@ -126,7 +126,7 @@ func getSegment(ctx context.Context, t *testing.T, sut SegmentManagement) segmen
 	return segm
 }
 
-func listSegment(ctx context.Context, t *testing.T, sut SegmentManagement) []segment.UserSegment {
+func listSegment(ctx context.Context, t *testing.T, sut SegmentManagement) []segment.SegmentSpec {
 	segments, err := sut.List(ctx)
 	if err != nil {
 		t.Error(err)

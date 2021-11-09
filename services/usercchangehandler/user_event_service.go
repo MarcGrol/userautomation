@@ -3,16 +3,16 @@ package usercchangehandler
 import (
 	"context"
 	"fmt"
-	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/user"
+	"github.com/MarcGrol/userautomation/core/useraction"
 
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
 
 type userEventHandler struct {
 	pubsub      pubsub.Pubsub
-	ruleService rule.SegmentRuleService
+	ruleService rule.RuleService
 }
 
 type UserEventHandler interface {
@@ -23,7 +23,7 @@ type UserEventHandler interface {
 	user.EventHandler
 }
 
-func New(pubsub pubsub.Pubsub, ruleService rule.SegmentRuleService) UserEventHandler {
+func New(pubsub pubsub.Pubsub, ruleService rule.RuleService) UserEventHandler {
 	return &userEventHandler{
 		pubsub:      pubsub,
 		ruleService: ruleService,
@@ -49,7 +49,7 @@ func (s *userEventHandler) OnUserCreated(ctx context.Context, event user.Created
 	}
 
 	for _, r := range ruleSlice {
-		executed, err := executeRuleForUser(ctx, r, u, action.ReasonIsUserAddedToSegment)
+		executed, err := executeRuleForUser(ctx, r, u, useraction.ReasonIsUserAddedToSegment)
 		if err != nil {
 			return fmt.Errorf("Error executing r %s for user %s: %s", r.UID, u.UID, err)
 		}
@@ -70,20 +70,20 @@ func (s *userEventHandler) OnUserModified(ctx context.Context, event user.Modifi
 	}
 
 	for _, rule := range ruleSlice {
-		ruleApplicableBefore, err := rule.UserSegment.IsApplicableForUser(ctx, oldState)
+		ruleApplicableBefore, err := rule.SegmentSpec.IsApplicableForUser(ctx, oldState)
 		if err != nil {
 			return fmt.Errorf("Error determining if rule %s is applicable for user %s: %s", rule.UID, newState.UID, err)
 		}
 
-		ruleApplicableAfter, err := rule.UserSegment.IsApplicableForUser(ctx, newState)
+		ruleApplicableAfter, err := rule.SegmentSpec.IsApplicableForUser(ctx, newState)
 		if err != nil {
 			return fmt.Errorf("Error determining if rule %s is applicable for user %s: %s", rule.UID, newState.UID, err)
 		}
 
 		if !ruleApplicableBefore && ruleApplicableAfter {
-			err = rule.Action.Perform(ctx, action.UserAction{
+			err = rule.Action.Perform(ctx, useraction.UserAction{
 				RuleUID:  rule.UID,
-				Reason:   action.ReasonIsUserAddedToSegment,
+				Reason:   useraction.ReasonIsUserAddedToSegment,
 				OldState: &oldState,
 				NewState: &newState,
 			})
@@ -105,13 +105,13 @@ func (s *userEventHandler) OnUserRemoved(ctx context.Context, event user.Removed
 	return nil
 }
 
-func (s *userEventHandler) onActionPerformed(ctx context.Context, rule rule.UserSegmentRule, user user.User) {
+func (s *userEventHandler) onActionPerformed(ctx context.Context, rule rule.RuleSpec, user user.User) {
 	// Should we keep track that this rule has fired for this user?
 	// To prevent event being fired again when user re-enters again within particular time interval?
 }
 
-func executeRuleForUser(ctx context.Context, r rule.UserSegmentRule, user user.User, triggerType action.ReasonForAction) (bool, error) {
-	applicable, err := r.UserSegment.IsApplicableForUser(ctx, user)
+func executeRuleForUser(ctx context.Context, r rule.RuleSpec, user user.User, triggerType useraction.ReasonForAction) (bool, error) {
+	applicable, err := r.SegmentSpec.IsApplicableForUser(ctx, user)
 	if err != nil {
 		return false, fmt.Errorf("Error determining if rule %s is applicable for u %s: %s", r.UID, user.UID, err)
 	}
@@ -120,7 +120,7 @@ func executeRuleForUser(ctx context.Context, r rule.UserSegmentRule, user user.U
 		return false, nil
 	}
 
-	err = r.Action.Perform(ctx, action.UserAction{
+	err = r.Action.Perform(ctx, useraction.UserAction{
 		RuleUID:  r.UID,
 		Reason:   triggerType,
 		OldState: nil,

@@ -14,7 +14,7 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func setupSut(ctx context.Context) (rule.SegmentRuleService, user.Management) {
+func setupSut(ctx context.Context) (rule.RuleService, user.Management) {
 	sut := New(ctx)
 	return sut.GetRuleService(), sut.GetUserService()
 }
@@ -71,11 +71,11 @@ func removeUser(ctx context.Context, t *testing.T, userService user.Management) 
 	}
 }
 
-func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.SegmentRuleService,
+func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.RuleService,
 	emailSender emailsending.EmailSender) {
-	err := segmentService.Put(ctx, rule.UserSegmentRule{
+	err := segmentService.Put(ctx, rule.RuleSpec{
 		UID: "OldRule",
-		UserSegment: segment.UserSegment{
+		SegmentSpec: segment.SegmentSpec{
 			UID:            "old users segment",
 			Description:    "old users segment",
 			UserFilterName: user.FilterOldAge,
@@ -87,10 +87,10 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.Seg
 	}
 }
 
-func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.SegmentRuleService, smsSender smssending.SmsSender) {
-	err := segmentService.Put(ctx, rule.UserSegmentRule{
+func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.RuleService, smsSender smssending.SmsSender) {
+	err := segmentService.Put(ctx, rule.RuleSpec{
 		UID: "YoungRule",
-		UserSegment: segment.UserSegment{
+		SegmentSpec: segment.SegmentSpec{
 			UID:            "young users segment",
 			Description:    "young users segment",
 			UserFilterName: user.FilterYoungAge,
@@ -103,7 +103,7 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.S
 	}
 }
 
-func executeYoungAgeRuleReturnError(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionTrigger) error {
+func executeYoungAgeRuleReturnError(ctx context.Context, t *testing.T, ondemandService rule.TriggerRuleExecution) error {
 	err := ondemandService.Trigger(ctx, "YoungRule")
 	if err != nil {
 		return err
@@ -111,14 +111,14 @@ func executeYoungAgeRuleReturnError(ctx context.Context, t *testing.T, ondemandS
 	return nil
 }
 
-func executeYoungAgeRule(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionTrigger) {
+func executeYoungAgeRule(ctx context.Context, t *testing.T, ondemandService rule.TriggerRuleExecution) {
 	err := executeYoungAgeRuleReturnError(ctx, t, ondemandService)
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-func executeOldAgeRule(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionTrigger) {
+func executeOldAgeRule(ctx context.Context, t *testing.T, ondemandService rule.TriggerRuleExecution) {
 	err := ondemandService.Trigger(ctx, "OldRule")
 	if err != nil {
 		t.Error(err)

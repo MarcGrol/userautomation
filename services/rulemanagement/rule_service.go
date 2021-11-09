@@ -8,24 +8,24 @@ import (
 	"github.com/MarcGrol/userautomation/infra/datastore"
 )
 
-type userSegmentRuleService struct {
+type ruleService struct {
 	segmentStore datastore.Datastore
 }
 
-func New(segmentStore datastore.Datastore) rule.SegmentRuleService {
-	return &userSegmentRuleService{
+func New(segmentStore datastore.Datastore) rule.RuleService {
+	return &ruleService{
 		segmentStore: segmentStore,
 	}
 }
 
-func (s *userSegmentRuleService) Put(ctx context.Context, rule rule.UserSegmentRule) error {
+func (s *ruleService) Put(ctx context.Context, rule rule.RuleSpec) error {
 	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		return s.segmentStore.Put(ctx, rule.UID, rule)
 	})
 }
 
-func (s *userSegmentRuleService) Get(ctx context.Context, ruleUID string) (rule.UserSegmentRule, bool, error) {
-	r := rule.UserSegmentRule{}
+func (s *ruleService) Get(ctx context.Context, ruleUID string) (rule.RuleSpec, bool, error) {
+	r := rule.RuleSpec{}
 	ruleExists := false
 	var err error
 
@@ -37,7 +37,7 @@ func (s *userSegmentRuleService) Get(ctx context.Context, ruleUID string) (rule.
 		if !exists {
 			return fmt.Errorf("Rule with uid %s not found", ruleUID)
 		}
-		r = item.(rule.UserSegmentRule)
+		r = item.(rule.RuleSpec)
 		ruleExists = exists
 
 		return nil
@@ -49,14 +49,14 @@ func (s *userSegmentRuleService) Get(ctx context.Context, ruleUID string) (rule.
 	return r, ruleExists, nil
 }
 
-func (s *userSegmentRuleService) Remove(ctx context.Context, ruleUID string) error {
+func (s *ruleService) Remove(ctx context.Context, ruleUID string) error {
 	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		return s.segmentStore.Remove(ctx, ruleUID)
 	})
 }
 
-func (s *userSegmentRuleService) List(ctx context.Context) ([]rule.UserSegmentRule, error) {
-	rules := []rule.UserSegmentRule{}
+func (s *ruleService) List(ctx context.Context) ([]rule.RuleSpec, error) {
+	rules := []rule.RuleSpec{}
 	var err error
 
 	err = s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
@@ -66,7 +66,7 @@ func (s *userSegmentRuleService) List(ctx context.Context) ([]rule.UserSegmentRu
 		}
 
 		for _, item := range items {
-			rules = append(rules, item.(rule.UserSegmentRule))
+			rules = append(rules, item.(rule.RuleSpec))
 		}
 		return nil
 	})

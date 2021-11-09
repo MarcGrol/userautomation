@@ -8,11 +8,11 @@ import (
 )
 
 type OnDemandService struct {
-	ruleService rule.SegmentRuleService
+	ruleService rule.RuleService
 	pubsub      pubsub.Pubsub
 }
 
-func New(ruleService rule.SegmentRuleService, pubsub pubsub.Pubsub) rule.SegmentRuleExecutionTrigger {
+func New(ruleService rule.RuleService, pubsub pubsub.Pubsub) rule.TriggerRuleExecution {
 	return &OnDemandService{
 		ruleService: ruleService,
 		pubsub:      pubsub,

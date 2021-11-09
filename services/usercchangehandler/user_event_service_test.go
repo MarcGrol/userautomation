@@ -254,8 +254,8 @@ func TestUsingClassicSubTests(t *testing.T) {
 	})
 }
 
-func setup() (rule.SegmentRuleService, UserEventHandler) {
-	ruleService := rule.NewUserSegmentRuleManagementStub()
+func setup() (rule.RuleService, UserEventHandler) {
+	ruleService := rule.NewRuleManagementStub()
 	return ruleService, New(nil, ruleService)
 }
 
@@ -338,11 +338,11 @@ func userRemoved(ctx context.Context, t *testing.T, service UserEventHandler) {
 
 func noRules() {}
 
-func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.SegmentRuleService,
+func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.RuleService,
 	emailSender emailsending.EmailSender) {
-	err := segmentService.Put(ctx, rule.UserSegmentRule{
+	err := segmentService.Put(ctx, rule.RuleSpec{
 		UID: "OldRule",
-		UserSegment: segment.UserSegment{
+		SegmentSpec: segment.SegmentSpec{
 			UID:            "old users segment",
 			Description:    "old users segment",
 			UserFilterName: user.FilterOldAge,
@@ -354,10 +354,10 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.Seg
 	}
 }
 
-func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.SegmentRuleService, smsSender smssending.SmsSender) {
-	err := segmentService.Put(ctx, rule.UserSegmentRule{
+func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.RuleService, smsSender smssending.SmsSender) {
+	err := segmentService.Put(ctx, rule.RuleSpec{
 		UID: "YoungRule",
-		UserSegment: segment.UserSegment{
+		SegmentSpec: segment.SegmentSpec{
 			UID:            "young users segment",
 			Description:    "young users segment",
 			UserFilterName: user.FilterYoungAge,
@@ -370,7 +370,7 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.S
 	}
 }
 
-func executeYoungAgeRuleReturnError(ctx context.Context, t *testing.T, ondemandService rule.SegmentRuleExecutionTrigger) error {
+func executeYoungAgeRuleReturnError(ctx context.Context, t *testing.T, ondemandService rule.TriggerRuleExecution) error {
 	err := ondemandService.Trigger(ctx, "YoungRule")
 	if err != nil {
 		return err
