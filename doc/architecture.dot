@@ -2,19 +2,40 @@
     
       rankdir="TD"
       
-      insided -> "rule-\ntrigger-\nservice"
-      insided -> "rule-\nmanagement"
-      insided -> "user-\nmanagement"
-      insided -> "segment-\nmanagement"
-      insided -> "segment-\nquery-\nservice"
+      insided -> "rule-\ntrigger-\nservice" [label="rest-api"]
+      insided -> "rule-\nmanagement" [label="rest-api"]
+      insided -> "user-\nmanagement" [label="rest-api"]
+      insided -> "segment-\nmanagement" [label="rest-api"]
+      insided -> "segment-\nquery-\nservice" [label="rest-api"]
 
       subgraph cluster_Web {
+          label = "Web"
           "rule-\ntrigger-\nservice"
           "rule-\nmanagement"
           "user-\nmanagement"
           "segment-\nmanagement"
           "segment-\nquery-\nservice"
       }
+
+     subgraph cluster_Core {
+          label = "Core"
+          "ondemand-\nactioner"
+          "segment-change-\npropagation"
+          "segment-change-\nactioner"
+          "action-\nexecutor"
+          "sms-sender"
+          "email-sender"
+          "group-updater"
+          "crm-updater"
+      }
+
+       subgraph cluster_External {
+           label = "External systems"
+            "aws/sendgrid"
+            "aws/twilio"
+            "insided-system"
+            "salesforce"
+        }
 
        "rule-\ntrigger-\nservice" -> "ondemand-\nactioner" [style=dashed, label=trigger]
       "segment-\nmanagement" -> "segment-change-\npropagation" [style=dashed, label=trigger]
@@ -25,9 +46,9 @@
       "user-\nmanagement" -> "segment-change-\npropagation" [style=dashed, label=trigger]
       "segment-change-\npropagation" -> "ondemand-\nactioner" [style=dashed, label=feed]
 
-      "segment-change-\npropagation" -> "segment-change-\nactioner"  [style=dashed, label=task]
+      "segment-change-\npropagation" -> "segment-change-\nactioner"  [style=dashed, label=trigger]
       "rule-\nmanagement" -> "segment-change-\nactioner" [style=dashed, label=feed]
-      "segment-change-\nactioner" -> "action-\nexecutor" [style=dashed, label=trigger]
+      "segment-change-\nactioner" -> "action-\nexecutor" [style=dashed, label=task]
 
       "ondemand-\nactioner" -> "action-\nexecutor" [style=dashed, label=task]
 
@@ -35,4 +56,10 @@
       "action-\nexecutor" -> "email-sender" [label=call]
       "action-\nexecutor" -> "group-updater" [label=call]
       "action-\nexecutor" -> "crm-updater" [label=call]
+
+      "email-sender" -> "aws/sendgrid" [label="rest-api"]
+      "sms-sender" -> "aws/twilio" [label="rest-api"]
+      "group-updater" -> "insided-system" [label="rest-api"]
+      "crm-updater" -> "salesforce" [label="rest-api"]
+
     }
