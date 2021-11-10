@@ -40,5 +40,5 @@ func (ea *SmsAction) Perform(ctx context.Context, a usertask.Spec) (string, erro
 		return "", fmt.Errorf("Error sending sms for user %s:%s", a.User.UID, err)
 	}
 
-	return fmt.Sprintf("Sms with content '%s' has beet sent to user '%s'", body, userPhoneNumber), nil
+	return fmt.Sprintf("Sms with content '%s' has been sent to user '%s'", body, userPhoneNumber), nil
 }

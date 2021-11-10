@@ -32,6 +32,13 @@ func (t Spec) String() string {
 		t.ActionSpec.Name, t.User, t.Reason)
 }
 
+type UserTaskExecutionReport struct {
+	TaskSpec     Spec
+	Success      bool
+	ErrorMessage string
+	SuccessMessage string
+}
+
 type ExecutionReporter interface {
-	ReportExecution(ctx context.Context, message string)
+	ReportExecution(ctx context.Context, report UserTaskExecutionReport) error
 }

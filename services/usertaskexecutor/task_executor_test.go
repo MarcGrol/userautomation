@@ -43,7 +43,7 @@ func TestTaskExecution(t *testing.T) {
 
 		// then
 		assert.Len(t, reporter.Reports, 1)
-		assert.Equal(t, "Email with subject 'Your age is 50' has been sent to user 'marc@home.nl'", reporter.Reports[0])
+		assert.Equal(t, "Email with subject 'Your age is 50' has been sent to user 'marc@home.nl'", reporter.Reports[0].SuccessMessage)
 	})
 
 	t.Run("user-task execution requested, send sms", func(t *testing.T) {
@@ -70,7 +70,7 @@ func TestTaskExecution(t *testing.T) {
 
 		// then
 		assert.Len(t, reporter.Reports, 1)
-		assert.Equal(t, "Sms with content 'Message to Pien' has beet sent to user '+316333333'", reporter.Reports[0])
+		assert.Equal(t, "Sms with content 'Message to Pien' has been sent to user '+316333333'", reporter.Reports[0].SuccessMessage)
 	})
 }
 

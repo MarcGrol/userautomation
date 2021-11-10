@@ -3,15 +3,16 @@ package usertask
 import "context"
 
 type ExecutionReporterStub struct {
-	Reports []string
+	Reports []UserTaskExecutionReport
 }
 
 func NewExecutionReporterStub() *ExecutionReporterStub {
 	return &ExecutionReporterStub{
-		Reports: []string{},
+		Reports: []UserTaskExecutionReport{},
 	}
 }
 
-func (s *ExecutionReporterStub) ReportExecution(ctx context.Context, message string) {
-	s.Reports = append(s.Reports, message)
+func (s *ExecutionReporterStub) ReportExecution(ctx context.Context, report UserTaskExecutionReport) error{
+	s.Reports = append(s.Reports, report)
+	return nil
 }

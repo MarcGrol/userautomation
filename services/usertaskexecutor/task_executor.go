@@ -48,32 +48,58 @@ func (s *service) OnEvent(ctx context.Context, topic string, event interface{}) 
 }
 
 func (s *service) OnUserTaskExecutionRequestedEvent(ctx context.Context, event usertask.UserTaskExecutionRequestedEvent) error {
+	var err error
+	successMessage := ""
+	defer func() {
+		s.report(ctx, event.Task, successMessage, err)
+	}()
+
 	actionSpec := event.Task.ActionSpec
 	switch actionSpec.Name {
 	case supportedactions.MailToOldName:
 		{
-			report, err := emailaction.NewEmailAction(
+			successMessage, err = emailaction.NewEmailAction(
 				actionSpec.ProvidedInformation["subject_template"],
 				actionSpec.ProvidedInformation["body_template"],
 				s.emailSender).Perform(ctx, event.Task)
 			if err != nil {
 				return err
 			}
-			s.reporter.ReportExecution(ctx, report)
 			return nil
 		}
 	case supportedactions.SmsToYoungName:
 		{
-			report, err := smsaction.New(
+			successMessage, err = smsaction.New(
 				actionSpec.ProvidedInformation["body_template"],
 				s.smsSender).Perform(ctx, event.Task)
 			if err != nil {
 				return err
 			}
-			s.reporter.ReportExecution(ctx, report)
 			return nil
 		}
 	default:
-		return fmt.Errorf("Action %s not recoognized", actionSpec.Name)
+		err = fmt.Errorf("Action %s not recoognized", actionSpec.Name)
+		return err
 	}
+}
+
+func (s *service) report(ctx context.Context, task usertask.Spec, successMessage string, err error) error {
+	report := usertask.UserTaskExecutionReport{
+		TaskSpec: task,
+		Success: func() bool {
+			return err == nil
+		}(),
+		ErrorMessage: func() string {
+			if err != nil {
+				return err.Error()
+			}
+			return ""
+		}(),
+		SuccessMessage: successMessage,
+	}
+
+	s.reporter.ReportExecution(ctx, report)
+
+	// A reporting failure shall not make the entire task fail
+	return nil
 }
