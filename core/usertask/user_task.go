@@ -21,6 +21,7 @@ const (
 )
 
 type Spec struct {
+	RuleUID    string
 	ActionSpec action.Spec
 	Reason     ReasonForAction
 	User       user.User

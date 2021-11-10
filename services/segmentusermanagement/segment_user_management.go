@@ -21,9 +21,9 @@ type SegmentUserManager interface {
 
 type segmentUserManager struct {
 	segmentWithUsersStore datastore.Datastore
-	userService   user.Management
-	filterService user.FilterManager
-	pubsub        pubsub.Pubsub
+	userService           user.Management
+	filterService         user.FilterManager
+	pubsub                pubsub.Pubsub
 }
 
 func New(datastore datastore.Datastore, userService user.Management, filterservice user.FilterManager, pubsub pubsub.Pubsub) *segmentUserManager {

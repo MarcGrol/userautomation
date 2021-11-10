@@ -73,6 +73,7 @@ func (s *service) OnRuleExecutionRequestedEvent(ctx context.Context, event segme
 func (s *service) publishActionForUser(ctx context.Context, r segmentrule.Spec, u user.User) error {
 	err := s.pubsub.Publish(ctx, usertask.TopicName, usertask.UserTaskExecutionRequestedEvent{
 		Task: usertask.Spec{
+			RuleUID:    r.UID,
 			ActionSpec: r.ActionSpec,
 			Reason:     usertask.ReasonSegmentRuleExecuted,
 			User:       u,

@@ -57,6 +57,7 @@ func (s *service) OnUserAddedToSegment(ctx context.Context, event segment.UserAd
 			}
 
 			err := s.pubsub.Publish(ctx, usertask.TopicName, usertask.Spec{
+				RuleUID:    r.UID,
 				ActionSpec: r.ActionSpec,
 				Reason:     usertask.ReasonUserAddedToSegment,
 				User:       event.User,
