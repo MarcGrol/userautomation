@@ -2,12 +2,19 @@ package pubsub
 
 import "context"
 
+type Publication struct {
+	Topic string
+	Event interface{}
+}
+
 type PubsubStub struct {
-	PublicationCount int
+	Publications []Publication
 }
 
 func NewPubsubStub() *PubsubStub {
-	return &PubsubStub{}
+	return &PubsubStub{
+		Publications: []Publication{},
+	}
 }
 
 func (ps *PubsubStub) Subscribe(ctx context.Context, topic string, onEvent OnEventFunc) error {
@@ -15,6 +22,9 @@ func (ps *PubsubStub) Subscribe(ctx context.Context, topic string, onEvent OnEve
 }
 
 func (ps *PubsubStub) Publish(ctx context.Context, topic string, event interface{}) error {
-	ps.PublicationCount++
+	ps.Publications = append(ps.Publications, Publication{
+		Topic: topic,
+		Event: event,
+	})
 	return nil
 }

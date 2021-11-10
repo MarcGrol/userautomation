@@ -2,7 +2,6 @@ package segmentmanagement
 
 import (
 	"context"
-	"fmt"
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
@@ -79,8 +78,10 @@ func (s *service) Get(ctx context.Context, segmentUID string) (segment.Spec, boo
 		}
 
 		if !exists {
-			return fmt.Errorf("Spec with uid %s does not exist", segmentUID)
+			segmentExists = false
+			return nil
 		}
+
 		segm = item.(segment.Spec)
 		segmentExists = exists
 

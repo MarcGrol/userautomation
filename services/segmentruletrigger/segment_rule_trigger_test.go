@@ -2,6 +2,7 @@ package segmentruletrigger
 
 import (
 	"context"
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"github.com/MarcGrol/userautomation/core/segmentrule"
@@ -24,10 +25,13 @@ func TestRuleTrigger(t *testing.T) {
 		sut := New(ruleService, pubsub)
 
 		// given
-		createRule(ctx, t, ruleService, youngAgeRule())
+		ruleService.Put(ctx, youngAgeRule())
 
 		// when
-		defer sut.Trigger(ctx, youngAgeRule())
+		defer func() {
+			err := sut.Trigger(ctx, youngAgeRule())
+			assert.NoError(t, err)
+		}()
 
 		// then
 		pubsub.EXPECT().Publish(gomock.Any(), segmentrule.TriggerTopicName, segmentrule.RuleExecutionRequestedEvent{
@@ -42,10 +46,13 @@ func TestRuleTrigger(t *testing.T) {
 		sut := New(ruleService, pubsub)
 
 		// given
-		createRule(ctx, t, ruleService, oldAgeRule())
+		ruleService.Put(ctx, oldAgeRule())
 
 		// when
-		defer sut.Trigger(ctx, oldAgeRule())
+		defer func() {
+			err := sut.Trigger(ctx, oldAgeRule())
+			assert.NoError(t, err)
+		}()
 
 		// then
 		pubsub.EXPECT().Publish(gomock.Any(), segmentrule.TriggerTopicName, segmentrule.RuleExecutionRequestedEvent{
@@ -60,13 +67,6 @@ func setup(t *testing.T) (*segmentrule.ManagementStub, *pubsub.MockPubsub, *gomo
 	pubsubMock := pubsub.NewMockPubsub(ctrl)
 
 	return ruleService, pubsubMock, ctrl
-}
-
-func createRule(ctx context.Context, t *testing.T, segmentService segmentrule.Service, r segmentrule.Spec) {
-	err := segmentService.Put(ctx, r)
-	if err != nil {
-		t.Error(err)
-	}
 }
 
 func oldAgeRule() segmentrule.Spec {

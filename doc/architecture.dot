@@ -42,7 +42,7 @@
 
       "segment-rule-\ntrigger-\nservice" -> "segment-\nrule-\nevaluator" [style=dashed, label="rule\nexec\nrequested"]
       "user-rule-\ntrigger-\nservice" -> "user-\nrule-\nevaluator" [style=dashed, label="rule\nexec\nrequested"]
-      "segment-\nmanagement" -> "segment-user-\nmanagement" [style=dashed, label="segmemt\nchanged\nevent"]
+      "segment-\nmanagement" -> "segment-user-\nmanagement" [style=dashed, label="segment\nchanged\nevent"]
       "segment-\nquery-\nservice" -> "segment-user-\nmanagement" [label=query]
 
 
