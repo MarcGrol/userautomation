@@ -30,7 +30,7 @@ func (s *service) GetUsersForSegment(ctx context.Context, segmentUID string) ([]
 			return fmt.Errorf("Spec with uid %s does not exist", segmentUID)
 		}
 
-		swu := item.(segment.SegmentWithUsers)
+		swu := item.(segment.WithUsers)
 		users := []user.User{}
 		for _, u := range swu.Users {
 			users = append(users, u)

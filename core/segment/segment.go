@@ -11,7 +11,7 @@ type Spec struct {
 	UserFilterName string
 }
 
-type SegmentWithUsers struct {
+type WithUsers struct {
 	SegmentSpec Spec
 	Users       map[string]user.User
 }

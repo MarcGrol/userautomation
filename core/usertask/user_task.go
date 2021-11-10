@@ -12,10 +12,10 @@ type UserTaskExecutor interface {
 	Perform(ctx context.Context, task Spec) error
 }
 
-type ReasonForAction int
+type Reason int
 
 const (
-	ReasonUserAddedToSegment ReasonForAction = iota
+	ReasonUserAddedToSegment Reason = iota
 	ReasonSegmentRuleExecuted
 	ReasonUserRuleExecuted
 )
@@ -23,7 +23,7 @@ const (
 type Spec struct {
 	RuleUID    string
 	ActionSpec action.Spec
-	Reason     ReasonForAction
+	Reason     Reason
 	User       user.User
 }
 

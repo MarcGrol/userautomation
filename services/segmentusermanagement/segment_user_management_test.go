@@ -265,8 +265,8 @@ func setupMocks(t *testing.T) (*datastore.DatastoreStub, *user.UserManagementStu
 	return segmentStore, userService, filterService, ps, ctrl
 }
 
-func initialSegmentWithUsers() segment.SegmentWithUsers {
-	return segment.SegmentWithUsers{
+func initialSegmentWithUsers() segment.WithUsers {
+	return segment.WithUsers{
 		SegmentSpec: predefinedsegments.YoungAgeSegment,
 		Users:       map[string]user.User{},
 	}
@@ -292,7 +292,7 @@ func createSegmentWithUsers(ctx context.Context, t *testing.T, sut *segmentUserM
 	}
 }
 
-func modifiedSegment() segment.SegmentWithUsers {
+func modifiedSegment() segment.WithUsers {
 	swu := initialSegmentWithUsers()
 	swu.SegmentSpec.Description = "old"
 	swu.SegmentSpec.UserFilterName = predefinedfilters.FilterOldAgeName
@@ -301,12 +301,12 @@ func modifiedSegment() segment.SegmentWithUsers {
 	return swu
 }
 
-func getSegment(ctx context.Context, t *testing.T, sut *segmentUserManager) segment.SegmentWithUsers {
+func getSegment(ctx context.Context, t *testing.T, sut *segmentUserManager) segment.WithUsers {
 	item, exists, err := sut.segmentWithUsersStore.Get(ctx, predefinedsegments.YoungAgeSegmentName)
 	if err != nil || !exists {
 		t.Error(err)
 	}
-	return item.(segment.SegmentWithUsers)
+	return item.(segment.WithUsers)
 }
 
 func existsUserInSegment(ctx context.Context, t *testing.T, sut *segmentUserManager, userId string) bool {
