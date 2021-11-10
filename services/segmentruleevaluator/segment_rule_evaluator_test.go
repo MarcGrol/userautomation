@@ -76,9 +76,9 @@ func TestRuleEvaluation(t *testing.T) {
 		// then
 		pubsub.EXPECT().Publish(gomock.Any(), usertask.TopicName, usertask.UserTaskExecutionRequestedEvent{
 			Task: usertask.Spec{
-				RuleSpec: r,
-				Reason:   usertask.ReasonSegmentRuleExecuted,
-				User:     u,
+				ActionSpec: r.ActionSpec,
+				Reason:     usertask.ReasonSegmentRuleExecuted,
+				User:       u,
 			},
 		}).Return(nil)
 	})
@@ -116,9 +116,9 @@ func TestRuleEvaluation(t *testing.T) {
 		// then
 		pubsub.EXPECT().Publish(gomock.Any(), usertask.TopicName, usertask.UserTaskExecutionRequestedEvent{
 			Task: usertask.Spec{
-				RuleSpec: r,
-				Reason:   usertask.ReasonSegmentRuleExecuted,
-				User:     u,
+				ActionSpec: r.ActionSpec,
+				Reason:     usertask.ReasonSegmentRuleExecuted,
+				User:       u,
 			},
 		}).Return(nil)
 	})

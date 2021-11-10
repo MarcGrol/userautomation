@@ -57,9 +57,9 @@ func (s *service) OnUserAddedToSegment(ctx context.Context, event segment.UserAd
 			}
 
 			err := s.pubsub.Publish(ctx, usertask.TopicName, usertask.Spec{
-				RuleSpec: r,
-				Reason:   usertask.ReasonUserAddedToSegment,
-				User:     event.User,
+				ActionSpec: r.ActionSpec,
+				Reason:     usertask.ReasonUserAddedToSegment,
+				User:       event.User,
 			})
 			if err != nil {
 				return fmt.Errorf("Error publishing user-task for rule %s and user %s: %s", r.UID, event.User.UID, err)

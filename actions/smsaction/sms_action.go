@@ -30,7 +30,7 @@ func (ea *SmsAction) Perform(ctx context.Context, a usertask.Spec) error {
 		return fmt.Errorf("User %+v has no phone_number", a.User)
 	}
 
-	body, err := templating.ApplyTemplate(a.RuleSpec.UID+"-sms-body", ea.bodyTemplate, a.User.Attributes)
+	body, err := templating.ApplyTemplate(a.ActionSpec.Name+"-sms-body", ea.bodyTemplate, a.User.Attributes)
 	if err != nil {
 		return fmt.Errorf("Error creating sms body for user %s:%s", a.User.UID, err)
 	}

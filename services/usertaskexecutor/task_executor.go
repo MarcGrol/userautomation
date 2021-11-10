@@ -39,7 +39,7 @@ func (s *service) OnEvent(ctx context.Context, topic string, event interface{}) 
 }
 
 func (s *service) OnUserTaskExecutionRequestedEvent(ctx context.Context, event usertask.UserTaskExecutionRequestedEvent) error {
-	actionSpec := event.Task.RuleSpec.ActionSpec
+	actionSpec := event.Task.ActionSpec
 	switch actionSpec.Name {
 	case supportedactions.MailToOldName:
 		return emailaction.NewEmailAction(

@@ -31,12 +31,12 @@ func (ea *EmailAction) Perform(ctx context.Context, a usertask.Spec) error {
 	if !ok {
 		return fmt.Errorf("User %+v has no emailaddress", a.User)
 	}
-	subject, err := templating.ApplyTemplate(a.RuleSpec.UID+"-email-subject", ea.subjectTemplate, a.User.Attributes)
+	subject, err := templating.ApplyTemplate(a.ActionSpec.Name+"-email-subject", ea.subjectTemplate, a.User.Attributes)
 	if err != nil {
 		return fmt.Errorf("Error creating email subject for user %s:%s", a.User.UID, err)
 	}
 
-	body, err := templating.ApplyTemplate(a.RuleSpec.UID+"-email-body", ea.bodyTemplate, a.User.Attributes)
+	body, err := templating.ApplyTemplate(a.ActionSpec.Name+"-email-body", ea.bodyTemplate, a.User.Attributes)
 	if err != nil {
 		return fmt.Errorf("Error creating email body for user %s:%s", a.User.UID, err)
 	}

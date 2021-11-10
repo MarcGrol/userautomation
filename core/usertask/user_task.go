@@ -3,8 +3,7 @@ package usertask
 import (
 	"context"
 	"fmt"
-	"github.com/MarcGrol/userautomation/core/segmentrule"
-
+	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/user"
 )
 
@@ -22,12 +21,12 @@ const (
 )
 
 type Spec struct {
-	RuleSpec segmentrule.Spec
-	Reason   ReasonForAction
-	User     user.User
+	ActionSpec action.Spec
+	Reason     ReasonForAction
+	User       user.User
 }
 
 func (t Spec) String() string {
-	return fmt.Sprintf("UserTaskExecutor for rule '%s' triggered action om User '%s' - status: %+v\n",
-		t.RuleSpec.UID, t.User, t.Reason)
+	return fmt.Sprintf("UserTaskExecutor triggered action %s on User '%s' - status: %+v\n",
+		t.ActionSpec.Name, t.User, t.Reason)
 }
