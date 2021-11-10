@@ -14,7 +14,6 @@ var (
 			PhoneNumber:  "+31611111111",
 			Age:          50,
 		},
-
 	}
 	Eva = user.User{
 		UID: "2",
@@ -24,6 +23,5 @@ var (
 			PhoneNumber:  "+31622222222",
 			Age:          48,
 		},
-
 	}
 )

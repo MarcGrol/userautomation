@@ -22,13 +22,15 @@ type SegmentUserManager interface {
 type segmentUserManager struct {
 	segmentWithUsersStore datastore.Datastore
 	userService           user.Management
+	filterservice         user.UserFilterResolver
 	pubsub                pubsub.Pubsub
 }
 
-func New(datastore datastore.Datastore, userService user.Management, pubsub pubsub.Pubsub) *segmentUserManager {
+func New(datastore datastore.Datastore, userService user.Management, filterservice user.UserFilterResolver, pubsub pubsub.Pubsub) *segmentUserManager {
 	return &segmentUserManager{
 		segmentWithUsersStore: datastore,
 		userService:           userService,
+		filterservice:         filterservice,
 		pubsub:                pubsub,
 	}
 }
@@ -67,7 +69,7 @@ func (s *segmentUserManager) OnSegmentCreated(ctx context.Context, event segment
 		// TODO this possibly a very large task that would lock the datastore for a long time:
 		// we might want to break this up with cursors into multiple tasks
 		// The segment is not ready to be used in rules untill all updates have been applied
-		users, err := s.userService.QueryByName(ctx, segm.UserFilterName)
+		users, err := s.userService.Query(ctx, segm.UserFilterName)
 		if err != nil {
 			return err
 		}
@@ -113,7 +115,7 @@ func (s *segmentUserManager) OnSegmentModified(ctx context.Context, event segmen
 		{
 			// Remove existing users that nom longer match segment
 			for _, u := range swu.Users {
-				applicable, err := segm.IsApplicableForUser(ctx, u)
+				applicable, err := s.isSegmentApplicableForUser(ctx, u, segm.UserFilterName)
 				if err != nil {
 					return err
 				}
@@ -129,7 +131,7 @@ func (s *segmentUserManager) OnSegmentModified(ctx context.Context, event segmen
 
 		{
 			// Add matching users that were not part of segment before
-			users, err := s.userService.QueryByName(ctx, event.NewSegmentState.UserFilterName)
+			users, err := s.userService.Query(ctx, event.NewSegmentState.UserFilterName)
 			if err != nil {
 				return err
 			}
@@ -149,6 +151,18 @@ func (s *segmentUserManager) OnSegmentModified(ctx context.Context, event segmen
 
 		return nil
 	})
+}
+
+func (s *segmentUserManager) isSegmentApplicableForUser(ctx context.Context, u user.User, userFilterName string) (bool, error) {
+	filterFunc, found := s.filterservice.GetUserFilterByName(ctx, userFilterName)
+	if !found {
+		return false, fmt.Errorf("User filter with name %s was not found", userFilterName)
+	}
+	matched, err := filterFunc(ctx, u)
+	if err != nil {
+		return false, fmt.Errorf("Error filteriing user %s: %s", u.UID, err)
+	}
+	return matched, nil
 }
 
 func (s *segmentUserManager) OnSegmentRemoved(ctx context.Context, event segment.RemovedEvent) error {
@@ -195,7 +209,7 @@ func (s *segmentUserManager) OnUserCreated(ctx context.Context, event user.Creat
 		for _, item := range items {
 			swu := item.(segment.SegmentWithUsers)
 
-			isApplicable, err := swu.SegmentSpec.IsApplicableForUser(ctx, u)
+			isApplicable, err := s.isSegmentApplicableForUser(ctx, u, swu.SegmentSpec.UserFilterName)
 			if err != nil {
 				return err
 			}
@@ -232,7 +246,7 @@ func (s *segmentUserManager) OnUserModified(ctx context.Context, event user.Modi
 			swu := item.(segment.SegmentWithUsers)
 			_, found := swu.Users[u.UID]
 
-			isApplicable, err := swu.SegmentSpec.IsApplicableForUser(ctx, u)
+			isApplicable, err := s.isSegmentApplicableForUser(ctx, u, swu.SegmentSpec.UserFilterName)
 			if err != nil {
 				return err
 			}

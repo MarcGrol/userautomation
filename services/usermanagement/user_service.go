@@ -12,14 +12,16 @@ import (
 )
 
 type service struct {
-	datastore datastore.Datastore
-	pubsub    pubsub.Pubsub
+	datastore     datastore.Datastore
+	filterService user.UserFilterResolver
+	pubsub        pubsub.Pubsub
 }
 
-func New(datastore datastore.Datastore, pubsub pubsub.Pubsub) user.Management {
+func New(datastore datastore.Datastore, filterService user.UserFilterResolver, pubsub pubsub.Pubsub) user.Management {
 	return &service{
-		datastore: datastore,
-		pubsub:    pubsub,
+		datastore:     datastore,
+		filterService: filterService,
+		pubsub:        pubsub,
 	}
 }
 
@@ -124,8 +126,8 @@ func (s *service) Get(ctx context.Context, userUID string) (user.User, bool, err
 	return u, userExists, nil
 }
 
-func (s *service) QueryByName(ctx context.Context, filterName string) ([]user.User, error) {
-	filterFunc, found := user.GetUserFilterByName(ctx, filterName)
+func (s *service) Query(ctx context.Context, filterName string) ([]user.User, error) {
+	filterFunc, found := s.filterService.GetUserFilterByName(ctx, filterName)
 	if !found {
 		return []user.User{}, fmt.Errorf("Filter with name %s does not exist", filterName)
 	}

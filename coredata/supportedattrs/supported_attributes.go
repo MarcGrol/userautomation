@@ -5,16 +5,16 @@ import (
 )
 
 const (
-	FirstName     = "first_name"
-	FullName      = "full_name"
-	EmailAddress  = "email_address"
-	PhoneNumber   = "phone_number"
-	DateBorn      = "date_born"
-	Age           = "age"
-	LastLoginDate = "last_login_date"
-	LoginCount    = "login_count"
-	LastPostDate  = "last_post_date"
-	PostCount     = "post_count"
+	FirstName      = "first_name"
+	FullName       = "full_name"
+	EmailAddress   = "email_address"
+	PhoneNumber    = "phone_number"
+	DateBorn       = "date_born"
+	Age            = "age"
+	LastLoginDate  = "last_login_date"
+	LoginCount     = "login_count"
+	LastPostDate   = "last_post_date"
+	PostCount      = "post_count"
 	MemberOfGroups = "member_of_groups"
 )
 

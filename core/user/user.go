@@ -27,7 +27,10 @@ type Management interface {
 	Put(ctx context.Context, user User) error
 	Get(ctx context.Context, userUID string) (User, bool, error)
 	List(ctx context.Context) ([]User, error)
-	QueryByFunc(ctx context.Context, filter FilterFunc) ([]User, error)
-	QueryByName(ctx context.Context, filterName string) ([]User, error) // Could use a WHERE clause alternatively
+	Query(ctx context.Context, filterName string) ([]User, error) // Could be a WHERE clause in the future
 	Remove(ctx context.Context, userUID string) error
+}
+
+type UserFilterResolver interface {
+	GetUserFilterByName(ctx context.Context, name string) (FilterFunc, bool)
 }

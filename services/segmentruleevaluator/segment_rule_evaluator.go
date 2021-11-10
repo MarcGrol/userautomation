@@ -52,7 +52,7 @@ func (s *service) OnRuleExecutionRequestedEvent(ctx context.Context, event segme
 
 	// TODO this possibly a very large task that would lock the datastore for a long time:
 	// we might want to break this up with cursors into multiple tasks
-	users, err := s.userService.QueryByName(ctx, r.SegmentSpec.UserFilterName)
+	users, err := s.userService.Query(ctx, r.SegmentSpec.UserFilterName)
 	if err != nil {
 		return fmt.Errorf("Error querying users: %s", err)
 	}

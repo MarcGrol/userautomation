@@ -6,12 +6,14 @@ import (
 )
 
 type UserManagementStub struct {
-	Users map[string]User
+	filterService UserFilterResolver
+	Users         map[string]User
 }
 
-func NewUserManagementStub() *UserManagementStub {
+func NewUserManagementStub(filterService UserFilterResolver) *UserManagementStub {
 	return &UserManagementStub{
-		Users: map[string]User{},
+		filterService: filterService,
+		Users:         map[string]User{},
 	}
 }
 
@@ -37,18 +39,14 @@ func (s *UserManagementStub) List(ctx context.Context) ([]User, error) {
 	return items, nil
 }
 
-func (s *UserManagementStub) QueryByName(ctx context.Context, filterName string) ([]User, error) {
-	filterFunc, found := GetUserFilterByName(ctx, filterName)
-	if !found {
-		return []User{}, fmt.Errorf("Filter func with name %s does not exist", filterName)
+func (s *UserManagementStub) Query(ctx context.Context, filterName string) ([]User, error) {
+	filterFunc, exists := s.filterService.GetUserFilterByName(ctx, filterName)
+	if !exists {
+		return nil, fmt.Errorf("User filter with name %s ot found", filterName)
 	}
-	return s.QueryByFunc(ctx, filterFunc)
-}
-
-func (s *UserManagementStub) QueryByFunc(ctx context.Context, filter FilterFunc) ([]User, error) {
 	users := []User{}
 	for _, u := range s.Users {
-		match, _ := filter(ctx, u)
+		match, _ := filterFunc(ctx, u)
 		if match {
 			users = append(users, u)
 		}

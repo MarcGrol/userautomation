@@ -2,6 +2,8 @@ package segmentusermanagement
 
 import (
 	"context"
+	"github.com/MarcGrol/userautomation/coredata/predefinedfilters"
+	"github.com/MarcGrol/userautomation/services/filterservice"
 	"testing"
 
 	"github.com/MarcGrol/userautomation/core/segment"
@@ -21,9 +23,9 @@ func TestSegmentUserManagement(t *testing.T) {
 	t.Run("on segment created, no users", func(t *testing.T) {
 		// setup
 
-		segmentStore, userService, ps, ctrl := setupMocks(t)
+		segmentStore, userService, filterService, ps, ctrl := setupMocks(t)
 		defer ctrl.Finish()
-		sut := New(segmentStore, userService, ps)
+		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
 		noUsers()
@@ -38,9 +40,9 @@ func TestSegmentUserManagement(t *testing.T) {
 
 	t.Run("on segment created, with non matching users", func(t *testing.T) {
 		// setup
-		segmentStore, userService, ps, ctrl := setupMocks(t)
+		segmentStore, userService, filterService, ps, ctrl := setupMocks(t)
 		defer ctrl.Finish()
-		sut := New(segmentStore, userService, ps)
+		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
 		createUserWithAge(ctx, t, userService, 50)
@@ -55,9 +57,9 @@ func TestSegmentUserManagement(t *testing.T) {
 
 	t.Run("on segment created, with matching user", func(t *testing.T) {
 		// setup
-		segmentStore, userService, ps, ctrl := setupMocks(t)
+		segmentStore, userService, filterService, ps, ctrl := setupMocks(t)
 		defer ctrl.Finish()
-		sut := New(segmentStore, userService, ps)
+		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
 		createUserWithAge(ctx, t, userService, 12)
@@ -72,9 +74,9 @@ func TestSegmentUserManagement(t *testing.T) {
 
 	t.Run("on segment modified, segment with two old users", func(t *testing.T) {
 		// setup
-		segmentStore, userService, ps, ctrl := setupMocks(t)
+		segmentStore, userService, filterService, ps, ctrl := setupMocks(t)
 		defer ctrl.Finish()
-		sut := New(segmentStore, userService, ps)
+		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
 		createUserWithAge(ctx, t, userService, 50)
@@ -91,9 +93,9 @@ func TestSegmentUserManagement(t *testing.T) {
 
 	t.Run("on-segment-removed", func(t *testing.T) {
 		// setup
-		segmentStore, userService, ps, ctrl := setupMocks(t)
+		segmentStore, userService, filterService, ps, ctrl := setupMocks(t)
 		defer ctrl.Finish()
-		sut := New(segmentStore, userService, ps)
+		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
 		createUserWithAge(ctx, t, userService, 12)
@@ -109,9 +111,9 @@ func TestSegmentUserManagement(t *testing.T) {
 
 	t.Run("user-created, no segment exists", func(t *testing.T) {
 		// setup
-		segmentStore, userService, ps, ctrl := setupMocks(t)
+		segmentStore, userService, filterService, ps, ctrl := setupMocks(t)
 		defer ctrl.Finish()
-		sut := New(segmentStore, userService, ps)
+		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
 		noUsers()
@@ -124,9 +126,9 @@ func TestSegmentUserManagement(t *testing.T) {
 
 	t.Run("user-created, no matching segment exists", func(t *testing.T) {
 		// setup
-		segmentStore, userService, ps, ctrl := setupMocks(t)
+		segmentStore, userService, filterService, ps, ctrl := setupMocks(t)
 		defer ctrl.Finish()
-		sut := New(segmentStore, userService, ps)
+		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
 		noUsers()
@@ -140,9 +142,9 @@ func TestSegmentUserManagement(t *testing.T) {
 
 	t.Run("user-created, matching segment: user added to segment", func(t *testing.T) {
 		// setup
-		segmentStore, userService, ps, ctrl := setupMocks(t)
+		segmentStore, userService, filterService, ps, ctrl := setupMocks(t)
 		defer ctrl.Finish()
-		sut := New(segmentStore, userService, ps)
+		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
 		noUsers()
@@ -158,9 +160,9 @@ func TestSegmentUserManagement(t *testing.T) {
 
 	t.Run("user-modified, matching segment: user added to segment", func(t *testing.T) {
 		// setup
-		segmentStore, userService, ps, ctrl := setupMocks(t)
+		segmentStore, userService, filterService, ps, ctrl := setupMocks(t)
 		defer ctrl.Finish()
-		sut := New(segmentStore, userService, ps)
+		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
 		createUserWithAge(ctx, t, userService, 50)
@@ -177,9 +179,9 @@ func TestSegmentUserManagement(t *testing.T) {
 
 	t.Run("user-modified, no matching segment: user removed from segment", func(t *testing.T) {
 		// setup
-		segmentStore, userService, ps, ctrl := setupMocks(t)
+		segmentStore, userService, filterService, ps, ctrl := setupMocks(t)
 		defer ctrl.Finish()
-		sut := New(segmentStore, userService, ps)
+		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
 		u := createUserWithAge(ctx, t, userService, 12)
@@ -195,9 +197,9 @@ func TestSegmentUserManagement(t *testing.T) {
 
 	t.Run("user-removed, matching segment: user removed from segment", func(t *testing.T) {
 		// setup
-		segmentStore, userService, ps, ctrl := setupMocks(t)
+		segmentStore, userService, filterService, ps, ctrl := setupMocks(t)
 		defer ctrl.Finish()
-		sut := New(segmentStore, userService, ps)
+		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
 		u := createUserWithAge(ctx, t, userService, 13)
@@ -213,12 +215,13 @@ func TestSegmentUserManagement(t *testing.T) {
 
 }
 
-func setupMocks(t *testing.T) (*datastore.DatastoreStub, *user.UserManagementStub, *pubsub.PubsubStub, *gomock.Controller) {
+func setupMocks(t *testing.T) (*datastore.DatastoreStub, *user.UserManagementStub, user.UserFilterResolver, *pubsub.PubsubStub, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 	segmentStore := datastore.NewDatastoreStub()
-	userService := user.NewUserManagementStub()
+	filterService := filterservice.New()
+	userService := user.NewUserManagementStub(filterService)
 	ps := pubsub.NewPubsubStub()
-	return segmentStore, userService, ps, ctrl
+	return segmentStore, userService, filterService, ps, ctrl
 }
 
 func initialSegment() segment.SegmentWithUsers {
@@ -261,7 +264,7 @@ func onSegmentCreated(ctx context.Context, t *testing.T, sut segment.EventHandle
 func modifiedSegment() segment.SegmentWithUsers {
 	swu := initialSegment()
 	swu.SegmentSpec.Description = "old"
-	swu.SegmentSpec.UserFilterName = user.FilterOldAgeName
+	swu.SegmentSpec.UserFilterName = predefinedfilters.FilterOldAgeName
 	swu.Users = map[string]user.User{}
 
 	return swu
@@ -296,7 +299,7 @@ func existsUserInSegment(ctx context.Context, t *testing.T, sut *segmentUserMana
 
 func noUsers() {}
 
-func defaultUser() user.User{
+func defaultUser() user.User {
 	return predefinedusers.Marc
 }
 
@@ -310,14 +313,13 @@ func createUserWithAge(ctx context.Context, t *testing.T, userService user.Manag
 	return u
 }
 
-
 func userWithAge(age int) user.User {
 	u := defaultUser()
 	u.Attributes[supportedattrs.Age] = age
 	return u
 }
 
-func otherUser() user.User{
+func otherUser() user.User {
 	return predefinedusers.Eva
 }
 
@@ -327,5 +329,3 @@ func createOtherUser(ctx context.Context, t *testing.T, userService user.Managem
 		t.Error(err)
 	}
 }
-
-
