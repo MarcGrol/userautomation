@@ -114,9 +114,12 @@ func (s *service) Get(ctx context.Context, userUID string) (user.User, bool, err
 		if err != nil {
 			return fmt.Errorf("Error fetching user with uid %s: %s", userUID, err)
 		}
-		u = found.(user.User)
 		userExists = exists
 
+		if !exists {
+			return nil
+		}
+		u = found.(user.User)
 		return nil
 	})
 	if err != nil {
