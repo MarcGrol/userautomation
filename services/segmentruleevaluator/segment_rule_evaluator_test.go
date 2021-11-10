@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/MarcGrol/userautomation/coredata/predefinedusers"
 	"github.com/MarcGrol/userautomation/coredata/supportedattrs"
-	"github.com/MarcGrol/userautomation/services/filterservice"
+	"github.com/MarcGrol/userautomation/services/filtermanager"
 	"testing"
 
 	"github.com/MarcGrol/userautomation/coredata/predefinedrules"
@@ -145,7 +145,7 @@ func TestRuleEvaluation(t *testing.T) {
 func setup(t *testing.T) (*segmentrule.ManagementStub, *user.UserManagementStub, *pubsub.MockPubsub, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 	ruleService := segmentrule.NewRuleManagementStub()
-	filterService := filterservice.New()
+	filterService := filtermanager.New()
 	userService := user.NewUserManagementStub(filterService)
 	pubsubMock := pubsub.NewMockPubsub(ctrl)
 

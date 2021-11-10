@@ -21,16 +21,16 @@ type SegmentUserManager interface {
 
 type segmentUserManager struct {
 	segmentWithUsersStore datastore.Datastore
-	userService           user.Management
-	filterservice         user.UserFilterResolver
-	pubsub                pubsub.Pubsub
+	userService   user.Management
+	filterService user.FilterManager
+	pubsub        pubsub.Pubsub
 }
 
-func New(datastore datastore.Datastore, userService user.Management, filterservice user.UserFilterResolver, pubsub pubsub.Pubsub) *segmentUserManager {
+func New(datastore datastore.Datastore, userService user.Management, filterservice user.FilterManager, pubsub pubsub.Pubsub) *segmentUserManager {
 	return &segmentUserManager{
 		segmentWithUsersStore: datastore,
 		userService:           userService,
-		filterservice:         filterservice,
+		filterService:         filterservice,
 		pubsub:                pubsub,
 	}
 }
@@ -154,7 +154,7 @@ func (s *segmentUserManager) OnSegmentModified(ctx context.Context, event segmen
 }
 
 func (s *segmentUserManager) isSegmentApplicableForUser(ctx context.Context, u user.User, userFilterName string) (bool, error) {
-	filterFunc, found := s.filterservice.GetUserFilterByName(ctx, userFilterName)
+	filterFunc, found := s.filterService.GetUserFilterByName(ctx, userFilterName)
 	if !found {
 		return false, fmt.Errorf("User filter with name %s was not found", userFilterName)
 	}

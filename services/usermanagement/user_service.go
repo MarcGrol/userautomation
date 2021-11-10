@@ -13,11 +13,11 @@ import (
 
 type service struct {
 	datastore     datastore.Datastore
-	filterService user.UserFilterResolver
+	filterService user.FilterManager
 	pubsub        pubsub.Pubsub
 }
 
-func New(datastore datastore.Datastore, filterService user.UserFilterResolver, pubsub pubsub.Pubsub) user.Management {
+func New(datastore datastore.Datastore, filterService user.FilterManager, pubsub pubsub.Pubsub) user.Management {
 	return &service{
 		datastore:     datastore,
 		filterService: filterService,

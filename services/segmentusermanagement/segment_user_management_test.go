@@ -3,7 +3,7 @@ package segmentusermanagement
 import (
 	"context"
 	"github.com/MarcGrol/userautomation/coredata/predefinedfilters"
-	"github.com/MarcGrol/userautomation/services/filterservice"
+	"github.com/MarcGrol/userautomation/services/filtermanager"
 	"testing"
 
 	"github.com/MarcGrol/userautomation/core/segment"
@@ -215,10 +215,10 @@ func TestSegmentUserManagement(t *testing.T) {
 
 }
 
-func setupMocks(t *testing.T) (*datastore.DatastoreStub, *user.UserManagementStub, user.UserFilterResolver, *pubsub.PubsubStub, *gomock.Controller) {
+func setupMocks(t *testing.T) (*datastore.DatastoreStub, *user.UserManagementStub, user.FilterManager, *pubsub.PubsubStub, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 	segmentStore := datastore.NewDatastoreStub()
-	filterService := filterservice.New()
+	filterService := filtermanager.New()
 	userService := user.NewUserManagementStub(filterService)
 	ps := pubsub.NewPubsubStub()
 	return segmentStore, userService, filterService, ps, ctrl

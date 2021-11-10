@@ -8,7 +8,7 @@ type Spec struct {
 	Name                    string
 	Description             string
 	MandatoryUserAttributes []string
-	ProvidedAttributes      map[string]string
+	ProvidedInformation     map[string]string
 }
 
 type ActionManager interface {

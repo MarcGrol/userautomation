@@ -31,6 +31,6 @@ type Management interface {
 	Remove(ctx context.Context, userUID string) error
 }
 
-type UserFilterResolver interface {
+type FilterManager interface {
 	GetUserFilterByName(ctx context.Context, name string) (FilterFunc, bool)
 }

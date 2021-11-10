@@ -43,13 +43,13 @@ func (s *service) OnUserTaskExecutionRequestedEvent(ctx context.Context, event u
 	switch actionSpec.Name {
 	case supportedactions.MailToOldName:
 		return emailaction.NewEmailAction(
-			actionSpec.ProvidedAttributes["email_subject"],
-			actionSpec.ProvidedAttributes["email_body"],
+			actionSpec.ProvidedInformation["email_subject"],
+			actionSpec.ProvidedInformation["email_body"],
 			emailsending.NewEmailSender()).Perform(ctx, event.Task)
 	case supportedactions.SmsToYoungName:
 		return emailaction.NewEmailAction(
-			actionSpec.ProvidedAttributes["email_subject"],
-			actionSpec.ProvidedAttributes["email_body"],
+			actionSpec.ProvidedInformation["email_subject"],
+			actionSpec.ProvidedInformation["email_body"],
 			emailsending.NewEmailSender()).Perform(ctx, event.Task)
 	default:
 		return fmt.Errorf("Action %s not recoognized", actionSpec.Name)

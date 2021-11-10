@@ -1,4 +1,4 @@
-package filterservice
+package filtermanager
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 
 type service struct{}
 
-func New() user.UserFilterResolver {
+func New() user.FilterManager {
 	return &service{}
 }
 func (s service) GetUserFilterByName(ctx context.Context, name string) (user.FilterFunc, bool) {

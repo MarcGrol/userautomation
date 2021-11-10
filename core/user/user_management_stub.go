@@ -6,11 +6,11 @@ import (
 )
 
 type UserManagementStub struct {
-	filterService UserFilterResolver
+	filterService FilterManager
 	Users         map[string]User
 }
 
-func NewUserManagementStub(filterService UserFilterResolver) *UserManagementStub {
+func NewUserManagementStub(filterService FilterManager) *UserManagementStub {
 	return &UserManagementStub{
 		filterService: filterService,
 		Users:         map[string]User{},
