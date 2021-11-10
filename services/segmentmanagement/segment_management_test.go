@@ -2,18 +2,18 @@ package segmentmanagement
 
 import (
 	"context"
+	supportedrules "github.com/MarcGrol/userautomation/coredata/supportedsegments"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 
 	"github.com/MarcGrol/userautomation/core/segment"
-	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSegment(t *testing.T) {
+func TestSegmentManagement(t *testing.T) {
 	ctx := context.TODO()
 
 	t.Run("create segment", func(t *testing.T) {
@@ -31,7 +31,7 @@ func TestSegment(t *testing.T) {
 
 		// then
 		assert.Len(t, listSegment(ctx, t, sut), 1)
-		assert.Equal(t, "young", getSegment(ctx, t, sut).Description)
+		assert.Equal(t, "young users segment", getSegment(ctx, t, sut).Description)
 		assert.Equal(t, 1, ps.PublicationCount)
 	})
 
@@ -49,7 +49,7 @@ func TestSegment(t *testing.T) {
 
 		// then
 		assert.Len(t, listSegment(ctx, t, sut), 1)
-		assert.Equal(t, "old", getSegment(ctx, t, sut).Description)
+		assert.Equal(t, "old users segment", getSegment(ctx, t, sut).Description)
 		assert.Equal(t, 2, ps.PublicationCount)
 	})
 
@@ -78,55 +78,53 @@ func setupMocks(t *testing.T) (*datastore.DatastoreStub, *pubsub.PubsubStub, *go
 	return storeSub, ps, ctrl
 }
 
-var initialSegment = segment.Spec{
-	UID:            "MySegment",
-	Description:    "young",
-	UserFilterName: user.FilterYoungAge,
+func initialSegment() segment.Spec {
+	return supportedrules.YoungAgeSegment
 }
 
-func createSegment(ctx context.Context, t *testing.T, sut SegmentManagement) {
-	err := sut.Put(ctx, initialSegment)
+func createSegment(ctx context.Context, t *testing.T, sut segment.Management) {
+	err := sut.Put(ctx, initialSegment())
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-var modifiedSegment = segment.Spec{
-	UID:            "MySegment",
-	Description:    "old",
-	UserFilterName: user.FilterOldAge,
+func modifiedSegment() segment.Spec {
+	segm := supportedrules.OldAgeSegment
+	segm.UID = supportedrules.YoungAgeSegment.UID
+	return segm
 }
 
-func modifySegment(ctx context.Context, t *testing.T, sut SegmentManagement) {
-	err := sut.Put(ctx, modifiedSegment)
+func modifySegment(ctx context.Context, t *testing.T, sut segment.Management) {
+	err := sut.Put(ctx, modifiedSegment())
 	if err != nil {
 		t.Error(err)
 	}
 }
-func removeSegment(ctx context.Context, t *testing.T, sut SegmentManagement) {
-	err := sut.Remove(ctx, initialSegment.UID)
+func removeSegment(ctx context.Context, t *testing.T, sut segment.Management) {
+	err := sut.Remove(ctx, initialSegment().UID)
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-func existsSegment(ctx context.Context, t *testing.T, sut SegmentManagement) bool {
-	_, exists, err := sut.Get(ctx, initialSegment.UID)
+func existsSegment(ctx context.Context, t *testing.T, sut segment.Management) bool {
+	_, exists, err := sut.Get(ctx, initialSegment().UID)
 	if err != nil || !exists {
 		t.Error(err)
 	}
 	return exists
 }
 
-func getSegment(ctx context.Context, t *testing.T, sut SegmentManagement) segment.Spec {
-	segm, exists, err := sut.Get(ctx, initialSegment.UID)
+func getSegment(ctx context.Context, t *testing.T, sut segment.Management) segment.Spec {
+	segm, exists, err := sut.Get(ctx, initialSegment().UID)
 	if err != nil || !exists {
 		t.Error(err)
 	}
 	return segm
 }
 
-func listSegment(ctx context.Context, t *testing.T, sut SegmentManagement) []segment.Spec {
+func listSegment(ctx context.Context, t *testing.T, sut segment.Management) []segment.Spec {
 	segments, err := sut.List(ctx)
 	if err != nil {
 		t.Error(err)

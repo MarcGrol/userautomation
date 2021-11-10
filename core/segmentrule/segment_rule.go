@@ -14,7 +14,7 @@ type Spec struct {
 }
 
 type Service interface {
-	Put(ctx context.Context, segmentRule Spec) error
+	Put(ctx context.Context, rule Spec) error
 	Get(ctx context.Context, ruleUID string) (Spec, bool, error)
 	Remove(ctx context.Context, ruleUID string) error
 	List(ctx context.Context) ([]Spec, error)
@@ -22,5 +22,5 @@ type Service interface {
 
 //go:generate mockgen -source=segment_rule.go -destination=rule_execution_mock.go -package=segmentrule TriggerRuleExecution
 type TriggerRuleExecution interface {
-	Trigger(ctx context.Context, ruleUID string) error
+	Trigger(ctx context.Context, rule Spec) error
 }

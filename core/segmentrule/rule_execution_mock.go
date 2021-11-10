@@ -35,17 +35,17 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // Put mocks base method.
-func (m *MockService) Put(ctx context.Context, segmentRule Spec) error {
+func (m *MockService) Put(ctx context.Context, rule Spec) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Put", ctx, segmentRule)
+	ret := m.ctrl.Call(m, "Put", ctx, rule)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Put indicates an expected call of Put.
-func (mr *MockServiceMockRecorder) Put(ctx, segmentRule interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) Put(ctx, rule interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Put", reflect.TypeOf((*MockService)(nil).Put), ctx, segmentRule)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Put", reflect.TypeOf((*MockService)(nil).Put), ctx, rule)
 }
 
 // Get mocks base method.
@@ -117,15 +117,15 @@ func (m *MockTriggerRuleExecution) EXPECT() *MockTriggerRuleExecutionMockRecorde
 }
 
 // Trigger mocks base method.
-func (m *MockTriggerRuleExecution) Trigger(ctx context.Context, ruleUID string) error {
+func (m *MockTriggerRuleExecution) Trigger(ctx context.Context, rule Spec) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Trigger", ctx, ruleUID)
+	ret := m.ctrl.Call(m, "Trigger", ctx, rule)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Trigger indicates an expected call of Trigger.
-func (mr *MockTriggerRuleExecutionMockRecorder) Trigger(ctx, ruleUID interface{}) *gomock.Call {
+func (mr *MockTriggerRuleExecutionMockRecorder) Trigger(ctx, rule interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Trigger", reflect.TypeOf((*MockTriggerRuleExecution)(nil).Trigger), ctx, ruleUID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Trigger", reflect.TypeOf((*MockTriggerRuleExecution)(nil).Trigger), ctx, rule)
 }

@@ -9,17 +9,17 @@ import (
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
 
-type segmentQuery struct {
+type service struct {
 	segmentStore datastore.Datastore
 }
 
 func New(datastore datastore.Datastore, pubsub pubsub.Pubsub) segment.Querier {
-	return &segmentQuery{
+	return &service{
 		segmentStore: datastore,
 	}
 }
 
-func (s *segmentQuery) GetUsersForSegment(ctx context.Context, segmentUID string) ([]user.User, error) {
+func (s *service) GetUsersForSegment(ctx context.Context, segmentUID string) ([]user.User, error) {
 	users := []user.User{}
 	err := s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		item, exists, err := s.segmentStore.Get(ctx, segmentUID)

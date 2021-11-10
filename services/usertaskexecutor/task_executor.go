@@ -10,7 +10,7 @@ import (
 	"github.com/MarcGrol/userautomation/integrations/emailsending"
 )
 
-type UserTaskExecutor interface {
+type Service interface {
 	// Flags that this service is an event consumer
 	pubsub.SubscribingService
 	// Early warning system. This service will break when "users"-module introduces new events.
@@ -18,27 +18,27 @@ type UserTaskExecutor interface {
 	usertask.UserTaskEventHandler
 }
 
-type userTaskExecutor struct {
+type service struct {
 	pubsub pubsub.Pubsub
 }
 
-func New(pubsub pubsub.Pubsub) UserTaskExecutor {
-	return &userTaskExecutor{
+func New(pubsub pubsub.Pubsub) Service {
+	return &service{
 		pubsub: pubsub,
 	}
 }
 
-func (s *userTaskExecutor) IamSubscribing() {}
+func (s *service) IamSubscribing() {}
 
-func (s *userTaskExecutor) Subscribe(ctx context.Context) error {
+func (s *service) Subscribe(ctx context.Context) error {
 	return s.pubsub.Subscribe(ctx, usertask.TopicName, s.OnEvent)
 }
 
-func (s *userTaskExecutor) OnEvent(ctx context.Context, topic string, event interface{}) error {
+func (s *service) OnEvent(ctx context.Context, topic string, event interface{}) error {
 	return usertask.DispatchEvent(ctx, s, topic, event)
 }
 
-func (s *userTaskExecutor) OnUserTaskExecutionRequestedEvent(ctx context.Context, event usertask.UserTaskExecutionRequestedEvent) error {
+func (s *service) OnUserTaskExecutionRequestedEvent(ctx context.Context, event usertask.UserTaskExecutionRequestedEvent) error {
 	actionSpec := event.Task.RuleSpec.ActionSpec
 	switch actionSpec.Name {
 	case supportedactions.MailToOldName:

@@ -8,23 +8,23 @@ import (
 	"github.com/MarcGrol/userautomation/infra/datastore"
 )
 
-type ruleService struct {
+type service struct {
 	segmentStore datastore.Datastore
 }
 
 func New(segmentStore datastore.Datastore) segmentrule.Service {
-	return &ruleService{
+	return &service{
 		segmentStore: segmentStore,
 	}
 }
 
-func (s *ruleService) Put(ctx context.Context, rule segmentrule.Spec) error {
+func (s *service) Put(ctx context.Context, rule segmentrule.Spec) error {
 	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		return s.segmentStore.Put(ctx, rule.UID, rule)
 	})
 }
 
-func (s *ruleService) Get(ctx context.Context, ruleUID string) (segmentrule.Spec, bool, error) {
+func (s *service) Get(ctx context.Context, ruleUID string) (segmentrule.Spec, bool, error) {
 	r := segmentrule.Spec{}
 	ruleExists := false
 	var err error
@@ -49,13 +49,13 @@ func (s *ruleService) Get(ctx context.Context, ruleUID string) (segmentrule.Spec
 	return r, ruleExists, nil
 }
 
-func (s *ruleService) Remove(ctx context.Context, ruleUID string) error {
+func (s *service) Remove(ctx context.Context, ruleUID string) error {
 	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		return s.segmentStore.Remove(ctx, ruleUID)
 	})
 }
 
-func (s *ruleService) List(ctx context.Context) ([]segmentrule.Spec, error) {
+func (s *service) List(ctx context.Context) ([]segmentrule.Spec, error) {
 	rules := []segmentrule.Spec{}
 	var err error
 

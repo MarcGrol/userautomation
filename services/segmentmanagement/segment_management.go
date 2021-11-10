@@ -8,23 +8,19 @@ import (
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
 
-type segmentManagement struct {
+type service struct {
 	segmentStore datastore.Datastore
 	pubsub       pubsub.Pubsub
 }
 
-type SegmentManagement interface {
-	segment.Management
-}
-
-func New(datastore datastore.Datastore, pubsub pubsub.Pubsub) SegmentManagement {
-	return &segmentManagement{
+func New(datastore datastore.Datastore, pubsub pubsub.Pubsub) segment.Management {
+	return &service{
 		segmentStore: datastore,
 		pubsub:       pubsub,
 	}
 }
 
-func (s *segmentManagement) Put(ctx context.Context, segm segment.Spec) error {
+func (s *service) Put(ctx context.Context, segm segment.Spec) error {
 	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		original, exists, err := s.segmentStore.Get(ctx, segm.UID)
 		if err != nil {
@@ -49,7 +45,7 @@ func (s *segmentManagement) Put(ctx context.Context, segm segment.Spec) error {
 	})
 }
 
-func (s *segmentManagement) Remove(ctx context.Context, segmentUID string) error {
+func (s *service) Remove(ctx context.Context, segmentUID string) error {
 	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		original, exists, err := s.segmentStore.Get(ctx, segmentUID)
 		if err != nil {
@@ -73,7 +69,7 @@ func (s *segmentManagement) Remove(ctx context.Context, segmentUID string) error
 	})
 }
 
-func (s *segmentManagement) Get(ctx context.Context, segmentUID string) (segment.Spec, bool, error) {
+func (s *service) Get(ctx context.Context, segmentUID string) (segment.Spec, bool, error) {
 	var segm segment.Spec
 	segmentExists := false
 	err := s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
@@ -96,7 +92,7 @@ func (s *segmentManagement) Get(ctx context.Context, segmentUID string) (segment
 	return segm, segmentExists, nil
 }
 
-func (s *segmentManagement) List(ctx context.Context) ([]segment.Spec, error) {
+func (s *service) List(ctx context.Context) ([]segment.Spec, error) {
 	segments := []segment.Spec{}
 
 	err := s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {

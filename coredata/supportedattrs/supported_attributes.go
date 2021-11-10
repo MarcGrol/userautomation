@@ -1,4 +1,4 @@
-package supportedactions
+package supportedattrs
 
 import (
 	"github.com/MarcGrol/userautomation/core/userattribute"

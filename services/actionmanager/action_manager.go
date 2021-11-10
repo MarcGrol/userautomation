@@ -6,15 +6,11 @@ import (
 	"github.com/MarcGrol/userautomation/coredata/supportedactions"
 )
 
-type actionManager struct {
+type service struct {
 }
 
-type ActionManager interface {
-	action.ActionManager
-}
-
-func New() ActionManager {
-	return &actionManager{}
+func New() action.ActionManager {
+	return &service{}
 }
 
 var actionMap = map[string]action.Spec{
@@ -22,13 +18,13 @@ var actionMap = map[string]action.Spec{
 	supportedactions.MailToOldName:  supportedactions.MailToOld,
 }
 
-func (m *actionManager) GetActionSpecOnName(ctx context.Context, name string) (action.Spec, bool, error) {
+func (m *service) GetActionSpecOnName(ctx context.Context, name string) (action.Spec, bool, error) {
 	a, exists := actionMap[name]
 
 	return a, exists, nil
 }
 
-func (m *actionManager) ListActionSpecs(ctx context.Context) ([]action.Spec, error) {
+func (m *service) ListActionSpecs(ctx context.Context) ([]action.Spec, error) {
 	actions := []action.Spec{}
 	for _, a := range actionMap {
 		actions = append(actions, a)

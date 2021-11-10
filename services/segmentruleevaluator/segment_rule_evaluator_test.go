@@ -2,9 +2,12 @@ package segmentruleevaluator
 
 import (
 	"context"
-	"github.com/MarcGrol/userautomation/coredata/supportedactions"
-	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"testing"
+
+	"github.com/MarcGrol/userautomation/coredata/supportedactions"
+	. "github.com/MarcGrol/userautomation/coredata/supportedattrs"
+	"github.com/MarcGrol/userautomation/coredata/supportedrules"
+	"github.com/MarcGrol/userautomation/infra/pubsub"
 
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/segmentrule"
@@ -14,7 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestOnDemand(t *testing.T) {
+func TestRuleEvaluation(t *testing.T) {
 	ctx := context.TODO()
 
 	t.Run("execute non-existing rule", func(t *testing.T) {
@@ -29,7 +32,7 @@ func TestOnDemand(t *testing.T) {
 
 		// when
 		defer func() {
-			err := sut.OnRuleExecutionRequestedEvent(ctx, segmentrule.RuleExecutionRequestedEvent{Rule: youngAgeRule})
+			err := sut.OnRuleExecutionRequestedEvent(ctx, segmentrule.RuleExecutionRequestedEvent{Rule: youngAgeRule()})
 			assert.Error(t, err)
 		}()
 
@@ -49,7 +52,7 @@ func TestOnDemand(t *testing.T) {
 
 		// when
 		defer func() {
-			err := sut.OnRuleExecutionRequestedEvent(ctx, segmentrule.RuleExecutionRequestedEvent{Rule: youngAgeRule})
+			err := sut.OnRuleExecutionRequestedEvent(ctx, segmentrule.RuleExecutionRequestedEvent{Rule: youngAgeRule()})
 			assert.NoError(t, err)
 		}()
 
@@ -68,7 +71,7 @@ func TestOnDemand(t *testing.T) {
 		r := createYoungAgeRule(ctx, t, ruleService)
 
 		// when
-		defer sut.OnRuleExecutionRequestedEvent(ctx, segmentrule.RuleExecutionRequestedEvent{Rule: youngAgeRule})
+		defer sut.OnRuleExecutionRequestedEvent(ctx, segmentrule.RuleExecutionRequestedEvent{Rule: youngAgeRule()})
 
 		// then
 		pubsub.EXPECT().Publish(gomock.Any(), usertask.TopicName, usertask.UserTaskExecutionRequestedEvent{
@@ -154,10 +157,10 @@ func createUser(ctx context.Context, t *testing.T, userService user.Management, 
 	u := user.User{
 		UID: "1",
 		Attributes: map[string]interface{}{
-			"first_name":    "Marc",
-			"email_address": "marc@home.nl",
-			"phone_number":  "+31611111111",
-			"age":           age,
+			FirstName:    "Marc",
+			EmailAddress: "marc@home.nl",
+			PhoneNumber:  "+31611111111",
+			Age:          age,
 		},
 	}
 	err := userService.Put(ctx, u)
@@ -171,10 +174,10 @@ func createOtherUser(ctx context.Context, t *testing.T, userService user.Managem
 	err := userService.Put(ctx, user.User{
 		UID: "2",
 		Attributes: map[string]interface{}{
-			"first_name":    "Eva",
-			"email_address": "eva@home.nl",
-			"phone_number":  "+31622222222",
-			"age":           age,
+			FirstName:    "Eva",
+			EmailAddress: "eva@home.nl",
+			PhoneNumber:  "+31622222222",
+			Age:          age,
 		},
 	})
 	if err != nil {
@@ -187,7 +190,7 @@ var oldAgeRule = segmentrule.Spec{
 	SegmentSpec: segment.Spec{
 		UID:            "old users segment",
 		Description:    "old users segment",
-		UserFilterName: user.FilterOldAge,
+		UserFilterName: user.FilterOldAgeName,
 	},
 	ActionSpec: supportedactions.MailToOld,
 }
@@ -200,21 +203,15 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService segmentr
 	return oldAgeRule
 }
 
-var youngAgeRule = segmentrule.Spec{
-	UID: "YoungRule",
-	SegmentSpec: segment.Spec{
-		UID:            "young users segment",
-		Description:    "young users segment",
-		UserFilterName: user.FilterYoungAge,
-	},
-	ActionSpec: supportedactions.SmsToYoung,
+func youngAgeRule() segmentrule.Spec {
+	return supportedrules.YoungAgeSmsRule
 }
 
 func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService segmentrule.Service) segmentrule.Spec {
-	err := segmentService.Put(ctx, youngAgeRule)
+	err := segmentService.Put(ctx, youngAgeRule())
 	if err != nil {
 		t.Error(err)
 	}
-	return youngAgeRule
+	return youngAgeRule()
 }
 func nothingHappens() {}

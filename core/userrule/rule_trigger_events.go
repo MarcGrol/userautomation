@@ -1,4 +1,4 @@
-package segmentrule
+package userrule
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	TriggerTopicName = "segmentruletrigger"
+	TriggerTopicName = "userruletrigger"
 )
 
 // When new events are being introduced, this interface (and the dispatcher below) must be extended.
@@ -27,6 +27,6 @@ func DispatchTriggerEvent(ctx context.Context, handler TriggerEventHandler, topi
 	case RuleExecutionRequestedEvent:
 		return handler.OnRuleExecutionRequestedEvent(ctx, e)
 	default:
-		return fmt.Errorf("Event %+v is not supported for topic %s", e, ManagementTopicName)
+		return fmt.Errorf("Event %+v is not supported for topic %s", e, TriggerTopicName)
 	}
 }

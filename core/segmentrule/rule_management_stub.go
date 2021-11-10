@@ -14,8 +14,8 @@ func NewRuleManagementStub() *ManagementStub {
 	}
 }
 
-func (s *ManagementStub) Put(ctx context.Context, r Spec) error {
-	s.Rules[r.UID] = r
+func (s *ManagementStub) Put(ctx context.Context, rule Spec) error {
+	s.Rules[rule.UID] = rule
 	return nil
 }
 

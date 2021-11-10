@@ -11,19 +11,19 @@ import (
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
 
-type userManagement struct {
+type service struct {
 	datastore datastore.Datastore
 	pubsub    pubsub.Pubsub
 }
 
 func New(datastore datastore.Datastore, pubsub pubsub.Pubsub) user.Management {
-	return &userManagement{
+	return &service{
 		datastore: datastore,
 		pubsub:    pubsub,
 	}
 }
 
-func (s *userManagement) Put(ctx context.Context, u user.User) error {
+func (s *service) Put(ctx context.Context, u user.User) error {
 	// About publication of event:
 	// - Should be published inside transaction? When if commit fails?
 	// - Should be published outside transaction? When if publish fails?
@@ -73,7 +73,7 @@ func (s *userManagement) Put(ctx context.Context, u user.User) error {
 	return nil
 }
 
-func (s *userManagement) Remove(ctx context.Context, userUID string) error {
+func (s *service) Remove(ctx context.Context, userUID string) error {
 	err := s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 		u, exists, err := s.datastore.Get(ctx, userUID)
 		if err != nil {
@@ -102,7 +102,7 @@ func (s *userManagement) Remove(ctx context.Context, userUID string) error {
 	return nil
 }
 
-func (s *userManagement) Get(ctx context.Context, userUID string) (user.User, bool, error) {
+func (s *service) Get(ctx context.Context, userUID string) (user.User, bool, error) {
 	u := user.User{}
 	userExists := false
 	var err error
@@ -124,7 +124,7 @@ func (s *userManagement) Get(ctx context.Context, userUID string) (user.User, bo
 	return u, userExists, nil
 }
 
-func (s *userManagement) QueryByName(ctx context.Context, filterName string) ([]user.User, error) {
+func (s *service) QueryByName(ctx context.Context, filterName string) ([]user.User, error) {
 	filterFunc, found := user.GetUserFilterByName(ctx, filterName)
 	if !found {
 		return []user.User{}, fmt.Errorf("Filter with name %s does not exist", filterName)
@@ -132,7 +132,7 @@ func (s *userManagement) QueryByName(ctx context.Context, filterName string) ([]
 	return s.QueryByFunc(ctx, filterFunc)
 }
 
-func (s *userManagement) QueryByFunc(ctx context.Context, filterFunc user.FilterFunc) ([]user.User, error) {
+func (s *service) QueryByFunc(ctx context.Context, filterFunc user.FilterFunc) ([]user.User, error) {
 	users := []user.User{}
 	var err error
 
@@ -161,7 +161,7 @@ func (s *userManagement) QueryByFunc(ctx context.Context, filterFunc user.Filter
 	return users, nil
 }
 
-func (s *userManagement) List(ctx context.Context) ([]user.User, error) {
+func (s *service) List(ctx context.Context) ([]user.User, error) {
 	users := []user.User{}
 	var err error
 

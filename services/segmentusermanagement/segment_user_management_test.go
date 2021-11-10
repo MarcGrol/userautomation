@@ -8,12 +8,14 @@ import (
 
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
+	. "github.com/MarcGrol/userautomation/coredata/supportedattrs"
+	"github.com/MarcGrol/userautomation/coredata/supportedsegments"
 	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSegment(t *testing.T) {
+func TestSegmentUserManagement(t *testing.T) {
 	ctx := context.TODO()
 
 	t.Run("on segment created, no users", func(t *testing.T) {
@@ -30,7 +32,7 @@ func TestSegment(t *testing.T) {
 		onSegmentCreated(ctx, t, sut)
 
 		// then
-		assert.Equal(t, "young", getSegment(ctx, t, sut).SegmentSpec.Description)
+		assert.Equal(t, "young users segment", getSegment(ctx, t, sut).SegmentSpec.Description)
 		assert.Empty(t, getSegment(ctx, t, sut).Users)
 	})
 
@@ -47,7 +49,7 @@ func TestSegment(t *testing.T) {
 		onSegmentCreated(ctx, t, sut)
 
 		// then
-		assert.Equal(t, "young", getSegment(ctx, t, sut).SegmentSpec.Description)
+		assert.Equal(t, "young users segment", getSegment(ctx, t, sut).SegmentSpec.Description)
 		assert.Empty(t, getSegment(ctx, t, sut).Users)
 	})
 
@@ -64,7 +66,7 @@ func TestSegment(t *testing.T) {
 		onSegmentCreated(ctx, t, sut)
 
 		// then
-		assert.Equal(t, "young", getSegment(ctx, t, sut).SegmentSpec.Description)
+		assert.Equal(t, "young users segment", getSegment(ctx, t, sut).SegmentSpec.Description)
 		assert.Len(t, getSegment(ctx, t, sut).Users, 1)
 	})
 
@@ -221,12 +223,8 @@ func setupMocks(t *testing.T) (*datastore.DatastoreStub, *user.UserManagementStu
 
 func initialSegment() segment.SegmentWithUsers {
 	return segment.SegmentWithUsers{
-		SegmentSpec: segment.Spec{
-			UID:            "YoungSegment",
-			Description:    "young",
-			UserFilterName: user.FilterYoungAge,
-		},
-		Users: map[string]user.User{},
+		SegmentSpec: supportedsegments.YoungAgeSegment,
+		Users:       map[string]user.User{},
 	}
 }
 
@@ -261,14 +259,12 @@ func onSegmentCreated(ctx context.Context, t *testing.T, sut segment.EventHandle
 }
 
 func modifiedSegment() segment.SegmentWithUsers {
-	return segment.SegmentWithUsers{
-		SegmentSpec: segment.Spec{
-			UID:            "YoungSegment",
-			Description:    "old",
-			UserFilterName: user.FilterOldAge,
-		},
-		Users: map[string]user.User{},
-	}
+	swu := initialSegment()
+	swu.SegmentSpec.Description = "old"
+	swu.SegmentSpec.UserFilterName = user.FilterOldAgeName
+	swu.Users = map[string]user.User{}
+
+	return swu
 }
 
 func onSegmentModified(ctx context.Context, t *testing.T, sut segment.EventHandler) error {
@@ -285,7 +281,7 @@ func onSegmentRemoved(ctx context.Context, t *testing.T, sut segment.EventHandle
 }
 
 func getSegment(ctx context.Context, t *testing.T, sut *segmentUserManager) segment.SegmentWithUsers {
-	item, exists, err := sut.segmentWithUsersStore.Get(ctx, "YoungSegment")
+	item, exists, err := sut.segmentWithUsersStore.Get(ctx, supportedsegments.YoungAgeSegmentName)
 	if err != nil || !exists {
 		t.Error(err)
 	}
@@ -304,10 +300,10 @@ func createUser(ctx context.Context, t *testing.T, userService user.Management, 
 	u := user.User{
 		UID: "1",
 		Attributes: map[string]interface{}{
-			"first_name":    "Marc",
-			"email_address": "marc@home.nl",
-			"phone_number":  "+31611111111",
-			"age":           age,
+			FirstName:    "Marc",
+			EmailAddress: "marc@home.nl",
+			PhoneNumber:  "+31611111111",
+			Age:          age,
 		},
 	}
 	err := userService.Put(ctx, u)
@@ -321,10 +317,10 @@ func createOtherUser(ctx context.Context, t *testing.T, userService user.Managem
 	err := userService.Put(ctx, user.User{
 		UID: "2",
 		Attributes: map[string]interface{}{
-			"first_name":    "Eva",
-			"email_address": "eva@home.nl",
-			"phone_number":  "+31622222222",
-			"age":           age,
+			FirstName:    "Eva",
+			EmailAddress: "eva@home.nl",
+			PhoneNumber:  "+31622222222",
+			Age:          age,
 		},
 	})
 	if err != nil {
@@ -336,10 +332,10 @@ func getUser(age int) user.User {
 	return user.User{
 		UID: "1",
 		Attributes: map[string]interface{}{
-			"first_name":    "Marc",
-			"email_address": "marc@home.nl",
-			"phone_number":  "+31611111111",
-			"age":           age,
+			FirstName:    "Marc",
+			EmailAddress: "marc@home.nl",
+			PhoneNumber:  "+31611111111",
+			Age:          age,
 		},
 	}
 }
@@ -348,10 +344,10 @@ func getOtherUser(age int) user.User {
 	return user.User{
 		UID: "2",
 		Attributes: map[string]interface{}{
-			"first_name":    "Eva",
-			"email_address": "eva@home.nl",
-			"phone_number":  "+31622222222",
-			"age":           age,
+			FirstName:    "Eva",
+			EmailAddress: "eva@home.nl",
+			PhoneNumber:  "+31622222222",
+			Age:          age,
 		},
 	}
 }

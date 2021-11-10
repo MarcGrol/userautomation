@@ -10,7 +10,7 @@ import (
 	"log"
 )
 
-type SegmentChangeEvaluator interface {
+type Service interface {
 	// Flags that this service is an event consumer
 	pubsub.SubscribingService
 	// Early warning system. This service will break when "users"-module introduces new events.
@@ -18,30 +18,30 @@ type SegmentChangeEvaluator interface {
 	segment.UserEventHandler
 }
 
-type segmentChangeEvaluator struct {
+type service struct {
 	segment.UserEventHandler
 	pubsub      pubsub.Pubsub
 	ruleService segmentrule.Service
 }
 
-func New(pubsub pubsub.Pubsub, ruleService segmentrule.Service) SegmentChangeEvaluator {
-	return &segmentChangeEvaluator{
+func New(pubsub pubsub.Pubsub, ruleService segmentrule.Service) Service {
+	return &service{
 		pubsub:      pubsub,
 		ruleService: ruleService,
 	}
 }
 
-func (s *segmentChangeEvaluator) IamSubscribing() {}
+func (s *service) IamSubscribing() {}
 
-func (s *segmentChangeEvaluator) Subscribe(ctx context.Context) error {
+func (s *service) Subscribe(ctx context.Context) error {
 	return s.pubsub.Subscribe(ctx, segment.UserTopicName, s.OnEvent)
 }
 
-func (s *segmentChangeEvaluator) OnEvent(ctx context.Context, topic string, event interface{}) error {
+func (s *service) OnEvent(ctx context.Context, topic string, event interface{}) error {
 	return segment.DispatchUserEvent(ctx, s, topic, event)
 }
 
-func (s *segmentChangeEvaluator) OnUserAddedToSegment(ctx context.Context, event segment.UserAddedToSegmentEvent) error {
+func (s *service) OnUserAddedToSegment(ctx context.Context, event segment.UserAddedToSegmentEvent) error {
 	// find actions related to this segment
 	rules, err := s.ruleService.List(ctx)
 	if err != nil {
@@ -70,6 +70,6 @@ func (s *segmentChangeEvaluator) OnUserAddedToSegment(ctx context.Context, event
 	return nil
 }
 
-func (s *segmentChangeEvaluator) OnUserRemovedFromSegment(ctx context.Context, event segment.UserRemovedFromSegmentEvent) error {
+func (s *service) OnUserRemovedFromSegment(ctx context.Context, event segment.UserRemovedFromSegmentEvent) error {
 	return fmt.Errorf("not implemented")
 }

@@ -1,38 +1,20 @@
-package ondemandtriggerservice
+package segmentruletrigger
 
 import (
 	"context"
-	"github.com/MarcGrol/userautomation/coredata/supportedactions"
 	"testing"
 
-	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/segmentrule"
-	"github.com/MarcGrol/userautomation/core/user"
+	"github.com/MarcGrol/userautomation/coredata/supportedrules"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
 )
 
-func TestOnDemand(t *testing.T) {
+func TestRuleTrigger(t *testing.T) {
 	ctx := context.TODO()
 
-	t.Run("execute non-existing rule", func(t *testing.T) {
-		// setup
-		ruleService, pubsub, ctrl := setup(t)
-		defer ctrl.Finish()
-		sut := New(ruleService, pubsub)
-
-		// given
-		createRule(ctx, t, ruleService, oldAgeRule)
-
-		// when
-		defer func() {
-			err := sut.Trigger(ctx, "YoungRule")
-			assert.Error(t, err)
-		}()
-
-		// then
-		nothingHappens()
+	t.Run("Test invalid rule", func(t *testing.T) {
+		// TODO
 	})
 
 	t.Run("execute rule, young age rule matched -> publish young rule execution requested", func(t *testing.T) {
@@ -42,14 +24,14 @@ func TestOnDemand(t *testing.T) {
 		sut := New(ruleService, pubsub)
 
 		// given
-		createRule(ctx, t, ruleService, youngAgeRule)
+		createRule(ctx, t, ruleService, youngAgeRule())
 
 		// when
-		defer sut.Trigger(ctx, "YoungRule")
+		defer sut.Trigger(ctx, youngAgeRule())
 
 		// then
 		pubsub.EXPECT().Publish(gomock.Any(), segmentrule.TriggerTopicName, segmentrule.RuleExecutionRequestedEvent{
-			Rule: youngAgeRule,
+			Rule: youngAgeRule(),
 		}).Return(nil)
 	})
 
@@ -60,14 +42,14 @@ func TestOnDemand(t *testing.T) {
 		sut := New(ruleService, pubsub)
 
 		// given
-		createRule(ctx, t, ruleService, oldAgeRule)
+		createRule(ctx, t, ruleService, oldAgeRule())
 
 		// when
-		defer sut.Trigger(ctx, "OldRule")
+		defer sut.Trigger(ctx, oldAgeRule())
 
 		// then
 		pubsub.EXPECT().Publish(gomock.Any(), segmentrule.TriggerTopicName, segmentrule.RuleExecutionRequestedEvent{
-			Rule: oldAgeRule,
+			Rule: oldAgeRule(),
 		}).Return(nil)
 	})
 }
@@ -87,24 +69,12 @@ func createRule(ctx context.Context, t *testing.T, segmentService segmentrule.Se
 	}
 }
 
-var oldAgeRule = segmentrule.Spec{
-	UID: "OldRule",
-	SegmentSpec: segment.Spec{
-		UID:            "old users segment",
-		Description:    "old users segment",
-		UserFilterName: user.FilterOldAge,
-	},
-	ActionSpec: supportedactions.MailToOld,
+func oldAgeRule() segmentrule.Spec {
+	return supportedrules.OldAgeEmailRule
 }
 
-var youngAgeRule = segmentrule.Spec{
-	UID: "YoungRule",
-	SegmentSpec: segment.Spec{
-		UID:            "young users segment",
-		Description:    "young users segment",
-		UserFilterName: user.FilterYoungAge,
-	},
-	ActionSpec: supportedactions.SmsToYoung,
+func youngAgeRule() segmentrule.Spec {
+	return supportedrules.YoungAgeSmsRule
 }
 
 func nothingHappens() {}

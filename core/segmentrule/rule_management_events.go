@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	ManagementTopicName = "rule"
+	ManagementTopicName = "segmentrule"
 )
 
 // When new events are being introduced, this interface (and the dispatcher below) must be extended.
