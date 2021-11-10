@@ -6,15 +6,15 @@ import (
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"testing"
 
-	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
+	"github.com/MarcGrol/userautomation/core/segmentrule"
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/integrations/emailsending"
 	"github.com/MarcGrol/userautomation/integrations/smssending"
 	"github.com/golang/mock/gomock"
 )
 
-func setupSut(ctx context.Context) (rule.RuleService, user.Management) {
+func setupSut(ctx context.Context) (segmentrule.Service, user.Management) {
 	sut := New(ctx)
 	return sut.GetRuleService(), sut.GetUserService()
 }
@@ -71,11 +71,11 @@ func removeUser(ctx context.Context, t *testing.T, userService user.Management) 
 	}
 }
 
-func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.RuleService,
+func createOldAgeRule(ctx context.Context, t *testing.T, segmentService segmentrule.Service,
 	emailSender emailsending.EmailSender) {
-	err := segmentService.Put(ctx, rule.RuleSpec{
+	err := segmentService.Put(ctx, segmentrule.Spec{
 		UID: "OldRule",
-		SegmentSpec: segment.SegmentSpec{
+		SegmentSpec: segment.Spec{
 			UID:            "old users segment",
 			Description:    "old users segment",
 			UserFilterName: user.FilterOldAge,
@@ -87,10 +87,10 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.Rul
 	}
 }
 
-func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.RuleService, smsSender smssending.SmsSender) {
-	err := segmentService.Put(ctx, rule.RuleSpec{
+func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService segmentrule.Service, smsSender smssending.SmsSender) {
+	err := segmentService.Put(ctx, segmentrule.Spec{
 		UID: "YoungRule",
-		SegmentSpec: segment.SegmentSpec{
+		SegmentSpec: segment.Spec{
 			UID:            "young users segment",
 			Description:    "young users segment",
 			UserFilterName: user.FilterYoungAge,
@@ -102,7 +102,7 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.R
 	}
 }
 
-func executeYoungAgeRuleReturnError(ctx context.Context, t *testing.T, ondemandService rule.TriggerRuleExecution) error {
+func executeYoungAgeRuleReturnError(ctx context.Context, t *testing.T, ondemandService segmentrule.TriggerRuleExecution) error {
 	err := ondemandService.Trigger(ctx, "YoungRule")
 	if err != nil {
 		return err
@@ -110,14 +110,14 @@ func executeYoungAgeRuleReturnError(ctx context.Context, t *testing.T, ondemandS
 	return nil
 }
 
-func executeYoungAgeRule(ctx context.Context, t *testing.T, ondemandService rule.TriggerRuleExecution) {
+func executeYoungAgeRule(ctx context.Context, t *testing.T, ondemandService segmentrule.TriggerRuleExecution) {
 	err := executeYoungAgeRuleReturnError(ctx, t, ondemandService)
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-func executeOldAgeRule(ctx context.Context, t *testing.T, ondemandService rule.TriggerRuleExecution) {
+func executeOldAgeRule(ctx context.Context, t *testing.T, ondemandService segmentrule.TriggerRuleExecution) {
 	err := ondemandService.Trigger(ctx, "OldRule")
 	if err != nil {
 		t.Error(err)

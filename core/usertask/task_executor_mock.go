@@ -35,7 +35,7 @@ func (m *MockUserTaskExecutor) EXPECT() *MockUserTaskExecutorMockRecorder {
 }
 
 // Perform mocks base method.
-func (m *MockUserTaskExecutor) Perform(ctx context.Context, task UserTask) error {
+func (m *MockUserTaskExecutor) Perform(ctx context.Context, task Spec) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Perform", ctx, task)
 	ret0, _ := ret[0].(error)

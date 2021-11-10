@@ -3,8 +3,8 @@ package segmentchangeevaluator
 import (
 	"context"
 	"fmt"
-	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
+	"github.com/MarcGrol/userautomation/core/segmentrule"
 	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"log"
@@ -21,10 +21,10 @@ type SegmentChangeEvaluator interface {
 type segmentChangeEvaluator struct {
 	segment.UserEventHandler
 	pubsub      pubsub.Pubsub
-	ruleService rule.RuleService
+	ruleService segmentrule.Service
 }
 
-func New(pubsub pubsub.Pubsub, ruleService rule.RuleService) SegmentChangeEvaluator {
+func New(pubsub pubsub.Pubsub, ruleService segmentrule.Service) SegmentChangeEvaluator {
 	return &segmentChangeEvaluator{
 		pubsub:      pubsub,
 		ruleService: ruleService,
@@ -56,9 +56,9 @@ func (s *segmentChangeEvaluator) OnUserAddedToSegment(ctx context.Context, event
 				continue
 			}
 
-			err := s.pubsub.Publish(ctx, usertask.TopicName, usertask.UserTask{
+			err := s.pubsub.Publish(ctx, usertask.TopicName, usertask.Spec{
 				RuleSpec: r,
-				Reason:   usertask.ReasonIsUserAddedToSegment,
+				Reason:   usertask.ReasonUserAddedToSegment,
 				User:     event.User,
 			})
 			if err != nil {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/MarcGrol/userautomation/core/rule"
+	"github.com/MarcGrol/userautomation/core/segmentrule"
 	"github.com/MarcGrol/userautomation/infra/datastore"
 )
 
@@ -12,20 +12,20 @@ type ruleService struct {
 	segmentStore datastore.Datastore
 }
 
-func New(segmentStore datastore.Datastore) rule.RuleService {
+func New(segmentStore datastore.Datastore) segmentrule.Service {
 	return &ruleService{
 		segmentStore: segmentStore,
 	}
 }
 
-func (s *ruleService) Put(ctx context.Context, rule rule.RuleSpec) error {
+func (s *ruleService) Put(ctx context.Context, rule segmentrule.Spec) error {
 	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		return s.segmentStore.Put(ctx, rule.UID, rule)
 	})
 }
 
-func (s *ruleService) Get(ctx context.Context, ruleUID string) (rule.RuleSpec, bool, error) {
-	r := rule.RuleSpec{}
+func (s *ruleService) Get(ctx context.Context, ruleUID string) (segmentrule.Spec, bool, error) {
+	r := segmentrule.Spec{}
 	ruleExists := false
 	var err error
 
@@ -37,7 +37,7 @@ func (s *ruleService) Get(ctx context.Context, ruleUID string) (rule.RuleSpec, b
 		if !exists {
 			return fmt.Errorf("Rule with uid %s not found", ruleUID)
 		}
-		r = item.(rule.RuleSpec)
+		r = item.(segmentrule.Spec)
 		ruleExists = exists
 
 		return nil
@@ -55,8 +55,8 @@ func (s *ruleService) Remove(ctx context.Context, ruleUID string) error {
 	})
 }
 
-func (s *ruleService) List(ctx context.Context) ([]rule.RuleSpec, error) {
-	rules := []rule.RuleSpec{}
+func (s *ruleService) List(ctx context.Context) ([]segmentrule.Spec, error) {
+	rules := []segmentrule.Spec{}
 	var err error
 
 	err = s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
@@ -66,7 +66,7 @@ func (s *ruleService) List(ctx context.Context) ([]rule.RuleSpec, error) {
 		}
 
 		for _, item := range items {
-			rules = append(rules, item.(rule.RuleSpec))
+			rules = append(rules, item.(segmentrule.Spec))
 		}
 		return nil
 	})

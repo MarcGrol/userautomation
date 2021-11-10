@@ -7,13 +7,13 @@ import (
 	"github.com/MarcGrol/userautomation/core/user"
 )
 
-type SegmentSpec struct {
+type Spec struct {
 	UID            string
 	Description    string
 	UserFilterName string
 }
 
-func (s SegmentSpec) IsApplicableForUser(ctx context.Context, u user.User) (bool, error) {
+func (s Spec) IsApplicableForUser(ctx context.Context, u user.User) (bool, error) {
 	filterFunc, found := user.GetUserFilterByName(ctx, s.UserFilterName)
 	if !found {
 		return false, fmt.Errorf("User filter function with name %s was not found", s.UserFilterName)
@@ -26,14 +26,14 @@ func (s SegmentSpec) IsApplicableForUser(ctx context.Context, u user.User) (bool
 }
 
 type SegmentWithUsers struct {
-	SegmentSpec SegmentSpec
+	SegmentSpec Spec
 	Users       map[string]user.User
 }
 
 type Management interface {
-	Put(ctx context.Context, segment SegmentSpec) error
-	Get(ctx context.Context, segmentUID string) (SegmentSpec, bool, error)
-	List(ctx context.Context) ([]SegmentSpec, error)
+	Put(ctx context.Context, segment Spec) error
+	Get(ctx context.Context, segmentUID string) (Spec, bool, error)
+	List(ctx context.Context) ([]Spec, error)
 	Remove(ctx context.Context, segmentUID string) error
 }
 

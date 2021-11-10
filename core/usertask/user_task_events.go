@@ -16,7 +16,7 @@ type UserTaskEventHandler interface {
 }
 
 type UserTaskExecutionRequestedEvent struct {
-	Task UserTask
+	Task Spec
 }
 
 func DispatchEvent(ctx context.Context, handler UserTaskEventHandler, topic string, event interface{}) error {

@@ -5,8 +5,8 @@ import (
 	"github.com/MarcGrol/userautomation/coredata/supportedactions"
 	"testing"
 
-	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
+	"github.com/MarcGrol/userautomation/core/segmentrule"
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"github.com/golang/mock/gomock"
@@ -48,7 +48,7 @@ func TestOnDemand(t *testing.T) {
 		defer sut.Trigger(ctx, "YoungRule")
 
 		// then
-		pubsub.EXPECT().Publish(gomock.Any(), rule.TriggerTopicName, rule.RuleExecutionRequestedEvent{
+		pubsub.EXPECT().Publish(gomock.Any(), segmentrule.TriggerTopicName, segmentrule.RuleExecutionRequestedEvent{
 			Rule: youngAgeRule,
 		}).Return(nil)
 	})
@@ -66,30 +66,30 @@ func TestOnDemand(t *testing.T) {
 		defer sut.Trigger(ctx, "OldRule")
 
 		// then
-		pubsub.EXPECT().Publish(gomock.Any(), rule.TriggerTopicName, rule.RuleExecutionRequestedEvent{
+		pubsub.EXPECT().Publish(gomock.Any(), segmentrule.TriggerTopicName, segmentrule.RuleExecutionRequestedEvent{
 			Rule: oldAgeRule,
 		}).Return(nil)
 	})
 }
 
-func setup(t *testing.T) (*rule.RuleManagementStub, *pubsub.MockPubsub, *gomock.Controller) {
+func setup(t *testing.T) (*segmentrule.ManagementStub, *pubsub.MockPubsub, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
-	ruleService := rule.NewRuleManagementStub()
+	ruleService := segmentrule.NewRuleManagementStub()
 	pubsubMock := pubsub.NewMockPubsub(ctrl)
 
 	return ruleService, pubsubMock, ctrl
 }
 
-func createRule(ctx context.Context, t *testing.T, segmentService rule.RuleService, r rule.RuleSpec) {
+func createRule(ctx context.Context, t *testing.T, segmentService segmentrule.Service, r segmentrule.Spec) {
 	err := segmentService.Put(ctx, r)
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-var oldAgeRule = rule.RuleSpec{
+var oldAgeRule = segmentrule.Spec{
 	UID: "OldRule",
-	SegmentSpec: segment.SegmentSpec{
+	SegmentSpec: segment.Spec{
 		UID:            "old users segment",
 		Description:    "old users segment",
 		UserFilterName: user.FilterOldAge,
@@ -97,9 +97,9 @@ var oldAgeRule = rule.RuleSpec{
 	ActionSpec: supportedactions.MailToOld,
 }
 
-var youngAgeRule = rule.RuleSpec{
+var youngAgeRule = segmentrule.Spec{
 	UID: "YoungRule",
-	SegmentSpec: segment.SegmentSpec{
+	SegmentSpec: segment.Spec{
 		UID:            "young users segment",
 		Description:    "young users segment",
 		UserFilterName: user.FilterYoungAge,

@@ -221,7 +221,7 @@ func setupMocks(t *testing.T) (*datastore.DatastoreStub, *user.UserManagementStu
 
 func initialSegment() segment.SegmentWithUsers {
 	return segment.SegmentWithUsers{
-		SegmentSpec: segment.SegmentSpec{
+		SegmentSpec: segment.Spec{
 			UID:            "YoungSegment",
 			Description:    "young",
 			UserFilterName: user.FilterYoungAge,
@@ -262,7 +262,7 @@ func onSegmentCreated(ctx context.Context, t *testing.T, sut segment.EventHandle
 
 func modifiedSegment() segment.SegmentWithUsers {
 	return segment.SegmentWithUsers{
-		SegmentSpec: segment.SegmentSpec{
+		SegmentSpec: segment.Spec{
 			UID:            "YoungSegment",
 			Description:    "old",
 			UserFilterName: user.FilterOldAge,

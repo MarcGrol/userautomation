@@ -24,7 +24,7 @@ func NewEmailAction(subjectTemplate string, bodyTemplate string, emailClient ema
 	}
 }
 
-func (ea *EmailAction) Perform(ctx context.Context, a usertask.UserTask) error {
+func (ea *EmailAction) Perform(ctx context.Context, a usertask.Spec) error {
 	log.Printf("email-action: %s", a.String())
 
 	userEmail, ok := a.User.Attributes["email_address"].(string)

@@ -2,7 +2,7 @@ package endtoend
 
 import (
 	"context"
-	"github.com/MarcGrol/userautomation/core/rule"
+	"github.com/MarcGrol/userautomation/core/segmentrule"
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/services/ondemandtriggerservice"
 	"github.com/MarcGrol/userautomation/services/rulemanagement"
@@ -15,16 +15,16 @@ import (
 
 type EntireSystem interface {
 	GetUserService() user.Management
-	GetRuleService() rule.RuleService
+	GetRuleService() segmentrule.Service
 	GetSegmentService() segmentmanagement.SegmentManagement
-	GetOnDemandExecutionService() rule.TriggerRuleExecution
+	GetOnDemandExecutionService() segmentrule.TriggerRuleExecution
 }
 
 type entireSystemWiredTogether struct {
 	userService     user.Management
-	ruleService     rule.RuleService
+	ruleService     segmentrule.Service
 	segmentService  segmentmanagement.SegmentManagement
-	ondemandService rule.TriggerRuleExecution
+	ondemandService segmentrule.TriggerRuleExecution
 }
 
 func New(ctx context.Context) EntireSystem {
@@ -53,7 +53,7 @@ func (s *entireSystemWiredTogether) GetUserService() user.Management {
 	return s.userService
 }
 
-func (s *entireSystemWiredTogether) GetRuleService() rule.RuleService {
+func (s *entireSystemWiredTogether) GetRuleService() segmentrule.Service {
 	return s.ruleService
 }
 
@@ -61,6 +61,6 @@ func (s *entireSystemWiredTogether) GetSegmentService() segmentmanagement.Segmen
 	return s.segmentService
 }
 
-func (s *entireSystemWiredTogether) GetOnDemandExecutionService() rule.TriggerRuleExecution {
+func (s *entireSystemWiredTogether) GetOnDemandExecutionService() segmentrule.TriggerRuleExecution {
 	return s.ondemandService
 }

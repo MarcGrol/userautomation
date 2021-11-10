@@ -1,9 +1,9 @@
-package ondemandevaluator
+package segmentruleevaluator
 
 import (
 	"context"
 	"fmt"
-	"github.com/MarcGrol/userautomation/core/rule"
+	"github.com/MarcGrol/userautomation/core/segmentrule"
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
@@ -14,16 +14,16 @@ type OnDemandRuleEvaluator interface {
 	pubsub.SubscribingService
 	// Early warning system. This service will break when "users"-module introduces new events.
 	// In this case this service should also introduce these new events.
-	rule.TriggerEventHandler
+	segmentrule.TriggerEventHandler
 }
 
 type onDemandRuleEvaluator struct {
 	pubsub      pubsub.Pubsub
-	ruleService rule.RuleService
+	ruleService segmentrule.Service
 	userService user.Management
 }
 
-func New(pubsub pubsub.Pubsub, ruleService rule.RuleService, userService user.Management) OnDemandRuleEvaluator {
+func New(pubsub pubsub.Pubsub, ruleService segmentrule.Service, userService user.Management) OnDemandRuleEvaluator {
 	return &onDemandRuleEvaluator{
 		pubsub:      pubsub,
 		ruleService: ruleService,
@@ -34,14 +34,14 @@ func New(pubsub pubsub.Pubsub, ruleService rule.RuleService, userService user.Ma
 func (s *onDemandRuleEvaluator) IamSubscribing() {}
 
 func (s *onDemandRuleEvaluator) Subscribe(ctx context.Context) error {
-	return s.pubsub.Subscribe(ctx, rule.TriggerTopicName, s.OnEvent)
+	return s.pubsub.Subscribe(ctx, segmentrule.TriggerTopicName, s.OnEvent)
 }
 
 func (s *onDemandRuleEvaluator) OnEvent(ctx context.Context, topic string, event interface{}) error {
-	return rule.DispatchTriggerEvent(ctx, s, topic, event)
+	return segmentrule.DispatchTriggerEvent(ctx, s, topic, event)
 }
 
-func (s *onDemandRuleEvaluator) OnRuleExecutionRequestedEvent(ctx context.Context, event rule.RuleExecutionRequestedEvent) error {
+func (s *onDemandRuleEvaluator) OnRuleExecutionRequestedEvent(ctx context.Context, event segmentrule.RuleExecutionRequestedEvent) error {
 	r, exists, err := s.ruleService.Get(ctx, event.Rule.UID)
 	if err != nil {
 		return fmt.Errorf("Error getting rule with uid %s: %s", event.Rule.UID, err)
@@ -70,11 +70,11 @@ func (s *onDemandRuleEvaluator) OnRuleExecutionRequestedEvent(ctx context.Contex
 	return nil
 }
 
-func (s *onDemandRuleEvaluator) publishActionForUser(ctx context.Context, r rule.RuleSpec, u user.User) error {
+func (s *onDemandRuleEvaluator) publishActionForUser(ctx context.Context, r segmentrule.Spec, u user.User) error {
 	err := s.pubsub.Publish(ctx, usertask.TopicName, usertask.UserTaskExecutionRequestedEvent{
-		Task: usertask.UserTask{
+		Task: usertask.Spec{
 			RuleSpec: r,
-			Reason:   usertask.ReasonIsOnDemand,
+			Reason:   usertask.ReasonSegmentRuleExecuted,
 			User:     u,
 		},
 	})

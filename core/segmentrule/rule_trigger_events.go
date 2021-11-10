@@ -1,4 +1,4 @@
-package rule
+package segmentrule
 
 import (
 	"context"
@@ -16,7 +16,7 @@ type TriggerEventHandler interface {
 }
 
 type RuleExecutionRequestedEvent struct {
-	Rule RuleSpec
+	Rule Spec
 }
 
 func DispatchTriggerEvent(ctx context.Context, handler TriggerEventHandler, topic string, event interface{}) error {

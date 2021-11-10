@@ -11,7 +11,7 @@ const (
 )
 
 var (
-	SmsToYoung = action.ActionSpec{
+	SmsToYoung = action.Spec{
 		Name:                    SmsToYoungName,
 		Description:             "Sms to young people",
 		MandatoryUserAttributes: []string{PhoneNumber, FirstName, Age},
@@ -19,7 +19,7 @@ var (
 			"body_template": "my sms body template",
 		},
 	}
-	MailToOld = action.ActionSpec{
+	MailToOld = action.Spec{
 		Name:                    MailToOldName,
 		Description:             "Mail to old people",
 		MandatoryUserAttributes: []string{EmailAddress, FirstName, Age},

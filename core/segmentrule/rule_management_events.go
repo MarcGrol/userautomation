@@ -1,4 +1,4 @@
-package rule
+package segmentrule
 
 import (
 	"context"
@@ -18,16 +18,16 @@ type EventHandler interface {
 }
 
 type CreatedEvent struct {
-	RuleState RuleSpec
+	RuleState Spec
 }
 
 type ModifiedEvent struct {
-	OldRuleState RuleSpec
-	NewRuleState RuleSpec
+	OldRuleState Spec
+	NewRuleState Spec
 }
 
 type RemovedEvent struct {
-	SegmentState RuleSpec
+	SegmentState Spec
 }
 
 func DispatchManagementEvent(ctx context.Context, handler EventHandler, topic string, event interface{}) error {

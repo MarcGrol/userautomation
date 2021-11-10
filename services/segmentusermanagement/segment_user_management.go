@@ -302,7 +302,7 @@ func (s *segmentUserManager) GetUsersForSegment(ctx context.Context, segmentUID 
 		return nil, err
 	}
 	if !exists {
-		return nil, fmt.Errorf("SegmentSpec with uid %s does not exist", segmentUID)
+		return nil, fmt.Errorf("Spec with uid %s does not exist", segmentUID)
 	}
 	swu := item.(segment.SegmentWithUsers)
 

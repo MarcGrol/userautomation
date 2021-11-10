@@ -24,7 +24,7 @@ func New(datastore datastore.Datastore, pubsub pubsub.Pubsub) SegmentManagement 
 	}
 }
 
-func (s *segmentManagement) Put(ctx context.Context, segm segment.SegmentSpec) error {
+func (s *segmentManagement) Put(ctx context.Context, segm segment.Spec) error {
 	return s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		original, exists, err := s.segmentStore.Get(ctx, segm.UID)
 		if err != nil {
@@ -40,7 +40,7 @@ func (s *segmentManagement) Put(ctx context.Context, segm segment.SegmentSpec) e
 			return s.pubsub.Publish(ctx, segment.ManagementTopicName, segment.CreatedEvent{SegmentState: segm})
 		} else {
 			return s.pubsub.Publish(ctx, segment.ManagementTopicName, segment.ModifiedEvent{
-				OldSegmentState: original.(segment.SegmentSpec),
+				OldSegmentState: original.(segment.Spec),
 				NewSegmentState: segm,
 			})
 		}
@@ -63,7 +63,7 @@ func (s *segmentManagement) Remove(ctx context.Context, segmentUID string) error
 			}
 
 			err = s.pubsub.Publish(ctx, segment.ManagementTopicName, segment.RemovedEvent{
-				SegmentState: original.(segment.SegmentSpec),
+				SegmentState: original.(segment.Spec),
 			})
 			if err != nil {
 				return err
@@ -73,8 +73,8 @@ func (s *segmentManagement) Remove(ctx context.Context, segmentUID string) error
 	})
 }
 
-func (s *segmentManagement) Get(ctx context.Context, segmentUID string) (segment.SegmentSpec, bool, error) {
-	var segm segment.SegmentSpec
+func (s *segmentManagement) Get(ctx context.Context, segmentUID string) (segment.Spec, bool, error) {
+	var segm segment.Spec
 	segmentExists := false
 	err := s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		item, exists, err := s.segmentStore.Get(ctx, segmentUID)
@@ -83,9 +83,9 @@ func (s *segmentManagement) Get(ctx context.Context, segmentUID string) (segment
 		}
 
 		if !exists {
-			return fmt.Errorf("SegmentSpec with uid %s does not exist", segmentUID)
+			return fmt.Errorf("Spec with uid %s does not exist", segmentUID)
 		}
-		segm = item.(segment.SegmentSpec)
+		segm = item.(segment.Spec)
 		segmentExists = exists
 
 		return nil
@@ -96,8 +96,8 @@ func (s *segmentManagement) Get(ctx context.Context, segmentUID string) (segment
 	return segm, segmentExists, nil
 }
 
-func (s *segmentManagement) List(ctx context.Context) ([]segment.SegmentSpec, error) {
-	segments := []segment.SegmentSpec{}
+func (s *segmentManagement) List(ctx context.Context) ([]segment.Spec, error) {
+	segments := []segment.Spec{}
 
 	err := s.segmentStore.RunInTransaction(ctx, func(ctx context.Context) error {
 		items, err := s.segmentStore.GetAll(ctx)
@@ -106,7 +106,7 @@ func (s *segmentManagement) List(ctx context.Context) ([]segment.SegmentSpec, er
 		}
 
 		for _, i := range items {
-			segments = append(segments, i.(segment.SegmentSpec))
+			segments = append(segments, i.(segment.Spec))
 		}
 
 		return nil

@@ -22,7 +22,7 @@ func New(bodyTemplate string, smsClient smssending.SmsSender) usertask.UserTaskE
 	}
 }
 
-func (ea *SmsAction) Perform(ctx context.Context, a usertask.UserTask) error {
+func (ea *SmsAction) Perform(ctx context.Context, a usertask.Spec) error {
 	log.Printf("email-action: %s", a.String())
 
 	userPhoneNumber, ok := a.User.Attributes["phone_number"].(string)

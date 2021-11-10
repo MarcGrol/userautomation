@@ -18,16 +18,16 @@ type EventHandler interface {
 }
 
 type CreatedEvent struct {
-	SegmentState SegmentSpec
+	SegmentState Spec
 }
 
 type ModifiedEvent struct {
-	OldSegmentState SegmentSpec
-	NewSegmentState SegmentSpec
+	OldSegmentState Spec
+	NewSegmentState Spec
 }
 
 type RemovedEvent struct {
-	SegmentState SegmentSpec
+	SegmentState Spec
 }
 
 func DispatchManagementEvent(ctx context.Context, handler EventHandler, topic string, event interface{}) error {
