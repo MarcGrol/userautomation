@@ -64,6 +64,9 @@ func (s *segmentUserManager) OnSegmentCreated(ctx context.Context, event segment
 		segm := event.SegmentState
 
 		// add all matching users to segment
+		// TODO this possibly a very large task that would lock the datastore for a long time:
+		// we might want to break this up with cursors into multiple tasks
+		// The segment is not ready to be used in rules untill all updates have been applied
 		users, err := s.userService.QueryByName(ctx, segm.UserFilterName)
 		if err != nil {
 			return err
@@ -105,6 +108,8 @@ func (s *segmentUserManager) OnSegmentModified(ctx context.Context, event segmen
 		swu := item.(segment.SegmentWithUsers)
 		swu.SegmentSpec = segm
 
+		// TODO these both are possibly a very large tasks that would lock the datastoree:
+		// we might want to break this up with cursors into multiple tasks
 		{
 			// Remove existing users that nom longer match segment
 			for _, u := range swu.Users {
@@ -160,6 +165,7 @@ func (s *segmentUserManager) OnSegmentRemoved(ctx context.Context, event segment
 		swu := item.(segment.SegmentWithUsers)
 
 		// Remove existing users that nom longer match segment
+		// TODO these both are possibly a very large task: we might want to break this up with cursors into multiple tasks
 		for _, u := range swu.Users {
 			err := s.pubsub.Publish(ctx, segment.UserTopicName, segment.UserRemovedFromSegmentEvent{SegmentUID: segm.UID, User: u})
 			if err != nil {

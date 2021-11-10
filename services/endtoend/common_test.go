@@ -2,8 +2,8 @@ package endtoend
 
 import (
 	"context"
+	"github.com/MarcGrol/userautomation/coredata/supportedactions"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
-	"github.com/MarcGrol/userautomation/services/actionmanager"
 	"testing"
 
 	"github.com/MarcGrol/userautomation/core/rule"
@@ -80,7 +80,7 @@ func createOldAgeRule(ctx context.Context, t *testing.T, segmentService rule.Rul
 			Description:    "old users segment",
 			UserFilterName: user.FilterOldAge,
 		},
-		ActionSpec: actionmanager.MailToOld,
+		ActionSpec: supportedactions.MailToOld,
 	})
 	if err != nil {
 		t.Error(err)
@@ -95,7 +95,7 @@ func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService rule.R
 			Description:    "young users segment",
 			UserFilterName: user.FilterYoungAge,
 		},
-		ActionSpec: actionmanager.SmsToYoung,
+		ActionSpec: supportedactions.SmsToYoung,
 	})
 	if err != nil {
 		t.Error(err)

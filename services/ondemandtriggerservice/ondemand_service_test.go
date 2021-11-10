@@ -2,13 +2,13 @@ package ondemandtriggerservice
 
 import (
 	"context"
+	"github.com/MarcGrol/userautomation/coredata/supportedactions"
 	"testing"
 
 	"github.com/MarcGrol/userautomation/core/rule"
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
-	"github.com/MarcGrol/userautomation/services/actionmanager"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -94,7 +94,7 @@ var oldAgeRule = rule.RuleSpec{
 		Description:    "old users segment",
 		UserFilterName: user.FilterOldAge,
 	},
-	ActionSpec: actionmanager.MailToOld,
+	ActionSpec: supportedactions.MailToOld,
 }
 
 var youngAgeRule = rule.RuleSpec{
@@ -104,7 +104,7 @@ var youngAgeRule = rule.RuleSpec{
 		Description:    "young users segment",
 		UserFilterName: user.FilterYoungAge,
 	},
-	ActionSpec: actionmanager.SmsToYoung,
+	ActionSpec: supportedactions.SmsToYoung,
 }
 
 func nothingHappens() {}

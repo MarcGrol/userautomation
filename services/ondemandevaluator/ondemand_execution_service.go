@@ -50,6 +50,8 @@ func (s *onDemandRuleEvaluator) OnRuleExecutionRequestedEvent(ctx context.Contex
 		return fmt.Errorf("Rule with uid %s does not exist: %s", event.Rule.UID, err)
 	}
 
+	// TODO this possibly a very large task that would lock the datastore for a long time:
+	// we might want to break this up with cursors into multiple tasks
 	users, err := s.userService.QueryByName(ctx, r.SegmentSpec.UserFilterName)
 	if err != nil {
 		return fmt.Errorf("Error querying users: %s", err)
