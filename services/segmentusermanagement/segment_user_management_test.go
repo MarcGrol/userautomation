@@ -3,7 +3,7 @@ package segmentusermanagement
 import (
 	"context"
 	"github.com/MarcGrol/userautomation/coredata/predefinedfilters"
-	"github.com/MarcGrol/userautomation/services/filtermanager"
+	"github.com/MarcGrol/userautomation/services/filtermanagement"
 	"testing"
 
 	"github.com/MarcGrol/userautomation/core/segment"
@@ -259,14 +259,14 @@ func TestSegmentUserManagement(t *testing.T) {
 func setupMocks(t *testing.T) (*datastore.DatastoreStub, *user.UserManagementStub, user.FilterManager, *pubsub.PubsubStub, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 	segmentStore := datastore.NewDatastoreStub()
-	filterService := filtermanager.New()
+	filterService := filtermanagement.New()
 	userService := user.NewUserManagementStub(filterService)
 	ps := pubsub.NewPubsubStub()
 	return segmentStore, userService, filterService, ps, ctrl
 }
 
-func initialSegmentWithUsers() segment.WithUsers {
-	return segment.WithUsers{
+func initialSegmentWithUsers() segmentWithUsers {
+	return segmentWithUsers{
 		SegmentSpec: predefinedsegments.YoungAgeSegment,
 		Users:       map[string]user.User{},
 	}
@@ -292,7 +292,7 @@ func createSegmentWithUsers(ctx context.Context, t *testing.T, sut *segmentUserM
 	}
 }
 
-func modifiedSegment() segment.WithUsers {
+func modifiedSegment() segmentWithUsers {
 	swu := initialSegmentWithUsers()
 	swu.SegmentSpec.Description = "old"
 	swu.SegmentSpec.UserFilterName = predefinedfilters.FilterOldAgeName
@@ -301,12 +301,12 @@ func modifiedSegment() segment.WithUsers {
 	return swu
 }
 
-func getSegment(ctx context.Context, t *testing.T, sut *segmentUserManager) segment.WithUsers {
+func getSegment(ctx context.Context, t *testing.T, sut *segmentUserManager) segmentWithUsers {
 	item, exists, err := sut.segmentWithUsersStore.Get(ctx, predefinedsegments.YoungAgeSegmentName)
 	if err != nil || !exists {
 		t.Error(err)
 	}
-	return item.(segment.WithUsers)
+	return item.(segmentWithUsers)
 }
 
 func existsUserInSegment(ctx context.Context, t *testing.T, sut *segmentUserManager, userId string) bool {

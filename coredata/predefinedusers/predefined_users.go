@@ -24,4 +24,13 @@ var (
 			Age:          48,
 		},
 	}
+	Pien = user.User{
+		UID: "1",
+		Attributes: map[string]interface{}{
+			FirstName:    "Pien",
+			EmailAddress: "pien@home.nl",
+			PhoneNumber:  "+316333333",
+			Age:          16,
+		},
+	}
 )

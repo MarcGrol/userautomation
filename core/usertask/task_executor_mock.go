@@ -35,15 +35,51 @@ func (m *MockUserTaskExecutor) EXPECT() *MockUserTaskExecutorMockRecorder {
 }
 
 // Perform mocks base method.
-func (m *MockUserTaskExecutor) Perform(ctx context.Context, task Spec) error {
+func (m *MockUserTaskExecutor) Perform(ctx context.Context, task Spec) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Perform", ctx, task)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Perform indicates an expected call of Perform.
 func (mr *MockUserTaskExecutorMockRecorder) Perform(ctx, task interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Perform", reflect.TypeOf((*MockUserTaskExecutor)(nil).Perform), ctx, task)
+}
+
+// MockExecutionReporter is a mock of ExecutionReporter interface.
+type MockExecutionReporter struct {
+	ctrl     *gomock.Controller
+	recorder *MockExecutionReporterMockRecorder
+}
+
+// MockExecutionReporterMockRecorder is the mock recorder for MockExecutionReporter.
+type MockExecutionReporterMockRecorder struct {
+	mock *MockExecutionReporter
+}
+
+// NewMockExecutionReporter creates a new mock instance.
+func NewMockExecutionReporter(ctrl *gomock.Controller) *MockExecutionReporter {
+	mock := &MockExecutionReporter{ctrl: ctrl}
+	mock.recorder = &MockExecutionReporterMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockExecutionReporter) EXPECT() *MockExecutionReporterMockRecorder {
+	return m.recorder
+}
+
+// ReportExecution mocks base method.
+func (m *MockExecutionReporter) ReportExecution(ctx context.Context, message string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ReportExecution", ctx, message)
+}
+
+// ReportExecution indicates an expected call of ReportExecution.
+func (mr *MockExecutionReporterMockRecorder) ReportExecution(ctx, message interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReportExecution", reflect.TypeOf((*MockExecutionReporter)(nil).ReportExecution), ctx, message)
 }

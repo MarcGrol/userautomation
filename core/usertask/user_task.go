@@ -9,7 +9,7 @@ import (
 
 //go:generate mockgen -source=user_task.go -destination=task_executor_mock.go -package=usertask UserTaskExecutor
 type UserTaskExecutor interface {
-	Perform(ctx context.Context, task Spec) error
+	Perform(ctx context.Context, task Spec) (string, error)
 }
 
 type Reason int
@@ -30,4 +30,8 @@ type Spec struct {
 func (t Spec) String() string {
 	return fmt.Sprintf("UserTaskExecutor triggered action %s on User '%s' - status: %+v\n",
 		t.ActionSpec.Name, t.User, t.Reason)
+}
+
+type ExecutionReporter interface {
+	ReportExecution(ctx context.Context, message string)
 }

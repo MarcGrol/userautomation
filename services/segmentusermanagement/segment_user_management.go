@@ -84,7 +84,7 @@ func (s *segmentUserManager) OnSegmentCreated(ctx context.Context, event segment
 			}
 		}
 
-		err = s.segmentWithUsersStore.Put(ctx, segm.UID, segment.WithUsers{
+		err = s.segmentWithUsersStore.Put(ctx, segm.UID, segmentWithUsers{
 			SegmentSpec: segm,
 			Users:       userMap,
 		})
@@ -105,9 +105,9 @@ func (s *segmentUserManager) OnSegmentModified(ctx context.Context, event segmen
 			return err
 		}
 		if !exist {
-			return fmt.Errorf("WithUsers with uid %s does not exist", segm.UID)
+			return fmt.Errorf("segmentWithUsers with uid %s does not exist", segm.UID)
 		}
-		swu := item.(segment.WithUsers)
+		swu := item.(segmentWithUsers)
 		swu.SegmentSpec = segm
 
 		// TODO these both are possibly a very large tasks that would lock the datastoree:
@@ -174,9 +174,9 @@ func (s *segmentUserManager) OnSegmentRemoved(ctx context.Context, event segment
 			return err
 		}
 		if !exist {
-			return fmt.Errorf("WithUsers with uid %s does not exist", segm.UID)
+			return fmt.Errorf("segmentWithUsers with uid %s does not exist", segm.UID)
 		}
-		swu := item.(segment.WithUsers)
+		swu := item.(segmentWithUsers)
 
 		// Remove existing users that nom longer match segment
 		// TODO these both are possibly a very large task: we might want to break this up with cursors into multiple tasks
@@ -207,7 +207,7 @@ func (s *segmentUserManager) OnUserCreated(ctx context.Context, event user.Creat
 		}
 
 		for _, item := range items {
-			swu := item.(segment.WithUsers)
+			swu := item.(segmentWithUsers)
 
 			isApplicable, err := s.isSegmentApplicableForUser(ctx, u, swu.SegmentSpec.UserFilterName)
 			if err != nil {
@@ -243,7 +243,7 @@ func (s *segmentUserManager) OnUserModified(ctx context.Context, event user.Modi
 		}
 
 		for _, item := range items {
-			swu := item.(segment.WithUsers)
+			swu := item.(segmentWithUsers)
 			_, found := swu.Users[u.UID]
 
 			isApplicable, err := s.isSegmentApplicableForUser(ctx, u, swu.SegmentSpec.UserFilterName)
@@ -290,7 +290,7 @@ func (s *segmentUserManager) OnUserRemoved(ctx context.Context, event user.Remov
 		}
 
 		for _, item := range items {
-			swu := item.(segment.WithUsers)
+			swu := item.(segmentWithUsers)
 
 			delete(swu.Users, u.UID)
 			err = s.segmentWithUsersStore.Put(ctx, swu.SegmentSpec.UID, swu)
@@ -318,7 +318,7 @@ func (s *segmentUserManager) GetUsersForSegment(ctx context.Context, segmentUID 
 	if !exists {
 		return nil, fmt.Errorf("Spec with uid %s does not exist", segmentUID)
 	}
-	swu := item.(segment.WithUsers)
+	swu := item.(segmentWithUsers)
 
 	users := []user.User{}
 	for _, u := range swu.Users {

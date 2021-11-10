@@ -1,4 +1,4 @@
-package filtermanager
+package filtermanagement
 
 import (
 	"context"

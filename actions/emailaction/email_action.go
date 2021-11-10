@@ -24,27 +24,27 @@ func NewEmailAction(subjectTemplate string, bodyTemplate string, emailClient ema
 	}
 }
 
-func (ea *EmailAction) Perform(ctx context.Context, a usertask.Spec) error {
+func (ea *EmailAction) Perform(ctx context.Context, a usertask.Spec) (string, error) {
 	log.Printf("email-action: %s", a.String())
 
 	userEmail, ok := a.User.Attributes["email_address"].(string)
 	if !ok {
-		return fmt.Errorf("User %+v has no emailaddress", a.User)
+		return "", fmt.Errorf("User %+v has no emailaddress", a.User)
 	}
 	subject, err := templating.ApplyTemplate(a.ActionSpec.Name+"-email-subject", ea.subjectTemplate, a.User.Attributes)
 	if err != nil {
-		return fmt.Errorf("Error creating email subject for user %s:%s", a.User.UID, err)
+		return "", fmt.Errorf("Error creating email subject for user %s:%s", a.User.UID, err)
 	}
 
 	body, err := templating.ApplyTemplate(a.ActionSpec.Name+"-email-body", ea.bodyTemplate, a.User.Attributes)
 	if err != nil {
-		return fmt.Errorf("Error creating email body for user %s:%s", a.User.UID, err)
+		return "", fmt.Errorf("Error creating email body for user %s:%s", a.User.UID, err)
 	}
 
 	err = ea.emailClient.Send(ctx, userEmail, subject, body)
 	if err != nil {
-		return fmt.Errorf("Error sending email for user %s:%s", a.User.UID, err)
+		return "", fmt.Errorf("Error sending email for user %s:%s", a.User.UID, err)
 	}
 
-	return nil
+	return fmt.Sprintf("Email with subject '%s' has been sent to user '%s'", subject, userEmail), nil
 }

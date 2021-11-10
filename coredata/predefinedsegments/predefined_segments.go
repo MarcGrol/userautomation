@@ -6,8 +6,9 @@ import (
 )
 
 const (
-	OldAgeSegmentName   = "OldAgeSegment"
-	YoungAgeSegmentName = "YoungAgeSegment"
+	OldAgeSegmentName               = "OldAgeSegment"
+	YoungAgeSegmentName             = "YoungAgeSegment"
+	FirstNameStartsWithMSegmentName = "FirstNameStartsWithMSegment"
 )
 
 var (
@@ -21,5 +22,11 @@ var (
 		UID:            YoungAgeSegmentName,
 		Description:    "young users segment",
 		UserFilterName: predefinedfilters.FilterYoungAgeName,
+	}
+
+	FirstNameStartsWithMSegment = segment.Spec{
+		UID:            FirstNameStartsWithMSegmentName,
+		Description:    "firstname starts with M segment",
+		UserFilterName: predefinedfilters.FilterFirstnameStartsWithM,
 	}
 )

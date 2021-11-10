@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/MarcGrol/userautomation/actions/emailaction"
+	"github.com/MarcGrol/userautomation/actions/smsaction"
 	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/coredata/supportedactions"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"github.com/MarcGrol/userautomation/integrations/emailsending"
+	"github.com/MarcGrol/userautomation/integrations/smssending"
 )
 
 type Service interface {
@@ -19,12 +21,14 @@ type Service interface {
 }
 
 type service struct {
-	pubsub pubsub.Pubsub
+	pubsub   pubsub.Pubsub
+	reporter usertask.ExecutionReporter
 }
 
-func New(pubsub pubsub.Pubsub) Service {
+func New(pubsub pubsub.Pubsub, reporter usertask.ExecutionReporter) Service {
 	return &service{
-		pubsub: pubsub,
+		pubsub:   pubsub,
+		reporter: reporter,
 	}
 }
 
@@ -42,15 +46,28 @@ func (s *service) OnUserTaskExecutionRequestedEvent(ctx context.Context, event u
 	actionSpec := event.Task.ActionSpec
 	switch actionSpec.Name {
 	case supportedactions.MailToOldName:
-		return emailaction.NewEmailAction(
-			actionSpec.ProvidedInformation["email_subject"],
-			actionSpec.ProvidedInformation["email_body"],
-			emailsending.NewEmailSender()).Perform(ctx, event.Task)
+		{
+			report, err := emailaction.NewEmailAction(
+				actionSpec.ProvidedInformation["subject_template"],
+				actionSpec.ProvidedInformation["body_template"],
+				emailsending.NewEmailSender()).Perform(ctx, event.Task)
+			if err != nil {
+				return err
+			}
+			s.reporter.ReportExecution(ctx, report)
+			return nil
+		}
 	case supportedactions.SmsToYoungName:
-		return emailaction.NewEmailAction(
-			actionSpec.ProvidedInformation["email_subject"],
-			actionSpec.ProvidedInformation["email_body"],
-			emailsending.NewEmailSender()).Perform(ctx, event.Task)
+		{
+			report, err := smsaction.New(
+				actionSpec.ProvidedInformation["body_template"],
+				smssending.NewSmsSender()).Perform(ctx, event.Task)
+			if err != nil {
+				return err
+			}
+			s.reporter.ReportExecution(ctx, report)
+			return nil
+		}
 	default:
 		return fmt.Errorf("Action %s not recoognized", actionSpec.Name)
 	}

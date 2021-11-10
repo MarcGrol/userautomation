@@ -7,8 +7,10 @@ import (
 )
 
 const (
-	OldAgeEmailRuleName = "OldAgeEmailRule"
-	YoungAgeSmsRuleName = "YoungAgeSmsRuleName"
+	OldAgeEmailRuleName        = "OldAgeEmailRule"
+	AnotherOldAgeEmailRuleName = "AnotherOldAgeEmailRule"
+	YoungAgeSmsRuleName        = "YoungAgeSmsRuleName"
+	FirstNameStartsWithMName   = "FirstNameStartsWithM"
 )
 
 var (
@@ -19,9 +21,23 @@ var (
 		ActionSpec:  supportedactions.MailToOld,
 	}
 
+	AotherOldAgeEmailRule = segmentrule.Spec{
+		UID:         AnotherOldAgeEmailRuleName,
+		Description: "Send another email to old users",
+		SegmentSpec: supportedrules.OldAgeSegment,
+		ActionSpec:  supportedactions.MailToOld,
+	}
+
 	YoungAgeSmsRule = segmentrule.Spec{
 		UID:         YoungAgeSmsRuleName,
 		Description: "Send sms to young users",
+		SegmentSpec: supportedrules.YoungAgeSegment,
+		ActionSpec:  supportedactions.SmsToYoung,
+	}
+
+	FirstNameStartsWithM = segmentrule.Spec{
+		UID:         FirstNameStartsWithMName,
+		Description: "Send sms to users",
 		SegmentSpec: supportedrules.YoungAgeSegment,
 		ActionSpec:  supportedactions.SmsToYoung,
 	}

@@ -16,7 +16,7 @@ var (
 		Description:             "Sms to young people",
 		MandatoryUserAttributes: []string{PhoneNumber, FirstName, Age},
 		ProvidedInformation: map[string]string{
-			"body_template": "my sms body template",
+			"body_template": "Message to {{.first_name}}",
 		},
 	}
 	MailToOld = action.Spec{
@@ -24,8 +24,8 @@ var (
 		Description:             "Mail to old people",
 		MandatoryUserAttributes: []string{EmailAddress, FirstName, Age},
 		ProvidedInformation: map[string]string{
-			"subject_template": "my email subject",
-			"body_template":    "my email body",
+			"subject_template": "Your age is {{.age}}",
+			"body_template":    "Hi {{.first_name}}, your age is {{.age}}",
 		},
 	}
 )

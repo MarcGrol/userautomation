@@ -77,13 +77,12 @@ func (s *service) Get(ctx context.Context, segmentUID string) (segment.Spec, boo
 			return err
 		}
 
+		segmentExists = exists
 		if !exists {
-			segmentExists = false
 			return nil
 		}
 
 		segm = item.(segment.Spec)
-		segmentExists = exists
 
 		return nil
 	})

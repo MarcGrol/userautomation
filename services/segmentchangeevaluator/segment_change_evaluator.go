@@ -3,11 +3,12 @@ package segmentchangeevaluator
 import (
 	"context"
 	"fmt"
+	"log"
+
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/segmentrule"
 	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
-	"log"
 )
 
 type Service interface {
@@ -56,11 +57,13 @@ func (s *service) OnUserAddedToSegment(ctx context.Context, event segment.UserAd
 				continue
 			}
 
-			err := s.pubsub.Publish(ctx, usertask.TopicName, usertask.Spec{
-				RuleUID:    r.UID,
-				ActionSpec: r.ActionSpec,
-				Reason:     usertask.ReasonUserAddedToSegment,
-				User:       event.User,
+			err := s.pubsub.Publish(ctx, usertask.TopicName, usertask.UserTaskExecutionRequestedEvent{
+				Task: usertask.Spec{
+					RuleUID:    r.UID,
+					ActionSpec: r.ActionSpec,
+					Reason:     usertask.ReasonUserAddedToSegment,
+					User:       event.User,
+				},
 			})
 			if err != nil {
 				return fmt.Errorf("Error publishing user-task for rule %s and user %s: %s", r.UID, event.User.UID, err)

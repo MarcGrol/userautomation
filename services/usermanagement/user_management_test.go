@@ -3,7 +3,7 @@ package usermanagement
 import (
 	"context"
 	"github.com/MarcGrol/userautomation/coredata/supportedattrs"
-	"github.com/MarcGrol/userautomation/services/filtermanager"
+	"github.com/MarcGrol/userautomation/services/filtermanagement"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -82,7 +82,7 @@ func setupMocks(t *testing.T) (*datastore.DatastoreStub, user.FilterManager, *pu
 	ctrl := gomock.NewController(t)
 	storeSub := datastore.NewDatastoreStub()
 	ps := pubsub.NewPubsubStub()
-	filterManager := filtermanager.New()
+	filterManager := filtermanagement.New()
 	return storeSub, filterManager, ps, ctrl
 }
 

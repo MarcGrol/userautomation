@@ -11,11 +11,6 @@ type Spec struct {
 	UserFilterName string
 }
 
-type WithUsers struct {
-	SegmentSpec Spec
-	Users       map[string]user.User
-}
-
 type Management interface {
 	Put(ctx context.Context, segment Spec) error
 	Get(ctx context.Context, segmentUID string) (Spec, bool, error)
