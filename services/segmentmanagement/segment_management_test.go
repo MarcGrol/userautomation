@@ -2,7 +2,7 @@ package segmentmanagement
 
 import (
 	"context"
-	supportedrules "github.com/MarcGrol/userautomation/coredata/supportedsegments"
+	supportedrules "github.com/MarcGrol/userautomation/coredata/predefinedsegments"
 	"testing"
 
 	"github.com/golang/mock/gomock"

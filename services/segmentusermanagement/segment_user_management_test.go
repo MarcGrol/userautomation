@@ -4,14 +4,14 @@ import (
 	"context"
 	"testing"
 
-	"github.com/golang/mock/gomock"
-
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
-	. "github.com/MarcGrol/userautomation/coredata/supportedattrs"
-	"github.com/MarcGrol/userautomation/coredata/supportedsegments"
+	"github.com/MarcGrol/userautomation/coredata/predefinedsegments"
+	"github.com/MarcGrol/userautomation/coredata/predefinedusers"
+	"github.com/MarcGrol/userautomation/coredata/supportedattrs"
 	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -43,7 +43,7 @@ func TestSegmentUserManagement(t *testing.T) {
 		sut := New(segmentStore, userService, ps)
 
 		// given
-		createUser(ctx, t, userService, 50)
+		createUserWithAge(ctx, t, userService, 50)
 
 		// when
 		onSegmentCreated(ctx, t, sut)
@@ -60,7 +60,7 @@ func TestSegmentUserManagement(t *testing.T) {
 		sut := New(segmentStore, userService, ps)
 
 		// given
-		createUser(ctx, t, userService, 12)
+		createUserWithAge(ctx, t, userService, 12)
 
 		// when
 		onSegmentCreated(ctx, t, sut)
@@ -77,7 +77,7 @@ func TestSegmentUserManagement(t *testing.T) {
 		sut := New(segmentStore, userService, ps)
 
 		// given
-		createUser(ctx, t, userService, 50)
+		createUserWithAge(ctx, t, userService, 50)
 		createOtherUser(ctx, t, userService, 47)
 		createEmptySegment(ctx, t, sut)
 
@@ -96,7 +96,7 @@ func TestSegmentUserManagement(t *testing.T) {
 		sut := New(segmentStore, userService, ps)
 
 		// given
-		createUser(ctx, t, userService, 12)
+		createUserWithAge(ctx, t, userService, 12)
 		createOtherUser(ctx, t, userService, 12)
 		createEmptySegment(ctx, t, sut)
 
@@ -117,7 +117,7 @@ func TestSegmentUserManagement(t *testing.T) {
 		noUsers()
 
 		// when
-		sut.OnUserCreated(ctx, user.CreatedEvent{UserState: getUser(50)})
+		sut.OnUserCreated(ctx, user.CreatedEvent{UserState: userWithAge(50)})
 
 		// then
 	})
@@ -133,7 +133,7 @@ func TestSegmentUserManagement(t *testing.T) {
 		onSegmentCreated(ctx, t, sut)
 
 		// when
-		sut.OnUserCreated(ctx, user.CreatedEvent{UserState: getUser(50)})
+		sut.OnUserCreated(ctx, user.CreatedEvent{UserState: userWithAge(50)})
 
 		// then
 	})
@@ -149,7 +149,7 @@ func TestSegmentUserManagement(t *testing.T) {
 		createEmptySegment(ctx, t, sut)
 
 		// when
-		sut.OnUserCreated(ctx, user.CreatedEvent{UserState: getUser(12)})
+		sut.OnUserCreated(ctx, user.CreatedEvent{UserState: userWithAge(12)})
 
 		// then
 		assert.True(t, existsUserInSegment(ctx, t, sut, "1"))
@@ -163,12 +163,12 @@ func TestSegmentUserManagement(t *testing.T) {
 		sut := New(segmentStore, userService, ps)
 
 		// given
-		createUser(ctx, t, userService, 50)
+		createUserWithAge(ctx, t, userService, 50)
 		createEmptySegment(ctx, t, sut)
 		assert.Len(t, getSegment(ctx, t, sut).Users, 0)
 
 		// when
-		sut.OnUserModified(ctx, user.ModifiedEvent{OldUserState: getUser(50), NewUserState: getUser(12)})
+		sut.OnUserModified(ctx, user.ModifiedEvent{OldUserState: userWithAge(50), NewUserState: userWithAge(12)})
 
 		// then
 		assert.True(t, existsUserInSegment(ctx, t, sut, "1"))
@@ -182,12 +182,12 @@ func TestSegmentUserManagement(t *testing.T) {
 		sut := New(segmentStore, userService, ps)
 
 		// given
-		u := createUser(ctx, t, userService, 12)
+		u := createUserWithAge(ctx, t, userService, 12)
 		createSegmentWithUsers(ctx, t, sut, u)
 		assert.Len(t, getSegment(ctx, t, sut).Users, 1)
 
 		// when
-		sut.OnUserModified(ctx, user.ModifiedEvent{OldUserState: getUser(12), NewUserState: getUser(50)})
+		sut.OnUserModified(ctx, user.ModifiedEvent{OldUserState: userWithAge(12), NewUserState: userWithAge(50)})
 
 		// then
 		assert.Len(t, getSegment(ctx, t, sut).Users, 0)
@@ -200,12 +200,12 @@ func TestSegmentUserManagement(t *testing.T) {
 		sut := New(segmentStore, userService, ps)
 
 		// given
-		u := createUser(ctx, t, userService, 13)
+		u := createUserWithAge(ctx, t, userService, 13)
 		createSegmentWithUsers(ctx, t, sut, u)
 		assert.Len(t, getSegment(ctx, t, sut).Users, 1)
 
 		// when
-		sut.OnUserRemoved(ctx, user.RemovedEvent{UserState: getUser(12)})
+		sut.OnUserRemoved(ctx, user.RemovedEvent{UserState: userWithAge(12)})
 
 		// then
 		assert.Len(t, getSegment(ctx, t, sut).Users, 0)
@@ -223,7 +223,7 @@ func setupMocks(t *testing.T) (*datastore.DatastoreStub, *user.UserManagementStu
 
 func initialSegment() segment.SegmentWithUsers {
 	return segment.SegmentWithUsers{
-		SegmentSpec: supportedsegments.YoungAgeSegment,
+		SegmentSpec: predefinedsegments.YoungAgeSegment,
 		Users:       map[string]user.User{},
 	}
 }
@@ -281,7 +281,7 @@ func onSegmentRemoved(ctx context.Context, t *testing.T, sut segment.EventHandle
 }
 
 func getSegment(ctx context.Context, t *testing.T, sut *segmentUserManager) segment.SegmentWithUsers {
-	item, exists, err := sut.segmentWithUsersStore.Get(ctx, supportedsegments.YoungAgeSegmentName)
+	item, exists, err := sut.segmentWithUsersStore.Get(ctx, predefinedsegments.YoungAgeSegmentName)
 	if err != nil || !exists {
 		t.Error(err)
 	}
@@ -296,16 +296,13 @@ func existsUserInSegment(ctx context.Context, t *testing.T, sut *segmentUserMana
 
 func noUsers() {}
 
-func createUser(ctx context.Context, t *testing.T, userService user.Management, age int) user.User {
-	u := user.User{
-		UID: "1",
-		Attributes: map[string]interface{}{
-			FirstName:    "Marc",
-			EmailAddress: "marc@home.nl",
-			PhoneNumber:  "+31611111111",
-			Age:          age,
-		},
-	}
+func defaultUser() user.User{
+	return predefinedusers.Marc
+}
+
+func createUserWithAge(ctx context.Context, t *testing.T, userService user.Management, age int) user.User {
+	u := defaultUser()
+	u.Attributes[supportedattrs.Age] = age
 	err := userService.Put(ctx, u)
 	if err != nil {
 		t.Error(err)
@@ -313,41 +310,22 @@ func createUser(ctx context.Context, t *testing.T, userService user.Management, 
 	return u
 }
 
+
+func userWithAge(age int) user.User {
+	u := defaultUser()
+	u.Attributes[supportedattrs.Age] = age
+	return u
+}
+
+func otherUser() user.User{
+	return predefinedusers.Eva
+}
+
 func createOtherUser(ctx context.Context, t *testing.T, userService user.Management, age int) {
-	err := userService.Put(ctx, user.User{
-		UID: "2",
-		Attributes: map[string]interface{}{
-			FirstName:    "Eva",
-			EmailAddress: "eva@home.nl",
-			PhoneNumber:  "+31622222222",
-			Age:          age,
-		},
-	})
+	err := userService.Put(ctx, otherUser())
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-func getUser(age int) user.User {
-	return user.User{
-		UID: "1",
-		Attributes: map[string]interface{}{
-			FirstName:    "Marc",
-			EmailAddress: "marc@home.nl",
-			PhoneNumber:  "+31611111111",
-			Age:          age,
-		},
-	}
-}
 
-func getOtherUser(age int) user.User {
-	return user.User{
-		UID: "2",
-		Attributes: map[string]interface{}{
-			FirstName:    "Eva",
-			EmailAddress: "eva@home.nl",
-			PhoneNumber:  "+31622222222",
-			Age:          age,
-		},
-	}
-}

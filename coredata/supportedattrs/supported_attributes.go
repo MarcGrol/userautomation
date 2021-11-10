@@ -15,6 +15,7 @@ const (
 	LoginCount    = "login_count"
 	LastPostDate  = "last_post_date"
 	PostCount     = "post_count"
+	MemberOfGroups = "member_of_groups"
 )
 
 var attributes = map[string]userattribute.UserAttributeSpec{
@@ -65,7 +66,12 @@ var attributes = map[string]userattribute.UserAttributeSpec{
 	},
 	PostCount: {
 		Name:        PostCount,
-		Description: "Amount of times that this user has posted an article",
+		Description: "Amount of times that this user has posted a topic",
 		DataType:    userattribute.DataTypeInt,
+	},
+	MemberOfGroups: {
+		Name:        MemberOfGroups,
+		Description: "The groups that this user is a member of",
+		DataType:    userattribute.DataTypeStringSlice,
 	},
 }

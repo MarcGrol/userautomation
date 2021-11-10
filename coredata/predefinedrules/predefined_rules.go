@@ -1,9 +1,9 @@
-package supportedrules
+package predefinedrules
 
 import (
 	"github.com/MarcGrol/userautomation/core/segmentrule"
+	supportedrules "github.com/MarcGrol/userautomation/coredata/predefinedsegments"
 	"github.com/MarcGrol/userautomation/coredata/supportedactions"
-	supportedrules "github.com/MarcGrol/userautomation/coredata/supportedsegments"
 )
 
 const (

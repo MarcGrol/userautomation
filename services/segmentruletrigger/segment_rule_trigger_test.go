@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/MarcGrol/userautomation/core/segmentrule"
-	"github.com/MarcGrol/userautomation/coredata/supportedrules"
+	"github.com/MarcGrol/userautomation/coredata/predefinedrules"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"github.com/golang/mock/gomock"
 )
@@ -70,11 +70,11 @@ func createRule(ctx context.Context, t *testing.T, segmentService segmentrule.Se
 }
 
 func oldAgeRule() segmentrule.Spec {
-	return supportedrules.OldAgeEmailRule
+	return predefinedrules.OldAgeEmailRule
 }
 
 func youngAgeRule() segmentrule.Spec {
-	return supportedrules.YoungAgeSmsRule
+	return predefinedrules.YoungAgeSmsRule
 }
 
 func nothingHappens() {}

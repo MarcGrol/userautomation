@@ -1,4 +1,4 @@
-package supportedsegments
+package predefinedsegments
 
 import (
 	"github.com/MarcGrol/userautomation/core/segment"
