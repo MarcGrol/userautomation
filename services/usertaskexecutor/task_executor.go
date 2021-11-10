@@ -21,14 +21,19 @@ type Service interface {
 }
 
 type service struct {
-	pubsub   pubsub.Pubsub
-	reporter usertask.ExecutionReporter
+	pubsub      pubsub.Pubsub
+	reporter    usertask.ExecutionReporter
+	smsSender   smssending.SmsSender
+	emailSender emailsending.EmailSender
 }
 
-func New(pubsub pubsub.Pubsub, reporter usertask.ExecutionReporter) Service {
+func New(pubsub pubsub.Pubsub, reporter usertask.ExecutionReporter,
+	smsSender smssending.SmsSender, emailSender emailsending.EmailSender) Service {
 	return &service{
-		pubsub:   pubsub,
-		reporter: reporter,
+		pubsub:      pubsub,
+		reporter:    reporter,
+		smsSender:   smsSender,
+		emailSender: emailSender,
 	}
 }
 
@@ -50,7 +55,7 @@ func (s *service) OnUserTaskExecutionRequestedEvent(ctx context.Context, event u
 			report, err := emailaction.NewEmailAction(
 				actionSpec.ProvidedInformation["subject_template"],
 				actionSpec.ProvidedInformation["body_template"],
-				emailsending.NewEmailSender()).Perform(ctx, event.Task)
+				s.emailSender).Perform(ctx, event.Task)
 			if err != nil {
 				return err
 			}
@@ -61,7 +66,7 @@ func (s *service) OnUserTaskExecutionRequestedEvent(ctx context.Context, event u
 		{
 			report, err := smsaction.New(
 				actionSpec.ProvidedInformation["body_template"],
-				smssending.NewSmsSender()).Perform(ctx, event.Task)
+				s.smsSender).Perform(ctx, event.Task)
 			if err != nil {
 				return err
 			}

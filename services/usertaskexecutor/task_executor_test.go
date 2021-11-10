@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/coredata/supportedactions"
+	"github.com/MarcGrol/userautomation/integrations/emailsending"
+	"github.com/MarcGrol/userautomation/integrations/smssending"
 	"testing"
 
 	"github.com/MarcGrol/userautomation/coredata/predefinedrules"
@@ -18,11 +20,15 @@ func TestTaskExecution(t *testing.T) {
 
 	t.Run("user-task execution requested, send email", func(t *testing.T) {
 		// setup
-		pubsub, reporter, ctrl := setup(t)
+		pubsub, smsSender, emailSender, reporter, ctrl := setup(t)
 		defer ctrl.Finish()
-		sut := New(pubsub, reporter)
+		sut := New(pubsub, reporter, smsSender, emailSender)
 
 		// given
+
+		// expect
+		emailSender.EXPECT().Send(gomock.Any(), "marc@home.nl", "Your age is 50",
+			"Hi Marc, your age is 50").Return(nil)
 
 		// when
 		err := sut.OnUserTaskExecutionRequestedEvent(ctx, usertask.UserTaskExecutionRequestedEvent{
@@ -38,16 +44,18 @@ func TestTaskExecution(t *testing.T) {
 		// then
 		assert.Len(t, reporter.Reports, 1)
 		assert.Equal(t, "Email with subject 'Your age is 50' has been sent to user 'marc@home.nl'", reporter.Reports[0])
-
 	})
 
 	t.Run("user-task execution requested, send sms", func(t *testing.T) {
 		// setup
-		pubsub, reporter, ctrl := setup(t)
+		pubsub, smsSender, emailSender, reporter, ctrl := setup(t)
 		defer ctrl.Finish()
-		sut := New(pubsub, reporter)
+		sut := New(pubsub, reporter, smsSender, emailSender)
 
 		// given
+
+		// expect
+		smsSender.EXPECT().Send(gomock.Any(), "+316333333", "Message to Pien").Return(nil)
 
 		// when
 		err := sut.OnUserTaskExecutionRequestedEvent(ctx, usertask.UserTaskExecutionRequestedEvent{
@@ -63,14 +71,15 @@ func TestTaskExecution(t *testing.T) {
 		// then
 		assert.Len(t, reporter.Reports, 1)
 		assert.Equal(t, "Sms with content 'Message to Pien' has beet sent to user '+316333333'", reporter.Reports[0])
-
 	})
 }
 
-func setup(t *testing.T) (*pubsub.MockPubsub, *usertask.ExecutionReporterStub, *gomock.Controller) {
+func setup(t *testing.T) (*pubsub.MockPubsub, *smssending.MockSmsSender, *emailsending.MockEmailSender, *usertask.ExecutionReporterStub, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 	pubsubMock := pubsub.NewMockPubsub(ctrl)
+	smsSender := smssending.NewMockSmsSender(ctrl)
+	emailSender := emailsending.NewMockEmailSender(ctrl)
 	reporter := usertask.NewExecutionReporterStub()
 
-	return pubsubMock, reporter, ctrl
+	return pubsubMock, smsSender, emailSender, reporter, ctrl
 }
