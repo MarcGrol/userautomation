@@ -12,14 +12,14 @@ import (
 )
 
 type service struct {
-	datastore     datastore.Datastore
+	userStore     datastore.Datastore
 	filterService user.FilterManager
 	pubsub        pubsub.Pubsub
 }
 
 func New(datastore datastore.Datastore, filterService user.FilterManager, pubsub pubsub.Pubsub) user.Management {
 	return &service{
-		datastore:     datastore,
+		userStore:     datastore,
 		filterService: filterService,
 		pubsub:        pubsub,
 	}
@@ -33,13 +33,13 @@ func (s *service) Put(ctx context.Context, u user.User) error {
 	//     and be published by a dedicated process (and retry if publication failed)
 
 	var eventToPublish interface{} = nil
-	err := s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		originalUser, exists, err := s.datastore.Get(ctx, u.UID)
+	err := s.userStore.RunInTransaction(ctx, func(ctx context.Context) error {
+		originalUser, exists, err := s.userStore.Get(ctx, u.UID)
 		if err != nil {
 			return fmt.Errorf("Error fetching user with uid %s: %s", u.UID, err)
 		}
 
-		err = s.datastore.Put(ctx, u.UID, u)
+		err = s.userStore.Put(ctx, u.UID, u)
 		if err != nil {
 			return fmt.Errorf("Error storing user with uid %s: %s", u.UID, err)
 		}
@@ -76,14 +76,14 @@ func (s *service) Put(ctx context.Context, u user.User) error {
 }
 
 func (s *service) Remove(ctx context.Context, userUID string) error {
-	err := s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		u, exists, err := s.datastore.Get(ctx, userUID)
+	err := s.userStore.RunInTransaction(ctx, func(ctx context.Context) error {
+		u, exists, err := s.userStore.Get(ctx, userUID)
 		if err != nil {
 			return fmt.Errorf("Error fetching user with uid %s: %s", userUID, err)
 		}
 
 		if exists {
-			err = s.datastore.Remove(ctx, userUID)
+			err = s.userStore.Remove(ctx, userUID)
 			if err != nil {
 				return fmt.Errorf("Error removing user with uid %s: %s", userUID, err)
 			}
@@ -109,8 +109,8 @@ func (s *service) Get(ctx context.Context, userUID string) (user.User, bool, err
 	userExists := false
 	var err error
 
-	err = s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		found, exists, err := s.datastore.Get(ctx, userUID)
+	err = s.userStore.RunInTransaction(ctx, func(ctx context.Context) error {
+		found, exists, err := s.userStore.Get(ctx, userUID)
 		if err != nil {
 			return fmt.Errorf("Error fetching user with uid %s: %s", userUID, err)
 		}
@@ -141,8 +141,8 @@ func (s *service) QueryByFunc(ctx context.Context, filterFunc user.FilterFunc) (
 	users := []user.User{}
 	var err error
 
-	err = s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		items, err := s.datastore.GetAll(ctx)
+	err = s.userStore.RunInTransaction(ctx, func(ctx context.Context) error {
+		items, err := s.userStore.GetAll(ctx)
 		if err != nil {
 			return fmt.Errorf("Error fetching all users: %s", err)
 		}
@@ -170,8 +170,8 @@ func (s *service) List(ctx context.Context) ([]user.User, error) {
 	users := []user.User{}
 	var err error
 
-	err = s.datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		items, err := s.datastore.GetAll(ctx)
+	err = s.userStore.RunInTransaction(ctx, func(ctx context.Context) error {
+		items, err := s.userStore.GetAll(ctx)
 		if err != nil {
 			return fmt.Errorf("Error fetching all users: %s", err)
 		}
