@@ -11,6 +11,9 @@ const (
 	PhoneNumber    = "phone_number"
 	DateBorn       = "date_born"
 	Age            = "age"
+	IsAdmin        = "is_admin"
+	IsModerator    = "is_moderator"
+	IsRegularUser  = "is_regular_user"
 	LastLoginDate  = "last_login_date"
 	LoginCount     = "login_count"
 	LastPostDate   = "last_post_date"
@@ -46,8 +49,23 @@ var attributes = map[string]userattribute.UserAttributeSpec{
 	},
 	Age: {
 		Name:        Age,
-		Description: "Current age of uer",
+		Description: "Current age of user",
 		DataType:    userattribute.DataTypeInt,
+	},
+	IsAdmin: {
+		Name:        IsAdmin,
+		Description: "Indicates if a user is an admin",
+		DataType:    userattribute.DataTypeBool,
+	},
+	IsModerator: {
+		Name:        IsModerator,
+		Description: "Indicates if a user is an admin",
+		DataType:    userattribute.DataTypeBool,
+	},
+	IsRegularUser: {
+		Name:        IsRegularUser,
+		Description: "Indicates if a user is a regular user",
+		DataType:    userattribute.DataTypeBool,
 	},
 	LastLoginDate: {
 		Name:        LastLoginDate,

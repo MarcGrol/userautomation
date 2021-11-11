@@ -2,17 +2,29 @@
 
       rankdir="TD"
 
+      subgraph cluster_UseCases {
+       label = "Use cases"
+       color="white"
+       "admin\nuser-interface" [shape="box"]
+      "automatic group-assigmnent\non profile-change" [shape="box"]
+      "welcome-mail\non group membership" [shape="box"]
+      "notify\ntopic-created" [shape="box"]
+      "weekly-\ndigest"  [shape="box"]
+      "trasactional-\nemail"  [shape="box"]
+      }
+
       subgraph cluster_Web {
-          label = "Web"
+          //label = "Web-api's"
+          color="white"
+
           "segment-rule-\ntrigger-\nservice"
           "user-rule-\ntrigger-\nservice"
           "rule-\naction-\nmanagement"
           "user-\nmanagement"
           "segment-\nmanagement"
-          "segment-\nquery-\nservice"
     }
 
-     subgraph cluster_Core {
+     //subgraph cluster_Core {
           label = "Core"
          "segment-\nrule-\nevaluator"
           "user-\nrule-\nevaluator"
@@ -23,7 +35,7 @@
           "email-sender"
           "group-updater"
           "crm-updater"
-      }
+      //}
 
       // subgraph cluster_External {
            //label = "External systems"
@@ -33,33 +45,34 @@
             "salesforce"
        // }
 
-      insided -> "segment-rule-\ntrigger-\nservice" [label="rest-api"]
-      insided -> "user-rule-\ntrigger-\nservice" [label="rest-api"]
-      insided -> "rule-\naction-\nmanagement" [label="rest-api"]
-      insided -> "user-\nmanagement" [label="rest-api"]
-      insided -> "segment-\nmanagement" [label="rest-api"]
-      insided -> "segment-\nquery-\nservice" [label="rest-api"]
+      "admin\nuser-interface" -> "rule-\naction-\nmanagement" [label="create\nsegments and\nrules"]
+      "admin\nuser-interface" -> "segment-\nmanagement"
+      "automatic group-assigmnent\non profile-change" -> "user-\nmanagement"
+      "welcome-mail\non group membership" -> "user-\nmanagement" [label="userattributes\nadjusted"]
+      "weekly-\ndigest" -> "segment-rule-\ntrigger-\nservice" [label="trigger\neexecution"]
+      "notify\ntopic-created" -> "segment-rule-\ntrigger-\nservice"
+      "trasactional-\nemail" -> "user-rule-\ntrigger-\nservice" [label="trigger\neexecution"]
 
-      "segment-rule-\ntrigger-\nservice" -> "segment-\nrule-\nevaluator" [style=dashed, label="rule\nexec\nrequested"]
-      "user-rule-\ntrigger-\nservice" -> "user-\nrule-\nevaluator" [style=dashed, label="rule\nexec\nrequested"]
-      "segment-\nmanagement" -> "segment-user-\nmanagement" [style=dashed, label="segment\nchanged\nevent"]
-      "segment-\nquery-\nservice" -> "segment-user-\nmanagement" [label=query]
+      "segment-rule-\ntrigger-\nservice" -> "segment-\nrule-\nevaluator" [style=dotted, label="rule\nexecution\nrequested"]
+      "user-rule-\ntrigger-\nservice" -> "user-\nrule-\nevaluator" [style=dotted, label="rule\nexecution\nrequested"]
+      "segment-\nmanagement" -> "segment-user-\nmanagement" [style=dotted, label="segment\nchanged"]
+      "segment-\nmanagement" -> "segment-user-\nmanagement" [style=dashed,label="users in\nsegment\nquery"]
 
 
-      "user-\nmanagement" -> "segment-user-\nmanagement" [style=dashed, label="user\nchanged\nevent"]
-      "segment-user-\nmanagement" -> "segment-\nrule-\nevaluator" [style=dashed, label="user-segment-event"]
+      "user-\nmanagement" -> "segment-user-\nmanagement" [style=dotted, label="user\nchanged\nevent"]
+      "segment-user-\nmanagement" -> "segment-\nrule-\nevaluator" [style=dotted, label="user added\nto segment\nevent"]
 
-      "segment-user-\nmanagement" -> "segment-change-\nrule-\nevaluator"  [style=dashed, label="user-segment-event"]
-      "rule-\naction-\nmanagement" -> "segment-change-\nrule-\nevaluator" [style=dashed, label="rule\nchanged\nevent"]
-      "segment-change-\nrule-\nevaluator" -> "action-\nexecutor" [style=dashed, label="user\ntask"]
-      "user-\nrule-\nevaluator" -> "action-\nexecutor" [style=dashed, label="user\ntask"]
+      "segment-user-\nmanagement" -> "segment-change-\nrule-\nevaluator"  [style=dotted, label="user added\nto segment"]
+      "rule-\naction-\nmanagement" -> "segment-change-\nrule-\nevaluator" [style=dotted, label="rule\nchanged"]
+      "segment-change-\nrule-\nevaluator" -> "action-\nexecutor" [style=dotted, label="user\ntask"]
+      "user-\nrule-\nevaluator" -> "action-\nexecutor" [style=dotted, label="user\ntask"]
 
-      "segment-\nrule-\nevaluator" -> "action-\nexecutor" [style=dashed, label="user\ntask"]
+      "segment-\nrule-\nevaluator" -> "action-\nexecutor" [style=dotted, label="user\ntask"]
 
-      "action-\nexecutor" -> "sms-sender" [label=call]
-      "action-\nexecutor" -> "email-sender" [label=call]
-      "action-\nexecutor" -> "group-updater" [label=call]
-      "action-\nexecutor" -> "crm-updater" [label=call]
+      "action-\nexecutor" -> "sms-sender" [style=dashed,label=call]
+      "action-\nexecutor" -> "email-sender" [style=dashed,label=call]
+      "action-\nexecutor" -> "group-updater" [style=dashed,label=call]
+      "action-\nexecutor" -> "crm-updater" [style=dashed,label=call]
 
       "email-sender" -> "aws/sendgrid" [label="rest-api"]
       "sms-sender" -> "aws/twilio" [label="rest-api"]
