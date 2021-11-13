@@ -2,32 +2,34 @@ package usermanagement
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
-func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
+func (s *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
 	subRouter := router.PathPrefix("/api/user").Subrouter()
-	subRouter.HandleFunc("", m.list()).Methods("GET")
-	subRouter.HandleFunc("/{ruleUID}", m.get()).Methods("GET")
-	subRouter.HandleFunc("/{ruleUID}", m.put()).Methods("PUT")
-	subRouter.HandleFunc("/{ruleUID}", m.remove()).Methods("DELETE")
+	subRouter.HandleFunc("", s.list()).Methods("GET")
+	subRouter.HandleFunc("/{ruleUID}", s.get()).Methods("GET")
+	subRouter.HandleFunc("/{ruleUID}", s.put()).Methods("PUT")
+	subRouter.HandleFunc("/{ruleUID}", s.remove()).Methods("DELETE")
 }
 
-func (m *service) get() http.HandlerFunc {
+func (s *service) get() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		w.WriteHeader(http.StatusNotImplemented)
+	}
+}
+
+func (s *service) put() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotImplemented)
 	}
 }
 
-func (m *service) put() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotImplemented)
-	}
-}
-
-func (m *service) remove() http.HandlerFunc {
+func (s *service) remove() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotImplemented)
 	}
@@ -35,6 +37,16 @@ func (m *service) remove() http.HandlerFunc {
 
 func (m *service) list() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotImplemented)
+		ctx := context.Background()
+
+		users, err := m.List(ctx)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(err.Error())
+			return
+		}
+
+		w.Header().Add("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(users)
 	}
 }

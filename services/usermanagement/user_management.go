@@ -189,18 +189,18 @@ func (s *service) List(ctx context.Context) ([]user.User, error) {
 	return users, nil
 }
 
-func (m *service) Preprov(ctx context.Context) error {
-	err := m.Put(ctx, predefinedusers.Marc)
+func (s *service) Preprov(ctx context.Context) error {
+	err := s.Put(ctx, predefinedusers.Marc)
 	if err != nil {
 		return err
 	}
 
-	err = m.Put(ctx, predefinedusers.Eva)
+	err = s.Put(ctx, predefinedusers.Eva)
 	if err != nil {
 		return err
 	}
 
-	err = m.Put(ctx, predefinedusers.Pien)
+	err = s.Put(ctx, predefinedusers.Pien)
 	if err != nil {
 		return err
 	}

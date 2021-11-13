@@ -25,7 +25,7 @@ var (
 		},
 	}
 	Pien = user.User{
-		UID: "1",
+		UID: "3",
 		Attributes: map[string]interface{}{
 			FirstName:    "Pien",
 			EmailAddress: "pien@home.nl",
