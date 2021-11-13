@@ -21,6 +21,7 @@ const (
 )
 
 type Spec struct {
+	UID        string
 	RuleUID    string
 	ActionSpec action.Spec
 	Reason     Reason
@@ -33,9 +34,9 @@ func (t Spec) String() string {
 }
 
 type UserTaskExecutionReport struct {
-	TaskSpec     Spec
-	Success      bool
-	ErrorMessage string
+	TaskSpec       Spec
+	Success        bool
+	ErrorMessage   string
 	SuccessMessage string
 }
 

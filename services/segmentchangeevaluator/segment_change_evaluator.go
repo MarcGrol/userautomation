@@ -59,6 +59,7 @@ func (s *service) OnUserAddedToSegment(ctx context.Context, event segment.UserAd
 
 			err := s.pubsub.Publish(ctx, usertask.TopicName, usertask.UserTaskExecutionRequestedEvent{
 				Task: usertask.Spec{
+					UID:        "", // TODO identify each triggered rule uninquely
 					RuleUID:    r.UID,
 					ActionSpec: r.ActionSpec,
 					Reason:     usertask.ReasonUserAddedToSegment,

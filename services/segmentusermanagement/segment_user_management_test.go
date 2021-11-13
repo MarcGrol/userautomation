@@ -49,7 +49,7 @@ func TestSegmentUserManagement(t *testing.T) {
 		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
-		createUserWithAge(ctx, t, userService, 50)
+		createDefaultUser(ctx, t, userService, 50)
 
 		// when
 		err := sut.OnSegmentCreated(ctx, segment.CreatedEvent{
@@ -70,7 +70,7 @@ func TestSegmentUserManagement(t *testing.T) {
 		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
-		createUserWithAge(ctx, t, userService, 12)
+		createDefaultUser(ctx, t, userService, 12)
 
 		// when
 		err := sut.OnSegmentCreated(ctx, segment.CreatedEvent{
@@ -92,7 +92,7 @@ func TestSegmentUserManagement(t *testing.T) {
 		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
-		createUserWithAge(ctx, t, userService, 50)
+		createDefaultUser(ctx, t, userService, 50)
 		createOtherUser(ctx, t, userService, 47)
 		createEmptySegmentWithUsers(ctx, t, sut)
 
@@ -118,7 +118,7 @@ func TestSegmentUserManagement(t *testing.T) {
 		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
-		createUserWithAge(ctx, t, userService, 12)
+		createDefaultUser(ctx, t, userService, 12)
 		createOtherUser(ctx, t, userService, 12)
 		createEmptySegmentWithUsers(ctx, t, sut)
 
@@ -197,7 +197,7 @@ func TestSegmentUserManagement(t *testing.T) {
 		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
-		createUserWithAge(ctx, t, userService, 50)
+		createDefaultUser(ctx, t, userService, 50)
 		createEmptySegmentWithUsers(ctx, t, sut)
 		assert.Len(t, getSegment(ctx, t, sut).Users, 0)
 
@@ -219,7 +219,7 @@ func TestSegmentUserManagement(t *testing.T) {
 		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
-		u := createUserWithAge(ctx, t, userService, 12)
+		u := createDefaultUser(ctx, t, userService, 12)
 		createSegmentWithUsers(ctx, t, sut, u)
 		assert.Len(t, getSegment(ctx, t, sut).Users, 1)
 
@@ -240,7 +240,7 @@ func TestSegmentUserManagement(t *testing.T) {
 		sut := New(segmentStore, userService, filterService, ps)
 
 		// given
-		u := createUserWithAge(ctx, t, userService, 13)
+		u := createDefaultUser(ctx, t, userService, 13)
 		createSegmentWithUsers(ctx, t, sut, u)
 		assert.Len(t, getSegment(ctx, t, sut).Users, 1)
 
@@ -321,7 +321,7 @@ func defaultUser() user.User {
 	return predefinedusers.Marc
 }
 
-func createUserWithAge(ctx context.Context, t *testing.T, userService user.Management, age int) user.User {
+func createDefaultUser(ctx context.Context, t *testing.T, userService user.Management, age int) user.User {
 	u := defaultUser()
 	u.Attributes[supportedattrs.Age] = age
 	err := userService.Put(ctx, u)

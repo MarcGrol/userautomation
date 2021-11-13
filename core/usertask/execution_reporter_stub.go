@@ -12,7 +12,7 @@ func NewExecutionReporterStub() *ExecutionReporterStub {
 	}
 }
 
-func (s *ExecutionReporterStub) ReportExecution(ctx context.Context, report UserTaskExecutionReport) error{
+func (s *ExecutionReporterStub) ReportExecution(ctx context.Context, report UserTaskExecutionReport) error {
 	s.Reports = append(s.Reports, report)
 	return nil
 }

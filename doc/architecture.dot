@@ -5,9 +5,11 @@
       subgraph cluster_UseCases {
        label = "Use cases"
        color="white"
-       "admin\nuser-interface" [shape="box"]
-      "automatic group-assigmnent\non profile-change" [shape="box"]
-      "welcome-mail\non group membership" [shape="box"]
+       "Controll\nnmanage segments\nand rules" [shape="box"]
+      "user-created\nuser-removed"  [shape="box"]
+      "Adjust user attrs when:\nuser-has\n logged-in\ndone this\n done that, ..."  [shape="box"]
+      "user attr. change can drive\nwelcome-mail\non group membership" [shape="box"]
+      "user attr. change can drive\nautomatic\ngroup-assigmnent\non profile-change" [shape="box"]
       "notify\ntopic-created" [shape="box"]
       "weekly-\ndigest"  [shape="box"]
       "trasactional-\nemail"  [shape="box"]
@@ -45,12 +47,14 @@
             "salesforce"
        // }
 
-      "admin\nuser-interface" -> "rule-\naction-\nmanagement" [label="create\nsegments and\nrules"]
-      "admin\nuser-interface" -> "segment-\nmanagement"
-      "automatic group-assigmnent\non profile-change" -> "user-\nmanagement"
-      "welcome-mail\non group membership" -> "user-\nmanagement" [label="userattributes\nadjusted"]
+     "Controll\nnmanage segments\nand rules" -> "rule-\naction-\nmanagement" [label="create\nsegments and\nrules"]
+      "Controll\nnmanage segments\nand rules" -> "segment-\nmanagement"
+      "user-created\nuser-removed" -> "user-\nmanagement"
+      "Adjust user attrs when:\nuser-has\n logged-in\ndone this\n done that, ..." -> "user-\nmanagement" [label="adjust user\nattributes"]
+      "user attr. change can drive\nwelcome-mail\non group membership" -> "user-\nmanagement"
+      "user attr. change can drive\nautomatic\ngroup-assigmnent\non profile-change" -> "user-\nmanagement"
+      "notify\ntopic-created" -> "segment-rule-\ntrigger-\nservice" [label="trigger\neexecution"]
       "weekly-\ndigest" -> "segment-rule-\ntrigger-\nservice" [label="trigger\neexecution"]
-      "notify\ntopic-created" -> "segment-rule-\ntrigger-\nservice"
       "trasactional-\nemail" -> "user-rule-\ntrigger-\nservice" [label="trigger\neexecution"]
 
       "segment-rule-\ntrigger-\nservice" -> "segment-\nrule-\nevaluator" [style=dotted, label="rule\nexecution\nrequested"]
@@ -59,8 +63,8 @@
       "segment-\nmanagement" -> "segment-user-\nmanagement" [style=dashed,label="users in\nsegment\nquery"]
 
 
-      "user-\nmanagement" -> "segment-user-\nmanagement" [style=dotted, label="user\nchanged\nevent"]
-      "segment-user-\nmanagement" -> "segment-\nrule-\nevaluator" [style=dotted, label="user added\nto segment\nevent"]
+      "user-\nmanagement" -> "segment-user-\nmanagement" [style=dotted, label="user\nchanged"]
+      "segment-user-\nmanagement" -> "segment-\nrule-\nevaluator" [style=dashed, label="feeded by\nusers\nin segment\nquery"]
 
       "segment-user-\nmanagement" -> "segment-change-\nrule-\nevaluator"  [style=dotted, label="user added\nto segment"]
       "rule-\naction-\nmanagement" -> "segment-change-\nrule-\nevaluator" [style=dotted, label="rule\nchanged"]

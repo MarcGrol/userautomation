@@ -73,13 +73,15 @@ func (m *MockExecutionReporter) EXPECT() *MockExecutionReporterMockRecorder {
 }
 
 // ReportExecution mocks base method.
-func (m *MockExecutionReporter) ReportExecution(ctx context.Context, message string) {
+func (m *MockExecutionReporter) ReportExecution(ctx context.Context, report UserTaskExecutionReport) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ReportExecution", ctx, message)
+	ret := m.ctrl.Call(m, "ReportExecution", ctx, report)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // ReportExecution indicates an expected call of ReportExecution.
-func (mr *MockExecutionReporterMockRecorder) ReportExecution(ctx, message interface{}) *gomock.Call {
+func (mr *MockExecutionReporterMockRecorder) ReportExecution(ctx, report interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReportExecution", reflect.TypeOf((*MockExecutionReporter)(nil).ReportExecution), ctx, message)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReportExecution", reflect.TypeOf((*MockExecutionReporter)(nil).ReportExecution), ctx, report)
 }

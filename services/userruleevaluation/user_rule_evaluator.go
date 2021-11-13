@@ -53,6 +53,7 @@ func (s *service) OnRuleExecutionRequestedEvent(ctx context.Context, event userr
 func (s *service) publishActionForUser(ctx context.Context, rule userrule.Spec) error {
 	err := s.pubsub.Publish(ctx, usertask.TopicName, usertask.UserTaskExecutionRequestedEvent{
 		Task: usertask.Spec{
+			UID:        "", // TODO identify each triggered rule uninquely
 			RuleUID:    "", // No rule that triggered this task
 			ActionSpec: rule.ActionSpec,
 			Reason:     usertask.ReasonUserRuleExecuted,
