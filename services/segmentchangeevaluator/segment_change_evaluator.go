@@ -3,6 +3,7 @@ package segmentchangeevaluator
 import (
 	"context"
 	"fmt"
+	"github.com/gorilla/mux"
 	"log"
 
 	"github.com/MarcGrol/userautomation/core/segment"
@@ -22,10 +23,10 @@ type Service interface {
 type service struct {
 	segment.UserEventHandler
 	pubsub      pubsub.Pubsub
-	ruleService segmentrule.Service
+	ruleService segmentrule.Management
 }
 
-func New(pubsub pubsub.Pubsub, ruleService segmentrule.Service) Service {
+func New(pubsub pubsub.Pubsub, ruleService segmentrule.Management) Service {
 	return &service{
 		pubsub:      pubsub,
 		ruleService: ruleService,
@@ -34,7 +35,7 @@ func New(pubsub pubsub.Pubsub, ruleService segmentrule.Service) Service {
 
 func (s *service) IamSubscribing() {}
 
-func (s *service) Subscribe(ctx context.Context) error {
+func (s *service) Subscribe(ctx context.Context, router *mux.Router) error {
 	return s.pubsub.Subscribe(ctx, segment.UserTopicName, s.OnEvent)
 }
 

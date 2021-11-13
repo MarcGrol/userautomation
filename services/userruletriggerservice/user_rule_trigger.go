@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/MarcGrol/userautomation/core/userrule"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
+	"github.com/gorilla/mux"
 )
 
 type service struct {
@@ -25,4 +26,8 @@ func (s *service) Trigger(ctx context.Context, rule userrule.Spec) error {
 	}
 
 	return nil
+}
+
+func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
+
 }

@@ -2,9 +2,12 @@ package segmentrule
 
 import (
 	"context"
+	"github.com/MarcGrol/userautomation/core/util"
 )
 
 type ManagementStub struct {
+	util.NoPreProvNeeded
+	util.NoWebNeeded
 	Rules map[string]Spec
 }
 

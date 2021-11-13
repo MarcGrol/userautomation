@@ -25,7 +25,7 @@ func NewEmailAction(subjectTemplate string, bodyTemplate string, emailClient ema
 }
 
 func (ea *EmailAction) Perform(ctx context.Context, a usertask.Spec) (string, error) {
-	log.Printf("email-action: %s", a.String())
+	log.Printf("email-action: %+v", a)
 
 	userEmail, ok := a.User.Attributes["email_address"].(string)
 	if !ok {

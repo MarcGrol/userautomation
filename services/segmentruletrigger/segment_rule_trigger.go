@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/MarcGrol/userautomation/core/segmentrule"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
+	"github.com/gorilla/mux"
 )
 
 type Service interface {
@@ -12,11 +13,11 @@ type Service interface {
 }
 
 type service struct {
-	ruleService segmentrule.Service
+	ruleService segmentrule.Management
 	pubsub      pubsub.Pubsub
 }
 
-func New(ruleService segmentrule.Service, pubsub pubsub.Pubsub) Service {
+func New(ruleService segmentrule.Management, pubsub pubsub.Pubsub) Service {
 	return &service{
 		ruleService: ruleService,
 		pubsub:      pubsub,
@@ -31,4 +32,8 @@ func (s *service) Trigger(ctx context.Context, rule segmentrule.Spec) error {
 	}
 
 	return nil
+}
+
+func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
+
 }

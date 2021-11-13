@@ -3,9 +3,12 @@ package user
 import (
 	"context"
 	"fmt"
+	"github.com/MarcGrol/userautomation/core/util"
 )
 
 type UserManagementStub struct {
+	util.NoPreProvNeeded
+	util.NoWebNeeded
 	filterService FilterManager
 	Users         map[string]User
 }

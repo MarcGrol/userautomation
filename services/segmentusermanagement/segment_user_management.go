@@ -7,6 +7,7 @@ import (
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
+	"github.com/gorilla/mux"
 	"reflect"
 )
 
@@ -43,7 +44,7 @@ func (s *segmentUserManager) checkInterface(sc *segmentUserManager) SegmentUserM
 
 func (s *segmentUserManager) IamSubscribing() {}
 
-func (s *segmentUserManager) Subscribe(ctx context.Context) error {
+func (s *segmentUserManager) Subscribe(ctx context.Context, router *mux.Router) error {
 	err := s.pubsub.Subscribe(ctx, user.ManagementTopicName, s.OnEvent)
 	if err != nil {
 		return err
@@ -327,4 +328,8 @@ func (s *segmentUserManager) GetUsersForSegment(ctx context.Context, segmentUID 
 		users = append(users, u)
 	}
 	return users, nil
+}
+
+func (m *segmentUserManager) RegisterEndpoints(ctx context.Context, router *mux.Router) {
+
 }

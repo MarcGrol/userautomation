@@ -168,7 +168,7 @@ func oldAgeRule() segmentrule.Spec {
 	return predefinedrules.OldAgeEmailRule
 }
 
-func createOldAgeRule(ctx context.Context, t *testing.T, ruleService segmentrule.Service) segmentrule.Spec {
+func createOldAgeRule(ctx context.Context, t *testing.T, ruleService segmentrule.Management) segmentrule.Spec {
 	err := ruleService.Put(ctx, oldAgeRule())
 	if err != nil {
 		t.Error(err)
@@ -180,7 +180,7 @@ func youngAgeRule() segmentrule.Spec {
 	return predefinedrules.YoungAgeSmsRule
 }
 
-func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService segmentrule.Service) segmentrule.Spec {
+func createYoungAgeRule(ctx context.Context, t *testing.T, segmentService segmentrule.Management) segmentrule.Spec {
 	err := segmentService.Put(ctx, youngAgeRule())
 	if err != nil {
 		t.Error(err)

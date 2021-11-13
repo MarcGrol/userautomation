@@ -3,6 +3,7 @@ package segment
 import (
 	"context"
 	"github.com/MarcGrol/userautomation/core/user"
+	"github.com/MarcGrol/userautomation/core/util"
 )
 
 type Spec struct {
@@ -16,8 +17,11 @@ type Management interface {
 	Get(ctx context.Context, segmentUID string) (Spec, bool, error)
 	List(ctx context.Context) ([]Spec, error)
 	Remove(ctx context.Context, segmentUID string) error
+	util.PreProvisioner
+	util.WebExposer
 }
 
 type Querier interface {
 	GetUsersForSegment(ctx context.Context, segmentUID string) ([]user.User, error)
+	util.WebExposer
 }

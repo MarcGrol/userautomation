@@ -23,7 +23,7 @@ func New(bodyTemplate string, smsClient smssending.SmsSender) usertask.UserTaskE
 }
 
 func (ea *SmsAction) Perform(ctx context.Context, a usertask.Spec) (string, error) {
-	log.Printf("email-action: %s", a.String())
+	log.Printf("email-action: %+v", a)
 
 	userPhoneNumber, ok := a.User.Attributes["phone_number"].(string)
 	if !ok {

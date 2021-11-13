@@ -7,6 +7,7 @@ import (
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
+	"github.com/gorilla/mux"
 )
 
 type Service interface {
@@ -19,11 +20,11 @@ type Service interface {
 
 type service struct {
 	pubsub      pubsub.Pubsub
-	ruleService segmentrule.Service
+	ruleService segmentrule.Management
 	userService user.Management
 }
 
-func New(pubsub pubsub.Pubsub, ruleService segmentrule.Service, userService user.Management) Service {
+func New(pubsub pubsub.Pubsub, ruleService segmentrule.Management, userService user.Management) Service {
 	return &service{
 		pubsub:      pubsub,
 		ruleService: ruleService,
@@ -33,7 +34,7 @@ func New(pubsub pubsub.Pubsub, ruleService segmentrule.Service, userService user
 
 func (s *service) IamSubscribing() {}
 
-func (s *service) Subscribe(ctx context.Context) error {
+func (s *service) Subscribe(ctx context.Context, router *mux.Router) error {
 	return s.pubsub.Subscribe(ctx, segmentrule.TriggerTopicName, s.OnEvent)
 }
 

@@ -93,7 +93,7 @@ func modifiedRule() segmentrule.Spec {
 	return segm
 }
 
-func existRule(ctx context.Context, t *testing.T, sut segmentrule.Service) bool {
+func existRule(ctx context.Context, t *testing.T, sut segmentrule.Management) bool {
 	_, exists, err := sut.Get(ctx, initialRule().UID)
 	if err != nil {
 		t.Error(err)
@@ -101,7 +101,7 @@ func existRule(ctx context.Context, t *testing.T, sut segmentrule.Service) bool 
 	return exists
 }
 
-func getRule(ctx context.Context, t *testing.T, sut segmentrule.Service) segmentrule.Spec {
+func getRule(ctx context.Context, t *testing.T, sut segmentrule.Management) segmentrule.Spec {
 	segm, exists, err := sut.Get(ctx, initialRule().UID)
 	if err != nil || !exists {
 		t.Error(err)
@@ -109,7 +109,7 @@ func getRule(ctx context.Context, t *testing.T, sut segmentrule.Service) segment
 	return segm
 }
 
-func listRule(ctx context.Context, t *testing.T, sut segmentrule.Service) []segmentrule.Spec {
+func listRule(ctx context.Context, t *testing.T, sut segmentrule.Management) []segmentrule.Spec {
 	rules, err := sut.List(ctx)
 	if err != nil {
 		t.Error(err)

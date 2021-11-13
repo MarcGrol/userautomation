@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	mux "github.com/gorilla/mux"
 )
 
 // MockPubsub is a mock of Pubsub interface.
@@ -98,17 +99,17 @@ func (mr *MockSubscribingServiceMockRecorder) IamSubscribing() *gomock.Call {
 }
 
 // Subscribe mocks base method.
-func (m *MockSubscribingService) Subscribe(c context.Context) error {
+func (m *MockSubscribingService) Subscribe(c context.Context, router *mux.Router) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Subscribe", c)
+	ret := m.ctrl.Call(m, "Subscribe", c, router)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Subscribe indicates an expected call of Subscribe.
-func (mr *MockSubscribingServiceMockRecorder) Subscribe(c interface{}) *gomock.Call {
+func (mr *MockSubscribingServiceMockRecorder) Subscribe(c, router interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockSubscribingService)(nil).Subscribe), c)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockSubscribingService)(nil).Subscribe), c, router)
 }
 
 // OnEvent mocks base method.

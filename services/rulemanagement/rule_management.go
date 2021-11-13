@@ -3,6 +3,8 @@ package rulemanagement
 import (
 	"context"
 	"fmt"
+	"github.com/MarcGrol/userautomation/coredata/predefinedrules"
+	"github.com/gorilla/mux"
 	"reflect"
 
 	"github.com/MarcGrol/userautomation/core/segmentrule"
@@ -15,7 +17,7 @@ type service struct {
 	pubsub    pubsub.Pubsub
 }
 
-func New(store datastore.Datastore, pubsub pubsub.Pubsub) segmentrule.Service {
+func New(store datastore.Datastore, pubsub pubsub.Pubsub) segmentrule.Management {
 	store.EnforceDataType(reflect.TypeOf(segmentrule.Spec{}).Name())
 	return &service{
 		ruleStore: store,
@@ -119,4 +121,21 @@ func (s *service) List(ctx context.Context) ([]segmentrule.Spec, error) {
 	}
 
 	return rules, nil
+}
+
+func (m *service) Preprov(ctx context.Context) error {
+	err := m.Put(ctx, predefinedrules.YoungAgeSmsRule)
+	if err != nil {
+		return err
+	}
+
+	err = m.Put(ctx, predefinedrules.OldAgeEmailRule)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
+
 }

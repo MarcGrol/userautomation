@@ -2,6 +2,7 @@ package action
 
 import (
 	"context"
+	"github.com/MarcGrol/userautomation/core/util"
 )
 
 type Spec struct {
@@ -14,4 +15,6 @@ type Spec struct {
 type ActionManager interface {
 	GetActionSpecOnName(ctx context.Context, name string) (Spec, bool, error)
 	ListActionSpecs(ctx context.Context) ([]Spec, error)
+	util.PreProvisioner
+	util.WebExposer
 }

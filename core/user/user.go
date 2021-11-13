@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/MarcGrol/userautomation/core/util"
 	"log"
 )
 
@@ -29,6 +30,8 @@ type Management interface {
 	List(ctx context.Context) ([]User, error)
 	Query(ctx context.Context, filterName string) ([]User, error) // Could be a WHERE clause in the future
 	Remove(ctx context.Context, userUID string) error
+	util.PreProvisioner
+	util.WebExposer
 }
 
 type FilterManager interface {

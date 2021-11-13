@@ -3,8 +3,10 @@ package segmentmanagement
 import (
 	"context"
 	"github.com/MarcGrol/userautomation/core/segment"
+	"github.com/MarcGrol/userautomation/coredata/predefinedsegments"
 	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
+	"github.com/gorilla/mux"
 	"reflect"
 )
 
@@ -113,4 +115,27 @@ func (s *service) List(ctx context.Context) ([]segment.Spec, error) {
 		return segments, err
 	}
 	return segments, nil
+}
+
+func (m *service) Preprov(ctx context.Context) error {
+	err := m.Put(ctx, predefinedsegments.YoungAgeSegment)
+	if err != nil {
+		return err
+	}
+
+	err = m.Put(ctx, predefinedsegments.OldAgeSegment)
+	if err != nil {
+		return err
+	}
+
+	err = m.Put(ctx, predefinedsegments.FirstNameStartsWithMSegment)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
+
 }

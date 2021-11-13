@@ -2,9 +2,12 @@ package segment
 
 import (
 	"context"
+	"github.com/MarcGrol/userautomation/core/util"
 )
 
 type SegmentManagementStub struct {
+	util.NoPreProvNeeded
+	util.NoWebNeeded
 	Segments map[string]Spec
 }
 

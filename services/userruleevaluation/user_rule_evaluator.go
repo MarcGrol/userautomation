@@ -6,6 +6,7 @@ import (
 	"github.com/MarcGrol/userautomation/core/userrule"
 	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
+	"github.com/gorilla/mux"
 )
 
 type Service interface {
@@ -28,7 +29,7 @@ func New(pubsub pubsub.Pubsub) Service {
 
 func (s *service) IamSubscribing() {}
 
-func (s *service) Subscribe(ctx context.Context) error {
+func (s *service) Subscribe(ctx context.Context, router *mux.Router) error {
 	return s.pubsub.Subscribe(ctx, userrule.TriggerTopicName, s.OnEvent)
 }
 

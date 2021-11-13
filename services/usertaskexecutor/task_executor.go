@@ -10,6 +10,7 @@ import (
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"github.com/MarcGrol/userautomation/integrations/emailsending"
 	"github.com/MarcGrol/userautomation/integrations/smssending"
+	"github.com/gorilla/mux"
 )
 
 type Service interface {
@@ -39,7 +40,7 @@ func New(pubsub pubsub.Pubsub, reporter usertask.ExecutionReporter,
 
 func (s *service) IamSubscribing() {}
 
-func (s *service) Subscribe(ctx context.Context) error {
+func (s *service) Subscribe(ctx context.Context, router *mux.Router) error {
 	return s.pubsub.Subscribe(ctx, usertask.TopicName, s.OnEvent)
 }
 

@@ -1,6 +1,9 @@
 package pubsub
 
-import "context"
+import (
+	"context"
+	"github.com/gorilla/mux"
+)
 
 type OnEventFunc func(ctx context.Context, topic string, event interface{}) error
 
@@ -13,6 +16,6 @@ type Pubsub interface {
 // This interface is a marker that indicates that service is an event consumer
 type SubscribingService interface {
 	IamSubscribing()
-	Subscribe(c context.Context) error
+	Subscribe(c context.Context, router *mux.Router) error
 	OnEvent(c context.Context, topic string, event interface{}) error
 }

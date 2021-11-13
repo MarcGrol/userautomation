@@ -3,6 +3,8 @@ package usermanagement
 import (
 	"context"
 	"fmt"
+	"github.com/MarcGrol/userautomation/coredata/predefinedusers"
+	"github.com/gorilla/mux"
 	"reflect"
 
 	"github.com/MarcGrol/userautomation/core/user"
@@ -187,4 +189,27 @@ func (s *service) List(ctx context.Context) ([]user.User, error) {
 	}
 
 	return users, nil
+}
+
+func (m *service) Preprov(ctx context.Context) error {
+	err := m.Put(ctx, predefinedusers.Marc)
+	if err != nil {
+		return err
+	}
+
+	err = m.Put(ctx, predefinedusers.Eva)
+	if err != nil {
+		return err
+	}
+
+	err = m.Put(ctx, predefinedusers.Pien)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
+
 }

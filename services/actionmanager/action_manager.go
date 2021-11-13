@@ -4,30 +4,58 @@ import (
 	"context"
 	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/coredata/supportedactions"
+	"github.com/MarcGrol/userautomation/infra/datastore"
+	"github.com/gorilla/mux"
+	"reflect"
 )
 
 type service struct {
+	store datastore.Datastore
 }
 
-func New() action.ActionManager {
-	return &service{}
-}
-
-var actionMap = map[string]action.Spec{
-	supportedactions.SmsToYoungName: supportedactions.SmsToYoung,
-	supportedactions.MailToOldName:  supportedactions.MailToOld,
+func New(store datastore.Datastore) action.ActionManager {
+	store.EnforceDataType(reflect.TypeOf(action.Spec{}).Name())
+	return &service{
+		store: store,
+	}
 }
 
 func (m *service) GetActionSpecOnName(ctx context.Context, name string) (action.Spec, bool, error) {
-	a, exists := actionMap[name]
-
-	return a, exists, nil
+	found, exists, err := m.store.Get(ctx, name)
+	if err != nil {
+		return action.Spec{}, false, err
+	}
+	if !exists {
+		return action.Spec{}, false, nil
+	}
+	return found.(action.Spec), true, nil
 }
 
 func (m *service) ListActionSpecs(ctx context.Context) ([]action.Spec, error) {
+	items, err := m.store.GetAll(ctx)
+	if err != nil {
+		return []action.Spec{}, err
+	}
 	actions := []action.Spec{}
-	for _, a := range actionMap {
-		actions = append(actions, a)
+	for _, i := range items {
+		actions = append(actions, i.(action.Spec))
 	}
 	return actions, nil
+}
+
+func (m *service) Preprov(ctx context.Context) error {
+	err := m.store.Put(ctx, supportedactions.SmsToYoungName, supportedactions.SmsToYoung)
+	if err != nil {
+		return err
+	}
+
+	err = m.store.Put(ctx, supportedactions.MailToOldName, supportedactions.MailToOld)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
+
 }
