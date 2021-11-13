@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/gorilla/mux"
 )
 
@@ -18,28 +19,70 @@ func (s *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
 
 func (s *service) get() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.Background()
 
-		w.WriteHeader(http.StatusNotImplemented)
+		ruleUID := mux.Vars(r)["ruleUID"]
+		user, exists, err := s.Get(ctx, ruleUID)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(err.Error())
+			return
+		}
+		if !exists {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		w.Header().Add("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(user)
+		w.WriteHeader(http.StatusOK)
 	}
 }
 
 func (s *service) put() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotImplemented)
+		ctx := context.Background()
+
+		u := user.User{}
+		err := json.NewDecoder(r.Body).Decode(&u)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(err.Error())
+			return
+		}
+
+		err = s.Put(ctx, u)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(err.Error())
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
 	}
 }
 
 func (s *service) remove() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotImplemented)
+		ctx := context.Background()
+
+		ruleUID := mux.Vars(r)["ruleUID"]
+		err := s.Remove(ctx, ruleUID)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(err.Error())
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
 	}
 }
 
-func (m *service) list() http.HandlerFunc {
+func (s *service) list() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.Background()
 
-		users, err := m.List(ctx)
+		users, err := s.List(ctx)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(err.Error())
@@ -48,5 +91,6 @@ func (m *service) list() http.HandlerFunc {
 
 		w.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(users)
+		w.WriteHeader(http.StatusOK)
 	}
 }
