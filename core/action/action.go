@@ -12,7 +12,7 @@ type Spec struct {
 	ProvidedInformation     map[string]string
 }
 
-type ActionManager interface {
+type Management interface {
 	GetActionSpecOnName(ctx context.Context, name string) (Spec, bool, error)
 	ListActionSpecs(ctx context.Context) ([]Spec, error)
 	util.PreProvisioner

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/MarcGrol/userautomation/core/segmentrule"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
-	"github.com/gorilla/mux"
 )
 
 type Service interface {
@@ -32,8 +31,4 @@ func (s *service) Trigger(ctx context.Context, rule segmentrule.Spec) error {
 	}
 
 	return nil
-}
-
-func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
-
 }

@@ -9,10 +9,11 @@ import (
 
 func TestNoTransaction(t *testing.T) {
 	ctx := context.TODO()
+	i := 42
 
 	t.Run("get, empty", func(t *testing.T) {
 		store := NewDatastoreStub()
-		store.EnforceDataType("int")
+		store.EnforceDataType(i)
 
 		// given
 
@@ -26,7 +27,7 @@ func TestNoTransaction(t *testing.T) {
 
 	t.Run("put", func(t *testing.T) {
 		store := NewDatastoreStub()
-		store.EnforceDataType("int")
+		store.EnforceDataType(i)
 
 		// given
 
@@ -43,7 +44,7 @@ func TestNoTransaction(t *testing.T) {
 
 	t.Run("put wrong data-type", func(t *testing.T) {
 		store := NewDatastoreStub()
-		store.EnforceDataType("int")
+		store.EnforceDataType(i)
 
 		// given
 
@@ -52,13 +53,13 @@ func TestNoTransaction(t *testing.T) {
 
 		// then
 		assert.Error(t, err)
-		assert.Equal(t, "Unexpected data-type 'string': want 'int'", err.Error())
+		assert.Equal(t, "Unexpected data-type '.string': want '.int'", err.Error())
 
 	})
 
 	t.Run("remove", func(t *testing.T) {
 		store := NewDatastoreStub()
-		store.EnforceDataType("int")
+		store.EnforceDataType(i)
 
 		// given
 		store.Put(ctx, "1", 1)
@@ -75,7 +76,7 @@ func TestNoTransaction(t *testing.T) {
 
 	t.Run("get all", func(t *testing.T) {
 		store := NewDatastoreStub()
-		store.EnforceDataType("int")
+		store.EnforceDataType(i)
 
 		// given
 		store.Put(ctx, "1", 1)
@@ -93,10 +94,11 @@ func TestNoTransaction(t *testing.T) {
 
 func TestTransaction(t *testing.T) {
 	ctx := context.TODO()
+	i := 42
 
 	t.Run("get, empty", func(t *testing.T) {
 		store := NewDatastoreStub()
-		store.EnforceDataType("int")
+		store.EnforceDataType(i)
 
 		// given
 
@@ -116,7 +118,7 @@ func TestTransaction(t *testing.T) {
 
 	t.Run("put", func(t *testing.T) {
 		store := NewDatastoreStub()
-		store.EnforceDataType("int")
+		store.EnforceDataType(i)
 
 		// given
 
@@ -139,7 +141,7 @@ func TestTransaction(t *testing.T) {
 
 	t.Run("remove", func(t *testing.T) {
 		store := NewDatastoreStub()
-		store.EnforceDataType("int")
+		store.EnforceDataType(i)
 
 		// given
 		store.Put(ctx, "1", 1)
@@ -161,7 +163,7 @@ func TestTransaction(t *testing.T) {
 
 	t.Run("get all", func(t *testing.T) {
 		store := NewDatastoreStub()
-		store.EnforceDataType("int")
+		store.EnforceDataType(i)
 
 		// given
 		store.Put(ctx, "1", 1)

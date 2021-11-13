@@ -5,16 +5,14 @@ import (
 	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/coredata/supportedactions"
 	"github.com/MarcGrol/userautomation/infra/datastore"
-	"github.com/gorilla/mux"
-	"reflect"
 )
 
 type service struct {
 	store datastore.Datastore
 }
 
-func New(store datastore.Datastore) action.ActionManager {
-	store.EnforceDataType(reflect.TypeOf(action.Spec{}).Name())
+func New(store datastore.Datastore) action.Management {
+	store.EnforceDataType(action.Spec{})
 	return &service{
 		store: store,
 	}
@@ -54,8 +52,4 @@ func (m *service) Preprov(ctx context.Context) error {
 		return err
 	}
 	return nil
-}
-
-func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
-
 }

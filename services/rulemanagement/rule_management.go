@@ -3,11 +3,8 @@ package rulemanagement
 import (
 	"context"
 	"fmt"
-	"github.com/MarcGrol/userautomation/coredata/predefinedrules"
-	"github.com/gorilla/mux"
-	"reflect"
-
 	"github.com/MarcGrol/userautomation/core/segmentrule"
+	"github.com/MarcGrol/userautomation/coredata/predefinedrules"
 	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 )
@@ -18,7 +15,7 @@ type service struct {
 }
 
 func New(store datastore.Datastore, pubsub pubsub.Pubsub) segmentrule.Management {
-	store.EnforceDataType(reflect.TypeOf(segmentrule.Spec{}).Name())
+	store.EnforceDataType(segmentrule.Spec{})
 	return &service{
 		ruleStore: store,
 		pubsub:    pubsub,
@@ -134,8 +131,4 @@ func (m *service) Preprov(ctx context.Context) error {
 		return err
 	}
 	return nil
-}
-
-func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
-
 }

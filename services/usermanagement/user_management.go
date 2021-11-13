@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/MarcGrol/userautomation/coredata/predefinedusers"
-	"github.com/gorilla/mux"
 	"reflect"
 
 	"github.com/MarcGrol/userautomation/core/user"
@@ -20,7 +19,7 @@ type service struct {
 }
 
 func New(store datastore.Datastore, filterService user.FilterManager, pubsub pubsub.Pubsub) user.Management {
-	store.EnforceDataType(reflect.TypeOf(user.User{}).Name())
+	store.EnforceDataType(user.User{})
 	return &service{
 		userStore:     store,
 		filterService: filterService,
@@ -208,8 +207,4 @@ func (m *service) Preprov(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
-
 }

@@ -3,7 +3,9 @@ package datastore
 import (
 	"context"
 	"fmt"
+	"log"
 	"reflect"
+	"strings"
 	"sync"
 )
 
@@ -25,9 +27,16 @@ func NewDatastoreStub() *DatastoreStub {
 	}
 }
 
-func (s *DatastoreStub) EnforceDataType(enforcedDataType string) {
-	s.itemKind = enforcedDataType
+
+func (s *DatastoreStub) EnforceDataType(item interface{}) {
+	s.itemKind = deriveItemKind(item)
 }
+
+func deriveItemKind(item interface{}) string {
+	parts :=  strings.Split(reflect.TypeOf(item).PkgPath() +"."+reflect.TypeOf(item).Name(), "/")
+	return parts[len(parts)-1]
+}
+
 
 func (s *DatastoreStub) RunInTransaction(ctx context.Context, callback func(ctx context.Context) error) error {
 	s.Lock()
@@ -90,7 +99,7 @@ func (s *DatastoreStub) Put(ctx context.Context, uid string, item interface{}) e
 }
 
 func (s *DatastoreStub) enforceItemKind(item interface{}) error {
-	thisKind := reflect.TypeOf(item).Name()
+	thisKind := deriveItemKind(item)
 	if thisKind != s.itemKind {
 		return fmt.Errorf("Unexpected data-type '%s': want '%s'", thisKind, s.itemKind)
 	}
@@ -98,6 +107,7 @@ func (s *DatastoreStub) enforceItemKind(item interface{}) error {
 }
 
 func (s *DatastoreStub) put(_ context.Context, uid string, item interface{}) error {
+	log.Printf("Storing %s with uid '%s'", s.itemKind, uid)
 	s.Items[uid] = item
 
 	return nil

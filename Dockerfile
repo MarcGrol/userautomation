@@ -6,6 +6,6 @@ COPY go.* .
 RUN go mod download
 
 COPY . /src
-RUN go build -o /main
+RUN go build -o userautomation
 
-ENTRYPOINT ["/main"]
+ENTRYPOINT ["userautomation"]

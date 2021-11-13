@@ -8,7 +8,6 @@ import (
 	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 	"github.com/gorilla/mux"
-	"reflect"
 )
 
 type SegmentUserManager interface {
@@ -29,7 +28,7 @@ type segmentUserManager struct {
 }
 
 func New(store datastore.Datastore, userService user.Management, filterservice user.FilterManager, pubsub pubsub.Pubsub) *segmentUserManager {
-	store.EnforceDataType(reflect.TypeOf(segmentWithUsers{}).Name())
+	store.EnforceDataType(segmentWithUsers{})
 	return &segmentUserManager{
 		segmentWithUsersStore: store,
 		userService:           userService,

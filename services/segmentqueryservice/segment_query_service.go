@@ -5,7 +5,6 @@ import (
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/services/segmentusermanagement"
-	"github.com/gorilla/mux"
 )
 
 type service struct {
@@ -20,8 +19,4 @@ func New(sum segmentusermanagement.SegmentUserManager) segment.Querier {
 
 func (s *service) GetUsersForSegment(ctx context.Context, segmentUID string) ([]user.User, error) {
 	return s.sum.GetUsersForSegment(ctx, segmentUID)
-}
-
-func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
-
 }

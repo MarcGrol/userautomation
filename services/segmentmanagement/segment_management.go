@@ -6,8 +6,6 @@ import (
 	"github.com/MarcGrol/userautomation/coredata/predefinedsegments"
 	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
-	"github.com/gorilla/mux"
-	"reflect"
 )
 
 type service struct {
@@ -16,7 +14,7 @@ type service struct {
 }
 
 func New(store datastore.Datastore, pubsub pubsub.Pubsub) segment.Management {
-	store.EnforceDataType(reflect.TypeOf(segment.Spec{}).Name())
+	store.EnforceDataType(segment.Spec{})
 	return &service{
 		segmentStore: store,
 		pubsub:       pubsub,
@@ -134,8 +132,4 @@ func (m *service) Preprov(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
-
 }
