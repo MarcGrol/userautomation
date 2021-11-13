@@ -17,7 +17,7 @@ func NewPubsubStub() *PubsubStub {
 	}
 }
 
-func (ps *PubsubStub) Subscribe(ctx context.Context, topic string, onEvent OnEventFunc) error {
+func (ps *PubsubStub) Subscribe(ctx context.Context, who, topic string, onEvent OnEventFunc) error {
 	return nil
 }
 

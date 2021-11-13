@@ -45,11 +45,11 @@ func (s *segmentUserManager) checkInterface(sc *segmentUserManager) SegmentUserM
 func (s *segmentUserManager) IamSubscribing() {}
 
 func (s *segmentUserManager) Subscribe(ctx context.Context, router *mux.Router) error {
-	err := s.pubsub.Subscribe(ctx, user.ManagementTopicName, s.OnEvent)
+	err := s.pubsub.Subscribe(ctx, "segmentusermanagement", user.ManagementTopicName, s.OnEvent)
 	if err != nil {
 		return err
 	}
-	err = s.pubsub.Subscribe(ctx, segment.ManagementTopicName, s.OnEvent)
+	err = s.pubsub.Subscribe(ctx, "segmentusermanagement", segment.ManagementTopicName, s.OnEvent)
 	if err != nil {
 		return err
 	}

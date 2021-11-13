@@ -42,7 +42,7 @@ func New(pubsub pubsub.Pubsub, reporter usertask.ExecutionReporter,
 func (s *service) IamSubscribing() {}
 
 func (s *service) Subscribe(ctx context.Context, router *mux.Router) error {
-	return s.pubsub.Subscribe(ctx, usertask.TopicName, s.OnEvent)
+	return s.pubsub.Subscribe(ctx, "usertaskexecutor", usertask.TopicName, s.OnEvent)
 }
 
 func (s *service) OnEvent(ctx context.Context, topic string, event interface{}) error {

@@ -36,17 +36,17 @@ func (m *MockPubsub) EXPECT() *MockPubsubMockRecorder {
 }
 
 // Subscribe mocks base method.
-func (m *MockPubsub) Subscribe(ctx context.Context, topic string, onEvent OnEventFunc) error {
+func (m *MockPubsub) Subscribe(ctx context.Context, who, topic string, onEvent OnEventFunc) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Subscribe", ctx, topic, onEvent)
+	ret := m.ctrl.Call(m, "Subscribe", ctx, who, topic, onEvent)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Subscribe indicates an expected call of Subscribe.
-func (mr *MockPubsubMockRecorder) Subscribe(ctx, topic, onEvent interface{}) *gomock.Call {
+func (mr *MockPubsubMockRecorder) Subscribe(ctx, who, topic, onEvent interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockPubsub)(nil).Subscribe), ctx, topic, onEvent)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockPubsub)(nil).Subscribe), ctx, who, topic, onEvent)
 }
 
 // Publish mocks base method.
