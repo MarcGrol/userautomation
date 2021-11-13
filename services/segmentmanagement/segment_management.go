@@ -5,6 +5,7 @@ import (
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
+	"reflect"
 )
 
 type service struct {
@@ -12,9 +13,10 @@ type service struct {
 	pubsub       pubsub.Pubsub
 }
 
-func New(datastore datastore.Datastore, pubsub pubsub.Pubsub) segment.Management {
+func New(store datastore.Datastore, pubsub pubsub.Pubsub) segment.Management {
+	store.EnforceDataType(reflect.TypeOf(segment.Spec{}).Name())
 	return &service{
-		segmentStore: datastore,
+		segmentStore: store,
 		pubsub:       pubsub,
 	}
 }

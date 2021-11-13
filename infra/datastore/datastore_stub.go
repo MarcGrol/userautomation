@@ -2,6 +2,8 @@ package datastore
 
 import (
 	"context"
+	"fmt"
+	"reflect"
 	"sync"
 )
 
@@ -21,6 +23,10 @@ func NewDatastoreStub() *DatastoreStub {
 	return &DatastoreStub{
 		Items: map[string]interface{}{},
 	}
+}
+
+func (s *DatastoreStub) EnforceDataType(enforcedDataType string) {
+	s.itemKind = enforcedDataType
 }
 
 func (s *DatastoreStub) RunInTransaction(ctx context.Context, callback func(ctx context.Context) error) error {
@@ -67,6 +73,11 @@ func (s *DatastoreStub) commitPendingOperations(ctx context.Context, trx *transa
 }
 
 func (s *DatastoreStub) Put(ctx context.Context, uid string, item interface{}) error {
+	err := s.enforceItemKind(item)
+	if err != nil {
+		return err
+	}
+
 	t := ctx.Value(transactionContextKey)
 	if t != nil {
 		trx := t.(*transaction)
@@ -76,6 +87,14 @@ func (s *DatastoreStub) Put(ctx context.Context, uid string, item interface{}) e
 	s.Lock()
 	defer s.Unlock()
 	return s.put(ctx, uid, item)
+}
+
+func (s *DatastoreStub) enforceItemKind(item interface{}) error {
+	thisKind := reflect.TypeOf(item).Name()
+	if thisKind != s.itemKind {
+		return fmt.Errorf("Unexpected data-type '%s': want '%s'", thisKind, s.itemKind)
+	}
+	return nil
 }
 
 func (s *DatastoreStub) put(_ context.Context, uid string, item interface{}) error {

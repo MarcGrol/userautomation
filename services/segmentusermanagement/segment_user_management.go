@@ -7,6 +7,7 @@ import (
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
+	"reflect"
 )
 
 type SegmentUserManager interface {
@@ -26,9 +27,10 @@ type segmentUserManager struct {
 	pubsub                pubsub.Pubsub
 }
 
-func New(datastore datastore.Datastore, userService user.Management, filterservice user.FilterManager, pubsub pubsub.Pubsub) *segmentUserManager {
+func New(store datastore.Datastore, userService user.Management, filterservice user.FilterManager, pubsub pubsub.Pubsub) *segmentUserManager {
+	store.EnforceDataType(reflect.TypeOf(segmentWithUsers{}).Name())
 	return &segmentUserManager{
-		segmentWithUsersStore: datastore,
+		segmentWithUsersStore: store,
 		userService:           userService,
 		filterService:         filterservice,
 		pubsub:                pubsub,

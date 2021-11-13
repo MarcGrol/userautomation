@@ -17,9 +17,10 @@ type service struct {
 	pubsub        pubsub.Pubsub
 }
 
-func New(datastore datastore.Datastore, filterService user.FilterManager, pubsub pubsub.Pubsub) user.Management {
+func New(store datastore.Datastore, filterService user.FilterManager, pubsub pubsub.Pubsub) user.Management {
+	store.EnforceDataType(reflect.TypeOf(user.User{}).Name())
 	return &service{
-		userStore:     datastore,
+		userStore:     store,
 		filterService: filterService,
 		pubsub:        pubsub,
 	}

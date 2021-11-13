@@ -12,6 +12,7 @@ func TestNoTransaction(t *testing.T) {
 
 	t.Run("get, empty", func(t *testing.T) {
 		store := NewDatastoreStub()
+		store.EnforceDataType("int")
 
 		// given
 
@@ -25,6 +26,7 @@ func TestNoTransaction(t *testing.T) {
 
 	t.Run("put", func(t *testing.T) {
 		store := NewDatastoreStub()
+		store.EnforceDataType("int")
 
 		// given
 
@@ -39,8 +41,24 @@ func TestNoTransaction(t *testing.T) {
 		assert.Equal(t, 1, val)
 	})
 
+	t.Run("put wrong data-type", func(t *testing.T) {
+		store := NewDatastoreStub()
+		store.EnforceDataType("int")
+
+		// given
+
+		// when
+		err := store.Put(ctx, "1", "string")
+
+		// then
+		assert.Error(t, err)
+		assert.Equal(t, "Unexpected data-type 'string': want 'int'", err.Error())
+
+	})
+
 	t.Run("remove", func(t *testing.T) {
 		store := NewDatastoreStub()
+		store.EnforceDataType("int")
 
 		// given
 		store.Put(ctx, "1", 1)
@@ -57,6 +75,7 @@ func TestNoTransaction(t *testing.T) {
 
 	t.Run("get all", func(t *testing.T) {
 		store := NewDatastoreStub()
+		store.EnforceDataType("int")
 
 		// given
 		store.Put(ctx, "1", 1)
@@ -77,6 +96,7 @@ func TestTransaction(t *testing.T) {
 
 	t.Run("get, empty", func(t *testing.T) {
 		store := NewDatastoreStub()
+		store.EnforceDataType("int")
 
 		// given
 
@@ -96,6 +116,7 @@ func TestTransaction(t *testing.T) {
 
 	t.Run("put", func(t *testing.T) {
 		store := NewDatastoreStub()
+		store.EnforceDataType("int")
 
 		// given
 
@@ -118,6 +139,7 @@ func TestTransaction(t *testing.T) {
 
 	t.Run("remove", func(t *testing.T) {
 		store := NewDatastoreStub()
+		store.EnforceDataType("int")
 
 		// given
 		store.Put(ctx, "1", 1)
@@ -139,6 +161,7 @@ func TestTransaction(t *testing.T) {
 
 	t.Run("get all", func(t *testing.T) {
 		store := NewDatastoreStub()
+		store.EnforceDataType("int")
 
 		// given
 		store.Put(ctx, "1", 1)

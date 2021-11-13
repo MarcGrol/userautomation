@@ -3,6 +3,7 @@ package rulemanagement
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/MarcGrol/userautomation/core/segmentrule"
 	"github.com/MarcGrol/userautomation/infra/datastore"
@@ -14,9 +15,10 @@ type service struct {
 	pubsub    pubsub.Pubsub
 }
 
-func New(segmentStore datastore.Datastore, pubsub pubsub.Pubsub) segmentrule.Service {
+func New(store datastore.Datastore, pubsub pubsub.Pubsub) segmentrule.Service {
+	store.EnforceDataType(reflect.TypeOf(segmentrule.Spec{}).Name())
 	return &service{
-		ruleStore: segmentStore,
+		ruleStore: store,
 		pubsub:    pubsub,
 	}
 }

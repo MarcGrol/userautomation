@@ -78,9 +78,9 @@ func TestSegmentManagement(t *testing.T) {
 
 func setupMocks(t *testing.T) (*datastore.DatastoreStub, *pubsub.PubsubStub, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
-	storeSub := datastore.NewDatastoreStub()
+	storeStub := datastore.NewDatastoreStub()
 	ps := pubsub.NewPubsubStub()
-	return storeSub, ps, ctrl
+	return storeStub, ps, ctrl
 }
 
 func initialSegment() segment.Spec {
