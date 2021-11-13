@@ -16,7 +16,7 @@ func (u User) HasAttributes(attributes []string) bool {
 	for _, attr := range attributes {
 		_, exists := u.Attributes[attr]
 		if !exists {
-			log.Printf("Missing mandatory attribute %s", attr)
+			log.Printf("Missing mandatory attribute %s for user %s", attr, u)
 			return false
 		}
 	}
