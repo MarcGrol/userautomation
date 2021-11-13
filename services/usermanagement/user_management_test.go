@@ -2,9 +2,10 @@ package usermanagement
 
 import (
 	"context"
+	"testing"
+
 	"github.com/MarcGrol/userautomation/coredata/supportedattrs"
 	"github.com/MarcGrol/userautomation/services/filtermanagement"
-	"testing"
 
 	"github.com/golang/mock/gomock"
 

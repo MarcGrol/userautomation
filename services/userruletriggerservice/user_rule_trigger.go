@@ -3,6 +3,7 @@ package userruletriggerservice
 import (
 	"context"
 	"fmt"
+
 	"github.com/MarcGrol/userautomation/core/userrule"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 )

@@ -2,16 +2,17 @@ package rulemanagement
 
 import (
 	"context"
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
-	subRouter := router.PathPrefix("/api").Subrouter()
-	subRouter.HandleFunc("/rule", m.list()).Methods("GET")
-	subRouter.HandleFunc("/rule/{ruleUID}", m.get()).Methods("GET")
-	subRouter.HandleFunc("/rule/{ruleUID}", m.put()).Methods("PUT")
-	subRouter.HandleFunc("/rule/{ruleUID}", m.remove()).Methods("DELETE")
+	subRouter := router.PathPrefix("/api/rule").Subrouter()
+	subRouter.HandleFunc("", m.list()).Methods("GET")
+	subRouter.HandleFunc("/{ruleUID}", m.get()).Methods("GET")
+	subRouter.HandleFunc("/{ruleUID}", m.put()).Methods("PUT")
+	subRouter.HandleFunc("/{ruleUID}", m.remove()).Methods("DELETE")
 }
 
 func (m *service) get() http.HandlerFunc {

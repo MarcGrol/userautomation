@@ -3,6 +3,7 @@ package segmentruleevaluator
 import (
 	"context"
 	"fmt"
+
 	"github.com/MarcGrol/userautomation/core/segmentrule"
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/core/usertask"

@@ -2,9 +2,10 @@ package segmentusermanagement
 
 import (
 	"context"
+	"testing"
+
 	"github.com/MarcGrol/userautomation/coredata/predefinedfilters"
 	"github.com/MarcGrol/userautomation/services/filtermanagement"
-	"testing"
 
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"

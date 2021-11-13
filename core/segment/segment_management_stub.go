@@ -2,6 +2,7 @@ package segment
 
 import (
 	"context"
+
 	"github.com/MarcGrol/userautomation/core/util"
 )
 

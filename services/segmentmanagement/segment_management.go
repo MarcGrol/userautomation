@@ -2,6 +2,7 @@ package segmentmanagement
 
 import (
 	"context"
+
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/coredata/predefinedsegments"
 	"github.com/MarcGrol/userautomation/infra/datastore"

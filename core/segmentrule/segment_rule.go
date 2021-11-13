@@ -2,6 +2,7 @@ package segmentrule
 
 import (
 	"context"
+
 	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/util"
@@ -23,7 +24,6 @@ type Management interface {
 	util.WebExposer
 }
 
-//go:generate mockgen -source=segment_rule.go -destination=rule_execution_mock.go -package=segmentrule TriggerRuleExecution
 type TriggerRuleExecution interface {
 	Trigger(ctx context.Context, rule Spec) error
 	util.WebExposer

@@ -2,6 +2,7 @@ package segmentrule
 
 import (
 	"context"
+
 	"github.com/MarcGrol/userautomation/core/util"
 )
 

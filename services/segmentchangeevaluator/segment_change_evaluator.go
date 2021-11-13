@@ -3,8 +3,9 @@ package segmentchangeevaluator
 import (
 	"context"
 	"fmt"
-	"github.com/gorilla/mux"
 	"log"
+
+	"github.com/gorilla/mux"
 
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/segmentrule"

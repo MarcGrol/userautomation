@@ -2,6 +2,7 @@ package filtermanagement
 
 import (
 	"context"
+
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/coredata/predefinedfilters"
 )

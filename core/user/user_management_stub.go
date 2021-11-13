@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"fmt"
+
 	"github.com/MarcGrol/userautomation/core/util"
 )
 

@@ -2,6 +2,7 @@ package usertask
 
 import (
 	"context"
+
 	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/user"
 )

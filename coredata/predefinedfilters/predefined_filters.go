@@ -2,9 +2,10 @@ package predefinedfilters
 
 import (
 	"context"
+	"strings"
+
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/coredata/supportedattrs"
-	"strings"
 )
 
 const (

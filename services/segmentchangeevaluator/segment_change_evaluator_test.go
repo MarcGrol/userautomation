@@ -2,8 +2,9 @@ package segmentchangeevaluator
 
 import (
 	"context"
-	"github.com/MarcGrol/userautomation/coredata/predefinedsegments"
 	"testing"
+
+	"github.com/MarcGrol/userautomation/coredata/predefinedsegments"
 
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/segmentrule"

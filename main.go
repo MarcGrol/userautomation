@@ -3,17 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+
 	"github.com/MarcGrol/userautomation/core/action"
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/segmentrule"
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/core/userrule"
-	"log"
-	"net/http"
-	"os"
-
-	"github.com/gorilla/mux"
-
 	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
@@ -29,9 +27,10 @@ import (
 	"github.com/MarcGrol/userautomation/services/segmentruletrigger"
 	"github.com/MarcGrol/userautomation/services/segmentusermanagement"
 	"github.com/MarcGrol/userautomation/services/usermanagement"
-	"github.com/MarcGrol/userautomation/services/userruleevaluation"
+	userruleevaluator "github.com/MarcGrol/userautomation/services/userruleevaluation"
 	"github.com/MarcGrol/userautomation/services/userruletriggerservice"
 	"github.com/MarcGrol/userautomation/services/usertaskexecutor"
+	"github.com/gorilla/mux"
 )
 
 type system struct {
@@ -55,7 +54,6 @@ type system struct {
 }
 
 func new(ctx context.Context) *system {
-
 	ps := pubsub.NewPubSub()
 
 	fm := filtermanagement.New()
@@ -102,6 +100,16 @@ func new(ctx context.Context) *system {
 	}
 }
 
+func (s *system) Subscribe(ctx context.Context, router *mux.Router) error {
+	s.segmentUserManager.Subscribe(ctx, router)
+	s.userRuleEvaluator.Subscribe(ctx, router)
+	s.segmentRuleEvaluator.Subscribe(ctx, router)
+	s.segmentChangeEvaluator.Subscribe(ctx, router)
+	s.userTaskExecutor.Subscribe(ctx, router)
+
+	return nil
+}
+
 func (s *system) Register(ctx context.Context, router *mux.Router) error {
 	s.userManager.RegisterEndpoints(ctx, router)
 	s.segmentManager.RegisterEndpoints(ctx, router)
@@ -110,16 +118,6 @@ func (s *system) Register(ctx context.Context, router *mux.Router) error {
 	s.userRuleTrigger.RegisterEndpoints(ctx, router)
 	s.segmentRuleTrigger.RegisterEndpoints(ctx, router)
 	s.segmentUserQueryManager.RegisterEndpoints(ctx, router)
-
-	return nil
-}
-
-func (s *system) Subsribe(ctx context.Context, router *mux.Router) error {
-	s.segmentUserManager.Subscribe(ctx, router)
-	s.userRuleEvaluator.Subscribe(ctx, router)
-	s.segmentRuleEvaluator.Subscribe(ctx, router)
-	s.segmentChangeEvaluator.Subscribe(ctx, router)
-	s.userTaskExecutor.Subscribe(ctx, router)
 
 	return nil
 }
@@ -154,11 +152,11 @@ func main() {
 
 	sys := new(ctx)
 
-	sys.Register(ctx, router)
-
-	sys.Subsribe(ctx, router)
+	sys.Subscribe(ctx, router)
 
 	sys.Preprov(ctx)
+
+	sys.Register(ctx, router)
 
 	sys.Start(ctx, router)
 

@@ -2,10 +2,11 @@ package segmentruleevaluator
 
 import (
 	"context"
+	"testing"
+
 	"github.com/MarcGrol/userautomation/coredata/predefinedusers"
 	"github.com/MarcGrol/userautomation/coredata/supportedattrs"
 	"github.com/MarcGrol/userautomation/services/filtermanagement"
-	"testing"
 
 	"github.com/MarcGrol/userautomation/coredata/predefinedrules"
 	"github.com/MarcGrol/userautomation/infra/pubsub"

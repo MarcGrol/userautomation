@@ -2,16 +2,17 @@ package segmentmanagement
 
 import (
 	"context"
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
-	subRouter := router.PathPrefix("/api").Subrouter()
-	subRouter.HandleFunc("/segment", m.list()).Methods("GET")
-	subRouter.HandleFunc("/segment/{ruleUID}", m.get()).Methods("GET")
-	subRouter.HandleFunc("/segment/{ruleUID}", m.put()).Methods("PUT")
-	subRouter.HandleFunc("/segment/{ruleUID}", m.remove()).Methods("DELETE")
+	subRouter := router.PathPrefix("/api/segment").Subrouter()
+	subRouter.HandleFunc("", m.list()).Methods("GET")
+	subRouter.HandleFunc("/{ruleUID}", m.get()).Methods("GET")
+	subRouter.HandleFunc("/{ruleUID}", m.put()).Methods("PUT")
+	subRouter.HandleFunc("/{ruleUID}", m.remove()).Methods("DELETE")
 }
 
 func (m *service) get() http.HandlerFunc {

@@ -2,8 +2,9 @@ package user
 
 import (
 	"context"
-	"github.com/MarcGrol/userautomation/core/util"
 	"log"
+
+	"github.com/MarcGrol/userautomation/core/util"
 )
 
 type User struct {

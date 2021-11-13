@@ -27,16 +27,14 @@ func NewDatastoreStub() *DatastoreStub {
 	}
 }
 
-
 func (s *DatastoreStub) EnforceDataType(item interface{}) {
 	s.itemKind = deriveItemKind(item)
 }
 
 func deriveItemKind(item interface{}) string {
-	parts :=  strings.Split(reflect.TypeOf(item).PkgPath() +"."+reflect.TypeOf(item).Name(), "/")
+	parts := strings.Split(reflect.TypeOf(item).PkgPath()+"."+reflect.TypeOf(item).Name(), "/")
 	return parts[len(parts)-1]
 }
-
 
 func (s *DatastoreStub) RunInTransaction(ctx context.Context, callback func(ctx context.Context) error) error {
 	s.Lock()

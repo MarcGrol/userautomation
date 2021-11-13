@@ -3,6 +3,7 @@ package segment
 import (
 	"context"
 	"fmt"
+
 	"github.com/MarcGrol/userautomation/core/user"
 )
 

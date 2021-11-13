@@ -3,11 +3,10 @@ package usermanagement
 import (
 	"context"
 	"fmt"
-	"github.com/MarcGrol/userautomation/coredata/predefinedusers"
 	"reflect"
 
 	"github.com/MarcGrol/userautomation/core/user"
-
+	"github.com/MarcGrol/userautomation/coredata/predefinedusers"
 	"github.com/MarcGrol/userautomation/infra/datastore"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 )

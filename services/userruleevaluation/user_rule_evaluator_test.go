@@ -2,10 +2,11 @@ package userruleevaluator
 
 import (
 	"context"
+	"testing"
+
 	"github.com/MarcGrol/userautomation/core/userrule"
 	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/coredata/supportedactions"
-	"testing"
 
 	"github.com/MarcGrol/userautomation/coredata/predefinedrules"
 	"github.com/MarcGrol/userautomation/coredata/predefinedusers"

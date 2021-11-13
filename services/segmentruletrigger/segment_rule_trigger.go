@@ -3,6 +3,7 @@ package segmentruletrigger
 import (
 	"context"
 	"fmt"
+
 	"github.com/MarcGrol/userautomation/core/segmentrule"
 	"github.com/MarcGrol/userautomation/infra/pubsub"
 )

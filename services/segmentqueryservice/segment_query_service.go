@@ -2,6 +2,7 @@ package segmentqueryservice
 
 import (
 	"context"
+
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/services/segmentusermanagement"

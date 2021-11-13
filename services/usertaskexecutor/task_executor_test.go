@@ -2,11 +2,12 @@ package usertaskexecutor
 
 import (
 	"context"
+	"testing"
+
 	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/coredata/supportedactions"
 	"github.com/MarcGrol/userautomation/integrations/emailsending"
 	"github.com/MarcGrol/userautomation/integrations/smssending"
-	"testing"
 
 	"github.com/MarcGrol/userautomation/coredata/predefinedrules"
 	"github.com/MarcGrol/userautomation/coredata/predefinedusers"

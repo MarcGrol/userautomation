@@ -3,6 +3,7 @@ package userruleevaluator
 import (
 	"context"
 	"fmt"
+
 	"github.com/MarcGrol/userautomation/core/userrule"
 	"github.com/MarcGrol/userautomation/core/usertask"
 	"github.com/MarcGrol/userautomation/infra/pubsub"

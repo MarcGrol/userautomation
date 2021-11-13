@@ -2,13 +2,14 @@ package actionmanager
 
 import (
 	"context"
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func (m *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
-	subRouter := router.PathPrefix("/api").Subrouter()
-	subRouter.HandleFunc("/action", m.listActionSpecs()).Methods("GET")
+	subRouter := router.PathPrefix("/api/action").Subrouter()
+	subRouter.HandleFunc("", m.listActionSpecs()).Methods("GET")
 
 }
 

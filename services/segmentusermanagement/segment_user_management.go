@@ -3,6 +3,7 @@ package segmentusermanagement
 import (
 	"context"
 	"fmt"
+
 	"github.com/MarcGrol/userautomation/core/segment"
 	"github.com/MarcGrol/userautomation/core/user"
 	"github.com/MarcGrol/userautomation/infra/datastore"

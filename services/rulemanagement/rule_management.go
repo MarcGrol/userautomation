@@ -3,6 +3,7 @@ package rulemanagement
 import (
 	"context"
 	"fmt"
+
 	"github.com/MarcGrol/userautomation/core/segmentrule"
 	"github.com/MarcGrol/userautomation/coredata/predefinedrules"
 	"github.com/MarcGrol/userautomation/infra/datastore"
