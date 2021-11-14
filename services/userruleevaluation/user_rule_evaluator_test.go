@@ -44,7 +44,7 @@ func TestRuleEvaluation(t *testing.T) {
 			Task: usertask.Spec{
 				RuleUID:    "",
 				ActionSpec: predefinedrules.OldAgeEmailRule.ActionSpec,
-				Reason:     usertask.ReasonUserRuleExecuted,
+				Reason:     usertask.ReasonUserRuleTriggered,
 				User:       predefinedusers.Marc,
 			},
 		}).Return(nil)

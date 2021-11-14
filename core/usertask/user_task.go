@@ -16,8 +16,8 @@ type Reason int
 
 const (
 	ReasonUserAddedToSegment Reason = iota
-	ReasonSegmentRuleExecuted
-	ReasonUserRuleExecuted
+	ReasonSegmentRuleTriggered
+	ReasonUserRuleTriggered
 )
 
 type Spec struct {

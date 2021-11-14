@@ -79,7 +79,7 @@ func TestRuleEvaluation(t *testing.T) {
 			Task: usertask.Spec{
 				RuleUID:    r.UID,
 				ActionSpec: r.ActionSpec,
-				Reason:     usertask.ReasonSegmentRuleExecuted,
+				Reason:     usertask.ReasonSegmentRuleTriggered,
 				User:       u,
 			},
 		}).Return(nil)
@@ -120,7 +120,7 @@ func TestRuleEvaluation(t *testing.T) {
 			Task: usertask.Spec{
 				RuleUID:    r.UID,
 				ActionSpec: r.ActionSpec,
-				Reason:     usertask.ReasonSegmentRuleExecuted,
+				Reason:     usertask.ReasonSegmentRuleTriggered,
 				User:       u,
 			},
 		}).Return(nil)

@@ -58,7 +58,7 @@ func (s *service) publishActionForUser(ctx context.Context, rule userrule.Spec) 
 			UID:        "", // TODO identify each triggered rule uninquely
 			RuleUID:    "", // No rule that triggered this task
 			ActionSpec: rule.ActionSpec,
-			Reason:     usertask.ReasonUserRuleExecuted,
+			Reason:     usertask.ReasonUserRuleTriggered,
 			User:       rule.User,
 		},
 	})
