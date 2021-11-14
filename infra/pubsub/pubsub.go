@@ -3,6 +3,7 @@ package pubsub
 import (
 	"context"
 	"log"
+	"reflect"
 )
 
 // TODO integrate with 3rd party product like Google pubsub
@@ -45,11 +46,12 @@ func (ps *simplisticPubsub) Publish(ctx context.Context, topic string, event int
 	}
 
 	for _, subscription := range subscriptions {
-		log.Printf("Publish to %s using topic %s: %+v", subscription.who, topic, event)
+		log.Printf("Publish to %s on topic %s: %s%+v", subscription.who, topic, reflect.TypeOf(event).Name(), event)
 		// This should run in the background
 		err := subscription.onEvent(ctx, topic, event)
 		if err != nil {
-			log.Printf("Error handling event: %s: %+v", topic, event)
+			log.Printf("Error handling event %s by %s on topic: %s %+v",
+				reflect.TypeOf(event).Name(), subscription.who, topic, event)
 			// Although this single subscriber fails handling the event,
 			// all the other subscribers should still be triggered
 		}
