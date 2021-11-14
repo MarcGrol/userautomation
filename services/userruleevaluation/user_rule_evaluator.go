@@ -31,7 +31,7 @@ func New(pubsub pubsub.Pubsub) Service {
 func (s *service) IamSubscribing() {}
 
 func (s *service) Subscribe(ctx context.Context, router *mux.Router) error {
-	return s.pubsub.Subscribe(ctx, "userruleevaluator", userrule.TriggerTopicName, s.OnEvent)
+		return s.pubsub.Subscribe(ctx, "userruleevaluator", userrule.TriggerTopicName, s.OnEvent)
 }
 
 func (s *service) OnEvent(ctx context.Context, topic string, event interface{}) error {

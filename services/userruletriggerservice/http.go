@@ -11,7 +11,7 @@ import (
 )
 
 func (s *service) RegisterEndpoints(ctx context.Context, router *mux.Router) {
-	subRouter := router.PathPrefix("/api/segmentrule").Subrouter()
+	subRouter := router.PathPrefix("/api/userrule").Subrouter()
 	subRouter.HandleFunc("", s.post()).Methods("POST")
 }
 
